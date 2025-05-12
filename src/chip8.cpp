@@ -8,6 +8,7 @@
 #include <ios>
 #include <sstream>
 #include <stdexcept>
+#include <string>
 
 // ====== Constructor ======
 Chip8::Chip8() {
@@ -83,6 +84,21 @@ void Chip8::Cycle() {
 }
 
 // ====== Debugging ======
+std::string Chip8::DumpRegisters() const {
+
+  std::ostringstream dump;
+
+  dump << "\n:: Registers ::\n";
+  for (size_t i = 0; i < 16; i++) {
+    dump << "V[" << std::hex << i << "]: 0x" << std::setw(2)
+         << std::setfill('0') << static_cast<int>(V[i]) << "  ";
+    if ((i + 1) % 4 == 0)
+      dump << "\n";
+  }
+
+  return dump.str();
+}
+
 std::string Chip8::DumpCPU() const {
   std::ostringstream dump;
 
@@ -94,13 +110,7 @@ std::string Chip8::DumpCPU() const {
   dump << "Sound: " << std::dec << static_cast<int>(sound) << "\n";
   dump << "Opcode: 0x" << std::hex << opcode << "\n";
 
-  dump << "\n:: Registers ::\n";
-  for (size_t i = 0; i < 16; i++) {
-    dump << "V[" << std::hex << i << "]: 0x" << std::setw(2)
-         << std::setfill('0') << static_cast<int>(V[i]) << "  ";
-    if ((i + 1) % 4 == 0)
-      dump << "\n";
-  }
+  dump << this->DumpRegisters();
 
   dump << "\n:: Stack ::\n";
   for (size_t i = 0; i < 16; i += 1) {

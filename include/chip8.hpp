@@ -77,8 +77,10 @@ public:
 
   // ====== Debugging ======
   std::string DumpCPU() const;
+  std::string DumpRegisters() const;
 
   // ====== Opcodes ======
+  void OP_6xnn();
 };
 
 #endif
