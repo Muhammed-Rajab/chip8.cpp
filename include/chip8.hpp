@@ -87,7 +87,8 @@ public:
 
   // ====== Opcodes ======
   void OP_NULL();
-  void OP_6xnn();
+  void OP_6xkk();
+  void OP_7xkk();
 };
 
 #endif

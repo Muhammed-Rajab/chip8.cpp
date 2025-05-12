@@ -6,7 +6,11 @@
 
 int main(int argc, char *argv[]) {
 
-  std::vector<uint8_t> rom = {0x60, 0xFF};
+  // 6xkk
+  // std::vector<uint8_t> rom = {0x60, 0xFF};
+
+  // 7xkk
+  std::vector<uint8_t> rom = {0x71, 0x22};
 
   Chip8 cpu;
   cpu.LoadFromArray(rom.data(), rom.size());

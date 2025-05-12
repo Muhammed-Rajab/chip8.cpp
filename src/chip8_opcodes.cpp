@@ -10,9 +10,17 @@ void Chip8::OP_NULL() {
 }
 
 // LD Vx, kk (Set Vx = kk)
-void Chip8::OP_6xnn() {
+void Chip8::OP_6xkk() {
   uint8_t x = (opcode & 0x0F00u) >> 8u;
   uint8_t kk = (opcode & 0x00FFu);
 
   V[x] = kk;
+}
+
+// ADD Vx, kk (Set Vx = Vx + kk)
+void Chip8::OP_7xkk() {
+  uint8_t x = (opcode & 0x0F00u) >> 8u;
+  uint8_t kk = (opcode & 0x00FFu);
+
+  V[x] = V[x] + kk;
 }

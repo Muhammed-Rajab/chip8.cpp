@@ -20,7 +20,8 @@ Chip8::Chip8() {
     table[i] = &Chip8::OP_NULL;
   }
 
-  table[0x6] = &Chip8::OP_6xnn;
+  table[0x6] = &Chip8::OP_6xkk;
+  table[0x7] = &Chip8::OP_7xkk;
 }
 
 // ====== Loaders ======
@@ -119,7 +120,6 @@ std::string Chip8::DumpCPU() const {
   dump << "Opcode: 0x" << std::hex << opcode << "\n";
 
   dump << "\n";
-
   dump << this->DumpRegisters();
 
   dump << "\n:: Stack ::\n";
