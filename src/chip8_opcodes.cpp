@@ -15,12 +15,22 @@ void Chip8::OP_1nnn() {
   pc = nnn;
 }
 
+// CALL nnn
 void Chip8::OP_2nnn() {
-  std::cout << "under construction" << std::endl; //
+  uint16_t nnn = opcode & 0x0FFFu;
+  stack[sp] = pc;
+  sp += 1;
+  pc = nnn;
 }
 
+// SE Vx, kk (Skip next construction if Vx == kk)
 void Chip8::OP_3xkk() {
-  std::cout << "under construction" << std::endl; //
+  uint8_t x = (opcode & 0x0F00u) >> 8u;
+  uint8_t kk = (opcode & 0x00FFu);
+
+  if (V[x] == kk) {
+    pc += 2;
+  }
 }
 
 void Chip8::OP_4xkk() {

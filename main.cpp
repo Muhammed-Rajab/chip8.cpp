@@ -7,7 +7,17 @@
 int main(int argc, char *argv[]) {
 
   // 1nnn
-  std::vector<uint8_t> rom = {0x12, 0xFF};
+  // std::vector<uint8_t> rom = {0x12, 0xFF};
+
+  // 2nnn
+  // std::vector<uint8_t> rom = {0x22, 0xFF};
+
+  // 3xkk
+  std::vector<uint8_t> rom = {
+      0x60, 0x0A, //
+      0x30, 0x0A, //
+      0x60, 0xFF  //
+  };
 
   // 6xkk
   // std::vector<uint8_t> rom = {0x60, 0xFF};
@@ -18,6 +28,8 @@ int main(int argc, char *argv[]) {
   Chip8 cpu;
   cpu.LoadFromArray(rom.data(), rom.size());
 
+  cpu.Cycle();
+  cpu.Cycle();
   cpu.Cycle();
 
   // std::cout << cpu.DumpRegisters();
