@@ -14,6 +14,13 @@
 Chip8::Chip8() {
   // copy font to memory - (done once, and preserved)
   std::copy(fontset, fontset + FONTSET_SIZE, memory + FONTSET_START_ADDRESS);
+
+  // setup decode tables
+  for (size_t i = 0; i < 16; i += 1) {
+    table[i] = &Chip8::OP_NULL;
+  }
+
+  table[0x6] = &Chip8::OP_6xnn;
 }
 
 // ====== Loaders ======
@@ -57,6 +64,7 @@ void Chip8::Fetch() { opcode = (memory[pc] << 8u) | memory[pc + 1]; }
 
 void Chip8::DecodeAndExecute() {
   // decode the opcode and execute the right instruction from table (future)
+  (this->*(table[(opcode & 0xF000u) >> 12u]))();
 }
 
 void Chip8::Cycle() {
@@ -88,7 +96,7 @@ std::string Chip8::DumpRegisters() const {
 
   std::ostringstream dump;
 
-  dump << "\n:: Registers ::\n";
+  dump << ":: Registers ::\n";
   for (size_t i = 0; i < 16; i++) {
     dump << "V[" << std::hex << i << "]: 0x" << std::setw(2)
          << std::setfill('0') << static_cast<int>(V[i]) << "  ";
@@ -109,6 +117,8 @@ std::string Chip8::DumpCPU() const {
   dump << "Delay: " << std::dec << static_cast<int>(delay) << "\n";
   dump << "Sound: " << std::dec << static_cast<int>(sound) << "\n";
   dump << "Opcode: 0x" << std::hex << opcode << "\n";
+
+  dump << "\n";
 
   dump << this->DumpRegisters();
 

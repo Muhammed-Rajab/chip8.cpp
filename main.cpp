@@ -11,7 +11,9 @@ int main(int argc, char *argv[]) {
   Chip8 cpu;
   cpu.LoadFromArray(rom.data(), rom.size());
 
-  std::cout << cpu.DumpCPU();
+  cpu.Cycle();
+
+  std::cout << cpu.DumpRegisters();
 
   return EXIT_SUCCESS;
 }

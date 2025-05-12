@@ -61,6 +61,12 @@ public:
       0xF0, 0x80, 0xF0, 0x80, 0x80  // F
   };
 
+  // member function pointer
+  typedef void (Chip8::*Chip8OP)();
+
+  // decode tables
+  Chip8OP table[0xF + 1];
+
   // ====== Constructor ======
   Chip8();
 
@@ -80,6 +86,7 @@ public:
   std::string DumpRegisters() const;
 
   // ====== Opcodes ======
+  void OP_NULL();
   void OP_6xnn();
 };
 
