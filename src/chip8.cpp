@@ -20,6 +20,11 @@ Chip8::Chip8() {
     table[i] = &Chip8::OP_NULL;
   }
 
+  table[0x1] = &Chip8::OP_1nnn;
+  table[0x2] = &Chip8::OP_2nnn;
+  table[0x3] = &Chip8::OP_3xkk;
+  table[0x4] = &Chip8::OP_4xkk;
+  table[0x5] = &Chip8::OP_5xy0;
   table[0x6] = &Chip8::OP_6xkk;
   table[0x7] = &Chip8::OP_7xkk;
 }

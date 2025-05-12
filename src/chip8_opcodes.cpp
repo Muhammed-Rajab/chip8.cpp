@@ -9,6 +9,28 @@ void Chip8::OP_NULL() {
             << std::dec << "!\n";
 }
 
+// JMP nnn
+void Chip8::OP_1nnn() {
+  uint16_t nnn = opcode & 0x0FFFu;
+  pc = nnn;
+}
+
+void Chip8::OP_2nnn() {
+  std::cout << "under construction" << std::endl; //
+}
+
+void Chip8::OP_3xkk() {
+  std::cout << "under construction" << std::endl; //
+}
+
+void Chip8::OP_4xkk() {
+  std::cout << "under construction" << std::endl; //
+}
+
+void Chip8::OP_5xy0() {
+  std::cout << "under construction" << std::endl; //
+}
+
 // LD Vx, kk (Set Vx = kk)
 void Chip8::OP_6xkk() {
   uint8_t x = (opcode & 0x0F00u) >> 8u;
