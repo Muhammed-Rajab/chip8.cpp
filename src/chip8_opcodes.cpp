@@ -23,7 +23,7 @@ void Chip8::OP_2nnn() {
   pc = nnn;
 }
 
-// SE Vx, kk (Skip next construction if Vx == kk)
+// SE Vx, kk (Skip next instruction if Vx == kk)
 void Chip8::OP_3xkk() {
   uint8_t x = (opcode & 0x0F00u) >> 8u;
   uint8_t kk = (opcode & 0x00FFu);
@@ -33,12 +33,25 @@ void Chip8::OP_3xkk() {
   }
 }
 
+// SNE Vx, kk (Skip next instruction if Vx != kk)
 void Chip8::OP_4xkk() {
-  std::cout << "under construction" << std::endl; //
+  uint8_t x = (opcode & 0x0F00u) >> 8u;
+  uint8_t kk = (opcode & 0x00FFu);
+
+  if (V[x] != kk) {
+    pc += 2;
+  }
 }
 
+// SE Vx, Vy (Skip next instruction if Vx = Vy)
 void Chip8::OP_5xy0() {
-  std::cout << "under construction" << std::endl; //
+
+  uint8_t x = (opcode & 0x0F00u) >> 8u;
+  uint8_t y = (opcode & 0x00F0u) >> 4u;
+
+  if (V[x] == V[y]) {
+    pc += 2;
+  }
 }
 
 // LD Vx, kk (Set Vx = kk)
@@ -55,4 +68,15 @@ void Chip8::OP_7xkk() {
   uint8_t kk = (opcode & 0x00FFu);
 
   V[x] = V[x] + kk;
+}
+
+// SNE Vx, Vy (Skip next instruction if Vx != Vy)
+void Chip8::OP_9xy0() {
+
+  uint8_t x = (opcode & 0x0F00u) >> 8u;
+  uint8_t y = (opcode & 0x00F0u) >> 4u;
+
+  if (V[x] != V[y]) {
+    pc += 2;
+  }
 }

@@ -27,6 +27,7 @@ Chip8::Chip8() {
   table[0x5] = &Chip8::OP_5xy0;
   table[0x6] = &Chip8::OP_6xkk;
   table[0x7] = &Chip8::OP_7xkk;
+  table[0x9] = &Chip8::OP_9xy0;
 }
 
 // ====== Loaders ======

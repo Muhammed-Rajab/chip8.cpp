@@ -95,6 +95,10 @@ public:
   void OP_5xy0();
   void OP_6xkk();
   void OP_7xkk();
+
+  // 8s
+
+  void OP_9xy0();
 };
 
 #endif
