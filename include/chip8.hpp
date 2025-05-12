@@ -77,6 +77,8 @@ public:
 
   // ====== Debugging ======
   std::string DumpCPU() const;
+
+  // ====== Opcodes ======
 };
 
 #endif
