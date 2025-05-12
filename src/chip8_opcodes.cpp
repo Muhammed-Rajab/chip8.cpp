@@ -9,6 +9,9 @@ void Chip8::OP_NULL() {
             << std::dec << "!\n";
 }
 
+// HALT (Stops execution)
+void Chip8::OP_FxFF() { halted = true; }
+
 // JMP nnn
 void Chip8::OP_1nnn() {
   uint16_t nnn = opcode & 0x0FFFu;
@@ -79,4 +82,22 @@ void Chip8::OP_9xy0() {
   if (V[x] != V[y]) {
     pc += 2;
   }
+}
+
+// LD I, nnn
+void Chip8::OP_Annn() {
+  uint16_t nnn = opcode & 0x0FFFu;
+  index = nnn;
+}
+
+void Chip8::OP_Bnnn() {
+  std::cout << "under construction" << std::endl; //
+}
+
+void Chip8::OP_Cxkk() {
+  std::cout << "under construction" << std::endl; //
+}
+
+void Chip8::OP_Dxyn() {
+  std::cout << "under construction" << std::endl; //
 }

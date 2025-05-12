@@ -28,6 +28,19 @@ Chip8::Chip8() {
   table[0x6] = &Chip8::OP_6xkk;
   table[0x7] = &Chip8::OP_7xkk;
   table[0x9] = &Chip8::OP_9xy0;
+
+  table[0xA] = &Chip8::OP_Annn;
+  table[0xB] = &Chip8::OP_Bnnn;
+  table[0xC] = &Chip8::OP_Cxkk;
+  table[0xD] = &Chip8::OP_Dxyn;
+
+  table[0xF] = &Chip8::TableF;
+
+  for (size_t i = 0; i < 0xFF + 1; i += 1) {
+    tableF[i] = &Chip8::OP_NULL;
+  }
+
+  tableF[0xFF] = &Chip8::OP_FxFF;
 }
 
 // ====== Loaders ======
@@ -75,6 +88,9 @@ void Chip8::DecodeAndExecute() {
 }
 
 void Chip8::Cycle() {
+
+  if (halted)
+    return;
 
   // fetch opcode from memory
   Fetch();
@@ -134,4 +150,13 @@ std::string Chip8::DumpCPU() const {
   }
 
   return dump.str();
+}
+
+bool Chip8::RunTillHalt() {
+
+  do {
+    Cycle();
+  } while (!halted);
+
+  return true;
 }

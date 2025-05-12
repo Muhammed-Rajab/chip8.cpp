@@ -41,22 +41,32 @@ int main(int argc, char *argv[]) {
   // std::vector<uint8_t> rom = {0x71, 0x22};
 
   // 9xy0
+  // std::vector<uint8_t> rom = {
+  //     0x60, 0x0A, // V0 = 0x0A
+  //     0x61, 0x0B, // V1 = 0x0B
+  //     0x90, 0x10, // SNE V0, V1 (skip next if V0 != V1)
+  //     0x62, 0xFF, // V2 = 0xFF (should be skipped)
+  //     0x63, 0x33  // V3 = 0x33
+  // };
+  //
+
+  // 0xFxFF
+  // std::vector<uint8_t> rom = {
+  //     0x60, 0x22, //
+  //     0xFF, 0xFF, //
+  //     0x60, 0x33, // this shouldn't execute, V[0] should be 0x22
+  // };
+
+  // 0xAnnn
   std::vector<uint8_t> rom = {
-      0x60, 0x0A, // V0 = 0x0A
-      0x61, 0x0B, // V1 = 0x0B
-      0x90, 0x10, // SNE V0, V1 (skip next if V0 != V1)
-      0x62, 0xFF, // V2 = 0xFF (should be skipped)
-      0x63, 0x33  // V3 = 0x33
+      0xA2, 0xF0, // LD I, 0x2F0
+      0xFF, 0xFF  // HALT (FxFF — your custom instruction)
   };
 
   Chip8 cpu;
   cpu.LoadFromArray(rom.data(), rom.size());
 
-  cpu.Cycle();
-  cpu.Cycle();
-  cpu.Cycle();
-  cpu.Cycle();
-  cpu.Cycle();
+  cpu.RunTillHalt();
 
   // std::cout << cpu.DumpRegisters();
   std::cout << cpu.DumpCPU();

@@ -7,6 +7,9 @@
 
 class Chip8 {
 public:
+  // state
+  bool halted = false;
+
   // RAM
   uint8_t memory[4096];
 
@@ -66,6 +69,7 @@ public:
 
   // decode tables
   Chip8OP table[0xF + 1];
+  Chip8OP tableF[0xFF + 1];
 
   // ====== Constructor ======
   Chip8();
@@ -82,11 +86,16 @@ public:
   void Cycle();
 
   // ====== Debugging ======
+  bool RunTillHalt();
   std::string DumpCPU() const;
   std::string DumpRegisters() const;
 
+  // ====== Opcode tables ======
+  void TableF() { (this->*(tableF[(opcode & 0x00FFu)]))(); }
+
   // ====== Opcodes ======
   void OP_NULL();
+  void OP_FxFF(); // special halt instruction
 
   void OP_1nnn();
   void OP_2nnn();
@@ -99,6 +108,11 @@ public:
   // 8s
 
   void OP_9xy0();
+
+  void OP_Annn();
+  void OP_Bnnn();
+  void OP_Cxkk();
+  void OP_Dxyn();
 };
 
 #endif
