@@ -90,8 +90,10 @@ void Chip8::OP_Annn() {
   index = nnn;
 }
 
+// JMP V0, nnn (Jump to location nnn + V0)
 void Chip8::OP_Bnnn() {
-  std::cout << "under construction" << std::endl; //
+  uint16_t nnn = opcode & 0x0FFFu;
+  pc = nnn + V[0];
 }
 
 void Chip8::OP_Cxkk() {

@@ -58,9 +58,18 @@ int main(int argc, char *argv[]) {
   // };
 
   // 0xAnnn
+  // std::vector<uint8_t> rom = {
+  //     0xA2, 0xF0, // LD I, 0x2F0
+  //     0xFF, 0xFF  // HALT (FxFF — your custom instruction)
+  // };
+
+  // 0xBnnn
   std::vector<uint8_t> rom = {
-      0xA2, 0xF0, // LD I, 0x2F0
-      0xFF, 0xFF  // HALT (FxFF — your custom instruction)
+      0x60, 0x05, // LD V0, 0x05
+      0xB2, 0x01, // JP V0, 0x200 → should jump to 0x205
+      0x60, 0xFF, // [0x204] should be skipped
+      0x60, 0x0A, // [0x205] V0 = 0x0A
+      0xFF, 0xFF  // HALT
   };
 
   Chip8 cpu;
