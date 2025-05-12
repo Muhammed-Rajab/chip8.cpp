@@ -5,6 +5,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <iomanip>
+#include <ios>
+#include <sstream>
 #include <stdexcept>
 
 class Chip8 {
@@ -63,14 +66,14 @@ public:
       0xF0, 0x80, 0xF0, 0x80, 0x80  // F
   };
 
-  // CONSTRUCTOR
+  // ====== Constructor ======
   Chip8() {
 
     // copy font to memory - (done once, and preserved)
     std::copy(fontset, fontset + FONTSET_SIZE, memory + FONTSET_START_ADDRESS);
   }
 
-  // LOADERS
+  // ====== Loaders ======
   void LoadFromArray(const uint8_t *rom, size_t size) {
     Reset();
 
@@ -83,7 +86,7 @@ public:
     }
   }
 
-  // RESET CPU STATE
+  // ====== Reset CPU State ======
   void Reset() {
 
     std::fill(memory + STARTING_ADDRESS, memory + 4096, 0);
@@ -104,6 +107,65 @@ public:
     opcode = {};
 
     std::fill(keypad, keypad + 16, 0);
+  }
+
+  // ====== Cycle ======
+  void Fetch() { opcode = (memory[pc] << 8u) | memory[pc + 1]; }
+
+  void DecodeAndExecute() {
+    // decode the opcode and execute the right instruction from table (future)
+  }
+
+  void Cycle() {
+
+    // fetch opcode from memory
+    Fetch();
+
+    // increment program counter
+    uint16_t prev_pc =
+        pc; // might be useful for debugging or opcode behaviour tracking
+    pc += 2;
+
+    // decode execute current opcode
+    DecodeAndExecute();
+
+    // update delay register
+    if (delay > 0) {
+      delay -= 1;
+    }
+
+    // update sound register
+    if (sound > 0) {
+      sound -= 1;
+    }
+  }
+
+  // ====== Debugging ======
+  std::string DumpCPU() const {
+    std::ostringstream dump;
+
+    dump << "==== CPU STATE ====\n";
+    dump << "PC: 0x" << std::hex << pc << "\n";
+    dump << "Index: 0x" << std::hex << index << "\n";
+    dump << "SP: 0x" << std::hex << static_cast<int>(sp) << "\n";
+    dump << "Delay: " << std::dec << static_cast<int>(delay) << "\n";
+    dump << "Sound: " << std::dec << static_cast<int>(sound) << "\n";
+    dump << "Opcode: 0x" << std::hex << opcode << "\n";
+
+    dump << "\n:: Registers ::\n";
+    for (size_t i = 0; i < 16; i++) {
+      dump << "V[" << std::hex << i << "]: 0x" << std::setw(2)
+           << std::setfill('0') << static_cast<int>(V[i]) << "  ";
+      if ((i + 1) % 4 == 0)
+        dump << "\n";
+    }
+
+    dump << "\n:: Stack ::\n";
+    for (size_t i = 0; i < 16; i += 1) {
+      dump << "[" << i << "]: 0x" << std::hex << stack[i] << "\n";
+    }
+
+    return dump.str();
   }
 };
 
