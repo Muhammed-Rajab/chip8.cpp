@@ -30,7 +30,7 @@ std::vector<uint8_t> LoadRomFromFile(const std::string &filename) {
 
 int main(int argc, char *argv[]) {
 
-  const std::string filename = "./roms/test/ibm.ch8";
+  const std::string filename = "./roms/test/octojam.ch8";
   auto rom = LoadRomFromFile(filename);
 
   Disassembler dasm;
@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
     std::cout << "\033[2J\033[H";
     std::cout << cpu.DumpVideo();
     cpu.Cycle();
-    std::this_thread::sleep_for(std::chrono::milliseconds(33));
+    std::this_thread::sleep_for(std::chrono::milliseconds(16));
   }
 
   return EXIT_SUCCESS;

@@ -193,7 +193,8 @@ std::string Chip8::DumpVideo() const {
   for (size_t y = 0; y < VIDEO_HEIGHT; y += 1) {
     for (size_t x = 0; x < VIDEO_WIDTH; x += 1) {
       size_t index = y * VIDEO_WIDTH + x;
-      dump << (video[index] ? "▉" : " ");
+      // dump << (video[index] ? "▉" : " ");
+      dump << (video[index] ? "#" : " ");
     }
     dump << "\n";
   }
