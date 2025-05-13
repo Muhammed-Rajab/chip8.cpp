@@ -88,6 +88,7 @@ public:
   // ====== Debugging ======
   bool RunTillHalt();
   std::string DumpCPU() const;
+  std::string DumpVideo() const;
   std::string DumpRegisters() const;
 
   // ====== Opcode tables ======

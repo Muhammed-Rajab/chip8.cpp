@@ -1,6 +1,7 @@
 #include "../include/chip8.hpp"
 
 #include <cstdint>
+#include <cstdlib>
 #include <iostream>
 
 // DEFAULT HANDLER
@@ -96,10 +97,45 @@ void Chip8::OP_Bnnn() {
   pc = nnn + V[0];
 }
 
+// RND Vx, byte (Set Vx = random byte & kk)
 void Chip8::OP_Cxkk() {
-  std::cout << "under construction" << std::endl; //
+  uint8_t x = (opcode & 0x0F00u) >> 8u;
+  uint8_t kk = (opcode & 0x00FFu);
+
+  V[x] = (rand() % 256) & kk;
 }
 
+// DRW Vx, Vy, nibble
 void Chip8::OP_Dxyn() {
-  std::cout << "under construction" << std::endl; //
+  uint8_t x = (opcode & 0x0F00u) >> 8u;
+  uint8_t y = (opcode & 0x00F0u) >> 4u;
+  uint8_t n = (opcode & 0x000Fu);
+
+  uint8_t x_pos = V[x] % VIDEO_WIDTH;
+  uint8_t y_pos = V[y] % VIDEO_HEIGHT;
+
+  V[0xF] = 0;
+
+  for (int j = 0; j < n; j += 1) {
+
+    uint8_t byte = memory[index + j];
+
+    for (int i = 0; i < 8; i += 1) {
+
+      bool collision = byte & (0x80 >> i);
+
+      if (collision != 0) {
+        uint8_t x_coord = (x_pos + i) % VIDEO_WIDTH;
+        uint8_t y_coord = (y_pos + j) % VIDEO_HEIGHT;
+
+        uint16_t v_index = y_coord * VIDEO_WIDTH + x_coord;
+
+        if (video[v_index] == 1) {
+          V[0xF] = 1;
+        }
+
+        video[v_index] ^= 1;
+      }
+    }
+  }
 }

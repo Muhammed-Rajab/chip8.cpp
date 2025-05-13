@@ -64,12 +64,29 @@ int main(int argc, char *argv[]) {
   // };
 
   // 0xBnnn
+  // std::vector<uint8_t> rom = {
+  //     0x60, 0x05, // LD V0, 0x05
+  //     0xB2, 0x01, // JP V0, 0x200 → should jump to 0x205
+  //     0x60, 0xFF, // [0x204] should be skipped
+  //     0x60, 0x0A, // [0x205] V0 = 0x0A
+  //     0xFF, 0xFF  // HALT
+  // };
+
+  // 0xCxkk
+  // std::vector<uint8_t> rom = {
+  //     0xC0, 0x0F, // RND V0, 0x0F (V0 = rand() & 0x0F)
+  //     0xFF, 0xFF  // HALT
+  // };
+
+  // 0xDxyn
+
   std::vector<uint8_t> rom = {
-      0x60, 0x05, // LD V0, 0x05
-      0xB2, 0x01, // JP V0, 0x200 → should jump to 0x205
-      0x60, 0xFF, // [0x204] should be skipped
-      0x60, 0x0A, // [0x205] V0 = 0x0A
-      0xFF, 0xFF  // HALT
+      0x60, 0x00,                   //
+      0x61, 0x00,                   //
+      0xA2, 0x0A,                   //
+      0xD0, 0x15,                   //
+      0xFF, 0xFF,                   //
+      0xF0, 0x10, 0xF0, 0x80, 0xF0, //
   };
 
   Chip8 cpu;
@@ -78,7 +95,8 @@ int main(int argc, char *argv[]) {
   cpu.RunTillHalt();
 
   // std::cout << cpu.DumpRegisters();
-  std::cout << cpu.DumpCPU();
+  // std::cout << cpu.DumpCPU();
+  std::cout << cpu.DumpVideo();
 
   return EXIT_SUCCESS;
 }

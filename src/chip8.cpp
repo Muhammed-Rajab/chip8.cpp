@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
 #include <iomanip>
 #include <ios>
@@ -12,6 +13,9 @@
 
 // ====== Constructor ======
 Chip8::Chip8() {
+  // seeding
+  srand(time(nullptr));
+
   // copy font to memory - (done once, and preserved)
   std::copy(fontset, fontset + FONTSET_SIZE, memory + FONTSET_START_ADDRESS);
 
@@ -116,7 +120,6 @@ void Chip8::Cycle() {
 
 // ====== Debugging ======
 std::string Chip8::DumpRegisters() const {
-
   std::ostringstream dump;
 
   dump << ":: Registers ::\n";
@@ -125,6 +128,20 @@ std::string Chip8::DumpRegisters() const {
          << std::setfill('0') << static_cast<int>(V[i]) << "  ";
     if ((i + 1) % 4 == 0)
       dump << "\n";
+  }
+
+  return dump.str();
+}
+
+std::string Chip8::DumpVideo() const {
+  std::ostringstream dump;
+
+  for (size_t y = 0; y < VIDEO_HEIGHT; y += 1) {
+    for (size_t x = 0; x < VIDEO_WIDTH; x += 1) {
+      size_t index = y * VIDEO_WIDTH + x;
+      dump << (video[index] ? "#" : ".");
+    }
+    dump << "\n";
   }
 
   return dump.str();
