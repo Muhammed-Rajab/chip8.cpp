@@ -69,6 +69,8 @@ public:
 
   // decode tables
   Chip8OP table[0xF + 1];
+  Chip8OP table8[0xF + 1]; // only requires 0xE + 1, but going OxF + 1 cause
+                           // it's safer and future proof
   Chip8OP tableF[0xFF + 1];
 
   // ====== Constructor ======
@@ -93,6 +95,7 @@ public:
 
   // ====== Opcode tables ======
   void TableF() { (this->*(tableF[(opcode & 0x00FFu)]))(); }
+  void Table8() { (this->*(table8[(opcode & 0x000Fu)]))(); }
 
   // ====== Opcodes ======
   void OP_NULL();
@@ -106,7 +109,15 @@ public:
   void OP_6xkk();
   void OP_7xkk();
 
-  // 8s
+  void OP_8xy0();
+  void OP_8xy1();
+  void OP_8xy2();
+  void OP_8xy3();
+  void OP_8xy4();
+  void OP_8xy5();
+  void OP_8xy6();
+  void OP_8xy7();
+  void OP_8xyE();
 
   void OP_9xy0();
 

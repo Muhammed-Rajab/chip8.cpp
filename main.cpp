@@ -79,15 +79,16 @@ int main(int argc, char *argv[]) {
   // };
 
   // 0xDxyn
+  // std::vector<uint8_t> rom = {
+  //     0x60, 0x00,                   //
+  //     0x61, 0x00,                   //
+  //     0xA2, 0x0A,                   //
+  //     0xD0, 0x15,                   //
+  //     0xFF, 0xFF,                   //
+  //     0xF0, 0x10, 0xF0, 0x80, 0xF0, //
+  // };
 
-  std::vector<uint8_t> rom = {
-      0x60, 0x00,                   //
-      0x61, 0x00,                   //
-      0xA2, 0x0A,                   //
-      0xD0, 0x15,                   //
-      0xFF, 0xFF,                   //
-      0xF0, 0x10, 0xF0, 0x80, 0xF0, //
-  };
+  std::vector<uint8_t> rom = {};
 
   Chip8 cpu;
   cpu.LoadFromArray(rom.data(), rom.size());
