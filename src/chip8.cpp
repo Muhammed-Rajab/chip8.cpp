@@ -24,6 +24,7 @@ Chip8::Chip8() {
     table[i] = &Chip8::OP_NULL;
   }
 
+  table[0x0] = &Chip8::Table0;
   table[0x1] = &Chip8::OP_1nnn;
   table[0x2] = &Chip8::OP_2nnn;
   table[0x3] = &Chip8::OP_3xkk;
@@ -31,20 +32,22 @@ Chip8::Chip8() {
   table[0x5] = &Chip8::OP_5xy0;
   table[0x6] = &Chip8::OP_6xkk;
   table[0x7] = &Chip8::OP_7xkk;
+  table[0x8] = &Chip8::Table8;
   table[0x9] = &Chip8::OP_9xy0;
-
   table[0xA] = &Chip8::OP_Annn;
   table[0xB] = &Chip8::OP_Bnnn;
   table[0xC] = &Chip8::OP_Cxkk;
   table[0xD] = &Chip8::OP_Dxyn;
-
+  table[0xE] = &Chip8::TableE;
   table[0xF] = &Chip8::TableF;
+
+  // F
   for (size_t i = 0; i < 0xFF + 1; i += 1) {
     tableF[i] = &Chip8::OP_NULL;
   }
   tableF[0xFF] = &Chip8::OP_FxFF;
 
-  table[0x8] = &Chip8::Table8;
+  // 8
   for (size_t i = 0; i < 0xF + 1; i += 1) {
     table8[i] = &Chip8::OP_NULL;
   }
@@ -58,6 +61,17 @@ Chip8::Chip8() {
   table8[0x6] = &Chip8::OP_8xy6;
   table8[0x7] = &Chip8::OP_8xy7;
   table8[0xE] = &Chip8::OP_8xyE;
+
+  // 0
+  for (size_t i = 0; i < 0xF + 1; i += 1) {
+    table0[i] = &Chip8::OP_NULL;
+  }
+  table0[0x0] = &Chip8::OP_00E0;
+  table0[0xE] = &Chip8::OP_00EE;
+
+  // E
+  tableE[0x9] = &Chip8::OP_Ex9E;
+  tableE[0x1] = &Chip8::OP_ExA1;
 }
 
 // ====== Loaders ======

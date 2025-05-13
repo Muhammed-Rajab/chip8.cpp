@@ -1,7 +1,9 @@
 #include "../include/chip8.hpp"
 
+#include <algorithm>
 #include <cstdint>
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 
 // DEFAULT HANDLER
@@ -12,6 +14,15 @@ void Chip8::OP_NULL() {
 
 // HALT (Stops execution)
 void Chip8::OP_FxFF() { halted = true; }
+
+// CLS (Clears screen)
+void Chip8::OP_00E0() { memset(video, 0, sizeof(video)); }
+
+// RET (Return from a subroutine)
+void Chip8::OP_00EE() {
+  sp -= 1;
+  pc = stack[sp];
+}
 
 // JMP nnn
 void Chip8::OP_1nnn() {
@@ -193,7 +204,7 @@ void Chip8::OP_8xy5() {
   V[x] -= V[y];
 }
 
-// SHR Vx (right shift Vx by 1, and set Vf = 1 if LSB of Vx is 1 else 0)
+// SHR Vx (Right shift Vx by 1, and set Vf = 1 if LSB of Vx is 1 else 0)
 void Chip8::OP_8xy6() {
   uint8_t x = (opcode & 0x0F00u) >> 8u;
 
@@ -210,9 +221,28 @@ void Chip8::OP_8xy7() {
   V[x] = V[y] - V[x];
 }
 
+// SHL Vx (Left shift Vx by 1, and set Vf = 1 if MSB of Vx is 1 else 0)
 void Chip8::OP_8xyE() {
   uint8_t x = (opcode & 0x0F00u) >> 8u;
 
   V[0xF] = (V[x] & 0x80) >> 7u;
   V[x] <<= 1;
+}
+
+// SKP Vx (Skip next instruction if key with the value of Vx is pressed)
+void Chip8::OP_Ex9E() {
+  uint8_t x = (opcode & 0x0F00u) >> 8u;
+
+  if (keypad[V[x]]) {
+    pc += 2;
+  }
+}
+
+// SKPN Vx (Skip next instruction if key with the value of Vx is not pressed)
+void Chip8::OP_ExA1() {
+  uint8_t x = (opcode & 0x0F00u) >> 8u;
+
+  if (!keypad[V[x]]) {
+    pc += 2;
+  }
 }

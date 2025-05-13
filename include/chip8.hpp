@@ -69,9 +69,11 @@ public:
 
   // decode tables
   Chip8OP table[0xF + 1];
+  Chip8OP table0[0xF + 1]; // only requires 0xE + 1, just making it future proof
   Chip8OP table8[0xF + 1]; // only requires 0xE + 1, but going OxF + 1 cause
                            // it's safer and future proof
-  Chip8OP tableF[0xFF + 1];
+  Chip8OP tableE[0xF + 1]; // only requires 0xE + 1, just making it future proof
+  Chip8OP tableF[0xFF + 1]; // adding HALT made it go till 0xFF + 1
 
   // ====== Constructor ======
   Chip8();
@@ -94,12 +96,17 @@ public:
   std::string DumpRegisters() const;
 
   // ====== Opcode tables ======
-  void TableF() { (this->*(tableF[(opcode & 0x00FFu)]))(); }
+  void Table0() { (this->*(table0[(opcode & 0x000Fu)]))(); }
   void Table8() { (this->*(table8[(opcode & 0x000Fu)]))(); }
+  void TableE() { (this->*(tableE[(opcode & 0x000Fu)]))(); }
+  void TableF() { (this->*(tableF[(opcode & 0x00FFu)]))(); }
 
   // ====== Opcodes ======
   void OP_NULL();
   void OP_FxFF(); // special halt instruction
+
+  void OP_00E0();
+  void OP_00EE();
 
   void OP_1nnn();
   void OP_2nnn();
@@ -125,6 +132,9 @@ public:
   void OP_Bnnn();
   void OP_Cxkk();
   void OP_Dxyn();
+
+  void OP_Ex9E();
+  void OP_ExA1();
 };
 
 #endif

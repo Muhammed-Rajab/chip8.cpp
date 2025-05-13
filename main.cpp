@@ -88,16 +88,87 @@ int main(int argc, char *argv[]) {
   //     0xF0, 0x10, 0xF0, 0x80, 0xF0, //
   // };
 
-  std::vector<uint8_t> rom = {};
+  // std::vector<uint8_t> rom = {};
 
+  // 0x8xy0
+  // std::vector<uint8_t> rom = {
+  //     0x61, 0x0A, // LD V1, 0x0A
+  //     0x80, 0x10, // LD V0, V1
+  //     0xFF, 0xFF  // HALT
+  // };
+
+  // 0x8xy1
+  // std::vector<uint8_t> rom = {
+  //     0x60, 0x0F, // LD V0, 0x0F
+  //     0x61, 0xF0, // LD V1, 0xF0
+  //     0x80, 0x11, // OR V0, V1 (V0 = 0xFF)
+  //     0xFF, 0xFF  // HALT
+  // };
+
+  // 0x8xy2
+  // std::vector<uint8_t> rom = {
+  //     0x60, 0x0F, // LD V0, 0x0F
+  //     0x61, 0xF0, // LD V1, 0xF0
+  //     0x80, 0x12, // AND V0, V1 (V0 = 0x00)
+  //     0xFF, 0xFF  // HALT
+  // };
+  //
+  // 0x8xy3
+  // std::vector<uint8_t> rom = {
+  //     0x60, 0x0F, // LD V0, 0x0F
+  //     0x61, 0xF0, // LD V1, 0xF0
+  //     0x80, 0x13, // XOR V0, V1 (V0 = 0xFF)
+  //     0xFF, 0xFF  // HALT
+  // };
+  //
+  // 0x8xy4
+  // std::vector<uint8_t> rom = {
+  //     0x60, 0xF0, // LD V0, 0xF0
+  //     0x61, 0x20, // LD V1, 0x20
+  //     0x80, 0x14, // ADD V0, V1 (V0 = 0x10, VF = 1)
+  //     0xFF, 0xFF  // HALT
+  // };
+  //
+  // 0x8xy5
+  // std::vector<uint8_t> rom = {
+  //     0x60, 0x30, // LD V0, 0x30
+  //     0x61, 0x10, // LD V1, 0x10
+  //     0x80, 0x15, // SUB V0, V1 (V0 = 0x20, VF = 1)
+  //     0xFF, 0xFF  // HALT
+  // };
+  //
+  // 0x8xy6
+  // std::vector<uint8_t> rom = {
+  //     0x60, 0x05, // LD V0, 0x05
+  //     0x80, 0x16, // SHR V0 (V0 = 0x02, VF = 1)
+  //     0xFF, 0xFF  // HALT
+  // };
+  //
+  // 0x8xy7
+  // std::vector<uint8_t> rom = {
+  //     0x60, 0x10, // LD V0, 0x10
+  //     0x61, 0x30, // LD V1, 0x30
+  //     0x80, 0x17, // SUBN V0, V1 (V0 = 0x20, VF = 1)
+  //     0xFF, 0xFF  // HALT
+  // };
+  //
+  // 0x8xyE
+  // std::vector<uint8_t> rom = {
+  //     0x60, 0x81, // LD V0, 0x81
+  //     0x80, 0x1E, // SHL V0 (V0 = 0x02, VF = 1)
+  //     0xFF, 0xFF  // HALT
+  // };
+  //
+
+  // 0xEx9E
   Chip8 cpu;
   cpu.LoadFromArray(rom.data(), rom.size());
 
   cpu.RunTillHalt();
 
-  // std::cout << cpu.DumpRegisters();
+  std::cout << cpu.DumpRegisters();
   // std::cout << cpu.DumpCPU();
-  std::cout << cpu.DumpVideo();
+  // std::cout << cpu.DumpVideo();
 
   return EXIT_SUCCESS;
 }
