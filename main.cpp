@@ -1,6 +1,7 @@
 #include "./include/chip8.hpp"
 #include <cstdint>
 #include <cstdlib>
+#include <fstream>
 #include <iostream>
 #include <vector>
 
@@ -232,24 +233,44 @@ int main(int argc, char *argv[]) {
 
   // 0xFx65
   // Assume memory at 0x300 has: 0x0C, 0x0D
-  std::vector<uint8_t> rom = {
-      0xA3, 0x00, // I = 0x300
-      0xF1, 0x65, // Load V0, V1 from M[0x300], M[0x301]
-      0xFF, 0xFF  // HALT
-  };
+  // std::vector<uint8_t> rom = {
+  //     0xA3, 0x00, // I = 0x300
+  //     0xF1, 0x65, // Load V0, V1 from M[0x300], M[0x301]
+  //     0xFF, 0xFF  // HALT
+  // };
+  //
+
+  // ====== ROM File Test ======
+  const std::string filename = "./roms/test/ibm.ch8";
+
+  std::ifstream file(filename,
+                     std::ios::binary | std::ios::ate); // ate = seek to end
+
+  if (!file.is_open()) {
+    throw std::runtime_error("Failed to open ROM file: " + filename);
+  }
+
+  std::streamsize size = file.tellg(); // get size of file
+  file.seekg(0, std::ios::beg);        // rewind to beginning
+
+  std::vector<uint8_t> rom(size);
+  if (!file.read(reinterpret_cast<char *>(rom.data()), size)) {
+    throw std::runtime_error("Failed to read ROM file: " + filename);
+  }
 
   Chip8 cpu;
   cpu.LoadFromArray(rom.data(), rom.size());
 
-  cpu.memory[0x300] = 0x0C;
-  cpu.memory[0x301] = 0x0D;
-
-  cpu.RunTillHalt();
+  while (true) {
+    std::cout << "\033[2J\033[H";
+    std::cout << cpu.DumpVideo();
+    cpu.Cycle();
+  }
 
   // std::cout << cpu.DumpRegisters();
-  std::cout << cpu.DumpCPU();
+  // std::cout << cpu.DumpCPU();
   // std::cout << cpu.DumpVideo();
-  std::cout << cpu.DumpMemoryTableHex(0x300, 0x20);
+  // std::cout << cpu.DumpMemoryTableHex(0x300, 0x20);
 
   return EXIT_SUCCESS;
 }
