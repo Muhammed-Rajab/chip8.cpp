@@ -157,6 +157,15 @@ void Chip8::Cycle() {
   }
 }
 
+bool Chip8::RunTillHalt() {
+
+  do {
+    Cycle();
+  } while (!halted);
+
+  return true;
+}
+
 // ====== Debugging ======
 std::string Chip8::DumpRegisters() const {
   std::ostringstream dump;
@@ -208,11 +217,47 @@ std::string Chip8::DumpCPU() const {
   return dump.str();
 }
 
-bool Chip8::RunTillHalt() {
+std::string Chip8::DumpMemoryTableHex(uint16_t start, uint16_t count) const {
+  std::ostringstream dump;
+  const int columns = 16;
+  const uint16_t memSize = sizeof(memory);
 
-  do {
-    Cycle();
-  } while (!halted);
+  if (count == 0) {
+    throw std::invalid_argument(
+        "Memory dump count is zero. Nothing to display.");
+  }
 
-  return true;
+  if (start >= memSize) {
+    throw std::invalid_argument("Start address is out of memory bounds.");
+  }
+
+  // Prevent overflow: cap count to fit within memory
+  if (start + count > memSize || start + count < start) {
+    count = memSize - start;
+  }
+
+  // Header row
+  dump << "       ";
+  for (int col = 0; col < columns; ++col) {
+    dump << " " << std::setw(2) << std::setfill('0') << std::hex
+         << std::uppercase << col;
+  }
+  dump << "\n";
+
+  // Dump memory in 16-column layout
+  for (uint16_t i = 0; i < count; i += columns) {
+    dump << "0x" << std::hex << std::uppercase << std::setw(3)
+         << std::setfill('0') << (start + i) << "  ";
+    for (int j = 0; j < columns; ++j) {
+      if (i + j < count) {
+        dump << " " << std::setw(2) << std::setfill('0')
+             << static_cast<int>(memory[start + i + j]);
+      } else {
+        dump << "   ";
+      }
+    }
+    dump << "\n";
+  }
+
+  return dump.str();
 }

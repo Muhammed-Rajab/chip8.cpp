@@ -94,6 +94,7 @@ public:
   std::string DumpCPU() const;
   std::string DumpVideo() const;
   std::string DumpRegisters() const;
+  std::string DumpMemoryTableHex(uint16_t start, uint16_t count) const;
 
   // ====== Opcode tables ======
   void Table0() { (this->*(table0[(opcode & 0x000Fu)]))(); }
