@@ -139,3 +139,80 @@ void Chip8::OP_Dxyn() {
     }
   }
 }
+
+// LD Vx, Vy (Set Vx = Vy)
+void Chip8::OP_8xy0() {
+  uint8_t x = (opcode & 0x0F00u) >> 8u;
+  uint8_t y = (opcode & 0x00F0u) >> 4u;
+
+  V[x] = V[y];
+}
+
+// OR Vx, Vy
+void Chip8::OP_8xy1() {
+  uint8_t x = (opcode & 0x0F00u) >> 8u;
+  uint8_t y = (opcode & 0x00F0u) >> 4u;
+
+  V[x] |= V[y];
+}
+
+// AND Vx, Vy
+void Chip8::OP_8xy2() {
+  uint8_t x = (opcode & 0x0F00u) >> 8u;
+  uint8_t y = (opcode & 0x00F0u) >> 4u;
+
+  V[x] &= V[y];
+}
+
+// XOR Vx, Vy
+void Chip8::OP_8xy3() {
+  uint8_t x = (opcode & 0x0F00u) >> 8u;
+  uint8_t y = (opcode & 0x00F0u) >> 4u;
+
+  V[x] ^= V[y];
+}
+
+// ADD Vx, Vy (set Vx = Vx + Vy, set Vf = 1 if carry else 0)
+void Chip8::OP_8xy4() {
+  uint8_t x = (opcode & 0x0F00u) >> 8u;
+  uint8_t y = (opcode & 0x00F0u) >> 4u;
+
+  uint16_t sum = V[x] + V[y];
+
+  V[0xF] = sum > 0xFF ? 1 : 0;
+  V[x] = sum & 0xFFu;
+}
+
+// SUB Vx, Vy (set Vx = Vx - Vy, set Vf = 1 if not borrow else 0)
+void Chip8::OP_8xy5() {
+  uint8_t x = (opcode & 0x0F00u) >> 8u;
+  uint8_t y = (opcode & 0x00F0u) >> 4u;
+
+  V[0xF] = V[x] > V[y] ? 1 : 0;
+
+  V[x] -= V[y];
+}
+
+// SHR Vx (right shift Vx by 1, and set Vf = 1 if LSB of Vx is 1 else 0)
+void Chip8::OP_8xy6() {
+  uint8_t x = (opcode & 0x0F00u) >> 8u;
+
+  V[0xF] = V[x] & 0x1;
+  V[x] >>= 1;
+}
+
+// SUBN Vx, Vy (Set Vx = Vy - Vx, and set Vf = 1 if Vy > Vx, else 0)
+void Chip8::OP_8xy7() {
+  uint8_t x = (opcode & 0x0F00u) >> 8u;
+  uint8_t y = (opcode & 0x00F0u) >> 4u;
+
+  V[0xF] = V[y] > V[x] ? 1 : 0;
+  V[x] = V[y] - V[x];
+}
+
+void Chip8::OP_8xyE() {
+  uint8_t x = (opcode & 0x0F00u) >> 8u;
+
+  V[0xF] = (V[x] & 0x80) >> 7u;
+  V[x] <<= 1;
+}
