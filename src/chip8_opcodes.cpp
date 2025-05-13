@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <ratio>
 
 // DEFAULT HANDLER
 void Chip8::OP_NULL() {
@@ -232,6 +233,10 @@ void Chip8::OP_8xyE() {
 void Chip8::OP_Ex9E() {
   uint8_t x = (opcode & 0x0F00u) >> 8u;
 
+  std::cout << "KEYPAD " << V[x] << " IS "
+            << (keypad[V[x]] ? " PRESSED" : "NOT PRESSED")
+            << " Vx = " << std::hex << (int)V[x] << std::dec << "\n";
+
   if (keypad[V[x]]) {
     pc += 2;
   }
@@ -240,6 +245,10 @@ void Chip8::OP_Ex9E() {
 // SKPN Vx (Skip next instruction if key with the value of Vx is not pressed)
 void Chip8::OP_ExA1() {
   uint8_t x = (opcode & 0x0F00u) >> 8u;
+
+  std::cout << "KEYPAD " << V[x] << " IS "
+            << (keypad[V[x]] ? " PRESSED" : "NOT PRESSED")
+            << " Vx = " << std::hex << (int)V[x] << std::dec << "\n";
 
   if (!keypad[V[x]]) {
     pc += 2;

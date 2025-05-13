@@ -159,10 +159,22 @@ int main(int argc, char *argv[]) {
   //     0xFF, 0xFF  // HALT
   // };
   //
+  //
 
-  // 0xEx9E
+  // E Family
+  std::vector<uint8_t> rom = {
+      0x60, 0x05, // LD V0, 0x05
+      0xE0, 0x9E, // SKP V0 (should skip next if key 5 is pressed)
+      0x61, 0x01, // LD V1, 0x01
+      0xE0, 0xA1, // SKPN V0 (should skip next if key 5 is not pressed)
+      0x61, 0x02, // LD V1, 0x02 (this should run if skipped)
+      0xFF, 0xFF  // HALT
+  };
+
   Chip8 cpu;
   cpu.LoadFromArray(rom.data(), rom.size());
+
+  cpu.keypad[5] = 1;
 
   cpu.RunTillHalt();
 

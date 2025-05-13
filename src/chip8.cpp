@@ -64,7 +64,10 @@ Chip8::Chip8() {
   table8[0xE] = &Chip8::OP_8xyE;
 
   // E
-  tableE[0x9] = &Chip8::OP_Ex9E;
+  for (size_t i = 0; i < 0xF + 1; i += 1) {
+    tableE[i] = &Chip8::OP_NULL;
+  }
+  tableE[0xE] = &Chip8::OP_Ex9E;
   tableE[0x1] = &Chip8::OP_ExA1;
 
   // F
