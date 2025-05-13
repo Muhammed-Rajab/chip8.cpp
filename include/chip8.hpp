@@ -8,6 +8,7 @@
 class Chip8 {
 public:
   // state
+  bool allow_custom_instructions = false;
   bool halted = false;
 
   // RAM

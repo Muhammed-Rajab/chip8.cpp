@@ -83,7 +83,9 @@ Chip8::Chip8() {
   tableF[0x33] = &Chip8::OP_Fx33;
   tableF[0x55] = &Chip8::OP_Fx55;
   tableF[0x65] = &Chip8::OP_Fx65;
-  tableF[0xFF] = &Chip8::OP_FxFF; // HALT
+
+  if (allow_custom_instructions)
+    tableF[0xFF] = &Chip8::OP_FxFF; // HALT
 }
 
 // ====== Loaders ======
@@ -132,7 +134,7 @@ void Chip8::DecodeAndExecute() {
 
 void Chip8::Cycle() {
 
-  if (halted)
+  if (halted && allow_custom_instructions)
     return;
 
   // fetch opcode from memory
@@ -158,6 +160,10 @@ void Chip8::Cycle() {
 }
 
 bool Chip8::RunTillHalt() {
+  if (!allow_custom_instructions) {
+    throw std::runtime_error(
+        "can't run till HALT when allow_custom_instructions is set FALSE");
+  }
 
   do {
     Cycle();
