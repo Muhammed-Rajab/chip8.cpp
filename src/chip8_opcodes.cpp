@@ -3,13 +3,18 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <ctime>
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <sys/types.h>
 
 // DEFAULT HANDLER
 void Chip8::OP_NULL() {
-  std::cerr << "TF AM I SUPPOSED TO DO? IDK NO 0x" << std::hex << opcode
-            << std::dec << "!\n";
+  std::ostringstream msg;
+  msg << "Unhandled opcode: 0x" << std::hex << std::uppercase << opcode
+      << " at PC: 0x" << std::setw(4) << std::setfill('0') << pc;
+  throw std::runtime_error(msg.str());
 }
 
 // HALT (Stops execution)
