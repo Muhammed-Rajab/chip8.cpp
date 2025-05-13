@@ -1,0 +1,15 @@
+#ifndef CHIP8_DISASSEMBLER_HPP
+#define CHIP8_DISASSEMBLER_HPP
+
+#include <cstdint>
+#include <string>
+#include <vector>
+
+class Disassembler {
+
+public:
+  static std::string Decode(uint16_t opcode);
+  std::string DecodeRomFromArray(std::vector<uint8_t> rom, bool verbose);
+};
+
+#endif
