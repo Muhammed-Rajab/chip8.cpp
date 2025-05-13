@@ -7,11 +7,8 @@
 #include <thread>
 #include <vector>
 
-int main(int argc, char *argv[]) {
-
-  // ====== ROM File Test ======
-  const std::string filename = "./roms/test/ibm.ch8";
-
+// ====== ROM Loader ======
+std::vector<uint8_t> LoadRomFromFile(const std::string &filename) {
   std::ifstream file(filename,
                      std::ios::binary | std::ios::ate); // ate = seek to end
 
@@ -27,6 +24,14 @@ int main(int argc, char *argv[]) {
     throw std::runtime_error("Failed to read ROM file: " + filename);
   }
 
+  return rom;
+}
+
+int main(int argc, char *argv[]) {
+
+  const std::string filename = "./roms/test/ibm.ch8";
+  auto rom = LoadRomFromFile(filename);
+
   Chip8 cpu;
   cpu.LoadFromArray(rom.data(), rom.size());
 
@@ -36,11 +41,5 @@ int main(int argc, char *argv[]) {
     cpu.Cycle();
     std::this_thread::sleep_for(std::chrono::milliseconds(16));
   }
-
-  // std::cout << cpu.DumpRegisters();
-  // std::cout << cpu.DumpCPU();
-  // std::cout << cpu.DumpVideo();
-  // std::cout << cpu.DumpMemoryTableHex(0x300, 0x20);
-
   return EXIT_SUCCESS;
 }
