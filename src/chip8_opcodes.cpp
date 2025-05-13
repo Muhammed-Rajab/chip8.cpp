@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
-#include <ratio>
+#include <sys/types.h>
 
 // DEFAULT HANDLER
 void Chip8::OP_NULL() {
@@ -247,47 +247,92 @@ void Chip8::OP_ExA1() {
   }
 }
 
+// LD Vx, DT
 void Chip8::OP_Fx07() {
   uint8_t x = (opcode & 0x0F00u) >> 8u;
-  // Set Vx = delay timer value
+
+  V[x] = delay;
 }
 
+// LD Vx, K (Wait for keypress, store the value of the key in Vx)
 void Chip8::OP_Fx0A() {
   uint8_t x = (opcode & 0x0F00u) >> 8u;
   // Wait for a key press, store the value of the key in Vx
+
+  for (uint8_t i = 0; i < 16; i += 1) {
+    if (keypad[i]) {
+      V[x] = i;
+      return;
+    }
+  }
+
+  pc -= 2; // Simulates waiting by executing the same instruction again
 }
 
+// LD DT, Vx
 void Chip8::OP_Fx15() {
   uint8_t x = (opcode & 0x0F00u) >> 8u;
   // Set delay timer = Vx
+  delay = V[x];
 }
 
+// LD ST, Vx
 void Chip8::OP_Fx18() {
   uint8_t x = (opcode & 0x0F00u) >> 8u;
   // Set sound timer = Vx
+  sound = V[x];
 }
 
+// ADD I, Vx
 void Chip8::OP_Fx1E() {
   uint8_t x = (opcode & 0x0F00u) >> 8u;
   // Set I = I + Vx
+
+  // overflow flag
+  V[0xF] = (index + V[x] > 0xFFF) ? 1 : 0;
+  index += V[x];
 }
 
+// LD F, Vx
 void Chip8::OP_Fx29() {
   uint8_t x = (opcode & 0x0F00u) >> 8u;
   // Set I = location of sprite for digit Vx
+  index = FONTSET_START_ADDRESS + (5 * V[x]);
 }
 
+// LD B, Vx
 void Chip8::OP_Fx33() {
   uint8_t x = (opcode & 0x0F00u) >> 8u;
   // Store BCD representation of Vx in memory locations I, I+1, and I+2
+
+  uint8_t val = V[x];
+
+  /// ones
+  memory[index + 2] = val % 10;
+  val /= 10;
+
+  // tens
+  memory[index + 1] = val % 10;
+  val /= 10;
+
+  // hundreds
+  memory[index] = val % 10;
 }
 
+// LD [I], Vx
 void Chip8::OP_Fx55() {
   uint8_t x = (opcode & 0x0F00u) >> 8u;
-  // Store registers V0 through Vx in memory starting at location I
+  // Store registers V0 through Vx in memory starting at location I.
+  for (uint8_t i = 0; i <= x; i += 1) {
+    memory[index + i] = V[i];
+  }
 }
 
+// LD Vx, [I]
 void Chip8::OP_Fx65() {
   uint8_t x = (opcode & 0x0F00u) >> 8u;
   // Read registers V0 through Vx from memory starting at location I
+  for (uint8_t i = 0; i <= x; i += 1) {
+    V[i] = memory[index + i];
+  }
 }

@@ -174,7 +174,7 @@ int main(int argc, char *argv[]) {
   Chip8 cpu;
   cpu.LoadFromArray(rom.data(), rom.size());
 
-  cpu.keypad[5] = 1;
+  cpu.keypad[5] = 0;
 
   cpu.RunTillHalt();
 
