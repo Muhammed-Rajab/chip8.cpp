@@ -146,9 +146,6 @@ std::string Disassembler::Decode(uint16_t opcode) {
     case 0x65:
       out << "LD V" << std::hex << +x << ", [I]";
       break;
-    case 0xFF:
-      out << "HALT";
-      break;
     default:
       out << "??? (" << std::hex << std::uppercase << opcode << ")";
       break;
