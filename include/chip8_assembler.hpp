@@ -18,6 +18,7 @@ enum class TokenType {
   LabelRef,
   Comma,
   SpecialRegister,
+  MemoryDereference,
   Unknown
 };
 
@@ -41,6 +42,9 @@ struct Token {
       break;
     case TokenType::SpecialRegister:
       type_as_string = "SpecialRegister";
+      break;
+    case TokenType::MemoryDereference:
+      type_as_string = "MemoryDereference";
       break;
     case TokenType::Immediate:
       type_as_string = "Immediate";
@@ -97,6 +101,9 @@ private:
   bool is_special_register(const std::string &s) {
     return SPECIAL_REGISTERS.count(s);
   }
+  bool is_memory_dereference(const std::string &s) {
+    return s == "[I]"; //
+  }
 
   // strips away comment
   std::string strip_comments(const std::string &line) {
@@ -151,6 +158,8 @@ private:
         tokens.push_back(create_token(TokenType::Register, st));
       } else if (is_special_register(st)) {
         tokens.push_back(create_token(TokenType::SpecialRegister, st));
+      } else if (is_memory_dereference(st)) {
+        tokens.push_back(create_token(TokenType::MemoryDereference, st));
       } else if (is_immediate(st)) {
         tokens.push_back(create_token(TokenType::Immediate, st));
       } else {
