@@ -1,4 +1,5 @@
 #include "./include/chip8.hpp"
+#include "include/chip8_assembler.hpp"
 #include "include/chip8_disassembler.hpp"
 #include <chrono>
 #include <cstdint>
@@ -33,9 +34,9 @@ int main(int argc, char *argv[]) {
   const std::string filename = "./roms/test/octojam.ch8";
   auto rom = LoadRomFromFile(filename);
 
-  Disassembler dasm;
-  std::cout << dasm.DecodeRomFromArray(rom, true);
-
+  // Disassembler dasm;
+  // std::cout << dasm.DecodeRomFromArray(rom, true);
+  //
   // Chip8 cpu;
   // cpu.LoadFromArray(rom.data(), rom.size());
   //
@@ -45,6 +46,9 @@ int main(int argc, char *argv[]) {
   //   cpu.Cycle();
   //   std::this_thread::sleep_for(std::chrono::milliseconds(16));
   // }
+  //
+  Assembler chip8_asm;
+  chip8_asm.Encode("loop: LD V0,0x10; This is such a full line");
 
   return EXIT_SUCCESS;
 }
