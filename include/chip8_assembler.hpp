@@ -253,9 +253,26 @@ private:
     }
   }
 
+  uint16_t assemble_instruction(std::vector<Token> line) { return 0x0; }
+
 public:
   Assembler(std::string source_code) : tkzr(source_code) {
     run_first_pass(); //
+
+    uint16_t PC = 0x200;
+    std::vector<uint8_t> bytes;
+
+    for (const auto &line : tkzr.get_token_lines()) {
+      if (line.empty() || line.front().type == TokenType::LabelDef)
+        continue;
+
+      uint16_t opcode = assemble_instruction(line);
+
+      bytes.push_back(((opcode & 0xFF00u) >> 8u));
+      bytes.push_back((opcode & 0x00FFu));
+
+      PC += 2;
+    }
   }
 };
 
