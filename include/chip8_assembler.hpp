@@ -1,9 +1,9 @@
 #ifndef CHIP8_ASSEMBLER_HPP
 #define CHIP8_ASSEMBLER_HPP
 
+#include <algorithm>
 #include <cctype>
 #include <cstddef>
-#include <cstdint>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -17,6 +17,7 @@ enum class TokenType {
   Immediate,
   LabelRef,
   Comma,
+  SpecialRegister,
   Unknown
 };
 
@@ -37,6 +38,9 @@ struct Token {
       break;
     case TokenType::Register:
       type_as_string = "Register";
+      break;
+    case TokenType::SpecialRegister:
+      type_as_string = "SpecialRegister";
       break;
     case TokenType::Immediate:
       type_as_string = "Immediate";
@@ -67,6 +71,8 @@ const std::unordered_set<std::string> CHIP8_MNEMONICS = {
     "CLS", "RET", "JP",   "CALL", "SE",  "SNE", "LD",  "ADD", "OR",  "AND",
     "XOR", "SUB", "SUBN", "SHR",  "SHL", "RND", "DRW", "SKP", "SKNP"};
 
+const std::unordered_set<std::string> SPECIAL_REGISTERS = {"I", "DT", "ST"};
+
 class Tokenizer {
 
 private:
@@ -78,13 +84,18 @@ private:
     return s == ","; //
   }
   bool is_immediate(const std::string &s) {
-    return s.rfind("0x", 0) == 0; //
+    if (s.rfind("0x", 0) == 0)
+      return true;
+    return std::all_of(s.begin(), s.end(), ::isdigit);
   }
   bool is_register(const std::string &s) {
     return s.length() == 2 && s[0] == 'V' && std::isxdigit(s[1]); //
   }
   bool is_labeldef(const std::string &s, size_t tokens_so_far) {
     return tokens_so_far == 0 && !s.empty() && s.back() == ':'; //
+  }
+  bool is_special_register(const std::string &s) {
+    return SPECIAL_REGISTERS.count(s);
   }
 
   // strips away comment
@@ -138,6 +149,8 @@ private:
         tokens.push_back(create_token(TokenType::Comma, st));
       } else if (is_register(st)) {
         tokens.push_back(create_token(TokenType::Register, st));
+      } else if (is_special_register(st)) {
+        tokens.push_back(create_token(TokenType::SpecialRegister, st));
       } else if (is_immediate(st)) {
         tokens.push_back(create_token(TokenType::Immediate, st));
       } else {

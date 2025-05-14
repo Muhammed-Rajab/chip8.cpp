@@ -47,14 +47,10 @@ int main(int argc, char *argv[]) {
   //   std::this_thread::sleep_for(std::chrono::milliseconds(16));
   // }
   //
-  std::string source = R"(; Simple CHIP-8 program
-Start:
-    CLS
-    LD V0, 0x0A
-    LD V1, 0x05
-    LD I, 0x300
-    DRW V0, V1, 5
-    JP Start)";
+  std::string source = R"(LD I, 0x300        ; LD I, addr
+LD DT, V1          ; LD DT, Vx
+LD ST, V0          ; LD ST, Vx
+LD [I], Vx         ; memory store)";
   Assembler chip8_asm(source);
 
   return EXIT_SUCCESS;
