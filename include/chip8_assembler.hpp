@@ -4,9 +4,11 @@
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
+#include <cstdint>
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
@@ -205,24 +207,55 @@ public:
   const std::vector<std::vector<Token>> &get_token_lines() const {
     return token_lines;
   }
+
+  std::string get_tokens_lines_as_string() const {
+    std::ostringstream oss;
+
+    size_t index = 1;
+    for (auto line : get_token_lines()) {
+      oss << "LINE " << index << ": ";
+      for (auto token : line) {
+        oss << token.as_string() << " ";
+      }
+      oss << "\n";
+      index += 1;
+    }
+
+    return oss.str();
+  }
 };
 
 class Assembler {
 
 private:
-public:
-  Assembler(std::string source_code) {
-    Tokenizer tkzr(source_code);
+  Tokenizer tkzr;
+  std::unordered_map<std::string, uint16_t> label_table;
 
-    size_t index = 1;
-    for (auto line : tkzr.get_token_lines()) {
-      std::cout << "LINE " << index << ": ";
-      for (auto token : line) {
-        std::cout << token.as_string() << " ";
+  void run_first_pass() {
+    uint16_t PC = 0x200;
+    for (const auto &tl : tkzr.get_token_lines()) {
+
+      if (tl.empty())
+        continue;
+
+      if (tl.front().type == TokenType::LabelDef) {
+        const std::string label =
+            tl.front().text.substr(0, tl.front().text.size() - 1);
+
+        if (label_table.find(label) != label_table.end()) {
+          std::cerr << "error: duplicate label: " << label << "\n";
+        } else {
+          label_table[label] = PC;
+        }
       }
-      std::cout << "\n";
-      index += 1;
+
+      PC += 2;
     }
+  }
+
+public:
+  Assembler(std::string source_code) : tkzr(source_code) {
+    run_first_pass(); //
   }
 };
 
