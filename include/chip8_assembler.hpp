@@ -67,24 +67,40 @@ const std::unordered_set<std::string> CHIP8_MNEMONICS = {
     "CLS", "RET", "JP",   "CALL", "SE",  "SNE", "LD",  "ADD", "OR",  "AND",
     "XOR", "SUB", "SUBN", "SHR",  "SHL", "RND", "DRW", "SKP", "SKNP"};
 
-class Assembler {
+class Tokenizer {
 
 private:
-  std::string strip_comments(const std::string &line) {
+  // ====== Checkers ======
+  bool is_mnemonic(const std::string &s) {
+    return CHIP8_MNEMONICS.count(s); //
+  }
+  bool is_comma(const std::string &s) {
+    return s == ","; //
+  }
+  bool is_immediate(const std::string &s) {
+    return s.rfind("0x", 0) == 0; //
+  }
+  bool is_register(const std::string &s) {
+    return s.length() == 2 && s[0] == 'V' && std::isxdigit(s[1]); //
+  }
+  bool is_labeldef(const std::string &s, size_t tokens_so_far) {
+    return tokens_so_far == 0 && !s.empty() && s.back() == ':'; //
+  }
 
+  // strips away comment
+  std::string strip_comments(const std::string &line) {
     auto comment_pos = line.find(';');
 
     if (comment_pos != std::string::npos)
       return line.substr(0, comment_pos);
-
     return line;
   }
 
+  // adds gap between ','
   std::string normalize(const std::string &line) {
     std::string out;
 
     for (char c : line) {
-
       if (c == ',') {
         out += ' ';
         out += c;
@@ -93,11 +109,11 @@ private:
         out += c;
       }
     }
-
     return out;
   }
 
-  std::vector<std::string> tokenize(const std::string &line) {
+  // splits up the line to individual string tokens
+  std::vector<std::string> generate_string_tokens(const std::string &line) {
     std::istringstream iss(line);
     std::vector<std::string> tokens;
     std::string word;
@@ -105,21 +121,10 @@ private:
     while (iss >> word) {
       tokens.push_back(word);
     }
-
     return tokens;
   }
 
-  bool is_mnemonic(const std::string &s) { return CHIP8_MNEMONICS.count(s); }
-  bool is_comma(const std::string &s) { return s == ","; }
-  bool is_immediate(const std::string &s) { return s.rfind("0x", 0) == 0; }
-  bool is_register(const std::string &s) {
-    return s.length() == 2 && s[0] == 'V' && std::isxdigit(s[1]);
-  }
-  bool is_labeldef(const std::string &s, size_t tokens_so_far) {
-    return tokens_so_far == 0 && !s.empty() && s.back() == ':';
-  }
-
-  std::vector<Token> classify(const std::vector<std::string> &string_tokens) {
+  std::vector<Token> tokenize(const std::vector<std::string> &string_tokens) {
 
     std::vector<Token> tokens;
 
@@ -143,31 +148,59 @@ private:
     return tokens;
   }
 
+  std::string source_code = {};
+  std::vector<std::string> source_code_lines = {};
+  std::vector<std::vector<Token>> token_lines = {};
+
+  void split_source_to_lines() {
+    std::istringstream iss(source_code);
+    std::string line;
+
+    while (std::getline(iss, line)) {
+      source_code_lines.push_back(line);
+    }
+  }
+
+  void generate_token_lines() {
+    for (const auto &line : source_code_lines) {
+      std::string stripped = strip_comments(line);
+      std::string normalized = normalize(stripped);
+      std::vector<std::string> string_tokens =
+          generate_string_tokens(normalized);
+      token_lines.push_back(tokenize(string_tokens));
+    }
+  }
+
 public:
-  uint16_t Encode(std::string line) {
+  Tokenizer(std::string source) : source_code(source) {
+    // split up the source code by new line
+    split_source_to_lines();
 
-    std::cout << "original: '" << line << "'" << std::endl;
+    // generates token lines for the source code lines
+    generate_token_lines();
+  }
 
-    std::string stripped_line = strip_comments(line);
-    std::cout << "stripped: '" << stripped_line << "'" << std::endl;
+  const std::vector<std::vector<Token>> &get_token_lines() const {
+    return token_lines;
+  }
+};
 
-    std::string normalized_line = normalize(stripped_line);
-    std::cout << "normalized: '" << normalized_line << "'" << std::endl;
+class Assembler {
 
-    std::vector<std::string> tokens = tokenize(normalized_line);
+private:
+public:
+  Assembler(std::string source_code) {
+    Tokenizer tkzr(source_code);
 
-    std::cout << "tokens: " << std::endl;
-    for (auto t : tokens) {
-      std::cout << "'" << t << "'" << std::endl;
+    size_t index = 1;
+    for (auto line : tkzr.get_token_lines()) {
+      std::cout << "LINE " << index << ": ";
+      for (auto token : line) {
+        std::cout << token.as_string() << " ";
+      }
+      std::cout << "\n";
+      index += 1;
     }
-
-    std::vector<Token> classified_tokens = classify(tokens);
-    std::cout << "classified tokens: " << std::endl;
-    for (auto t : classified_tokens) {
-      std::cout << t.as_string() << std::endl;
-    }
-
-    return 0x0;
   }
 };
 

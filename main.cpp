@@ -47,8 +47,15 @@ int main(int argc, char *argv[]) {
   //   std::this_thread::sleep_for(std::chrono::milliseconds(16));
   // }
   //
-  Assembler chip8_asm;
-  chip8_asm.Encode("loop: LD V0,0x10; This is such a full line");
+  std::string source = R"(; Simple CHIP-8 program
+Start:
+    CLS
+    LD V0, 0x0A
+    LD V1, 0x05
+    LD I, 0x300
+    DRW V0, V1, 5
+    JP Start)";
+  Assembler chip8_asm(source);
 
   return EXIT_SUCCESS;
 }
