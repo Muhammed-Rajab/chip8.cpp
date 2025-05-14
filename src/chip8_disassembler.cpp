@@ -42,7 +42,10 @@ std::string Disassembler::Decode(uint16_t opcode) {
     break;
 
   case 0x5:
-    out << "SE V" << std::hex << +x << ", V" << +y;
+    if (n == 0x0)
+      out << "SE V" << std::hex << +x << ", V" << +y;
+    else
+      out << "??? (" << std::hex << std::uppercase << opcode << ")";
     break;
 
   case 0x6:
@@ -89,7 +92,10 @@ std::string Disassembler::Decode(uint16_t opcode) {
     break;
 
   case 0x9:
-    out << "SNE V" << std::hex << +x << ", V" << +y;
+    if (n == 0x0)
+      out << "SNE V" << std::hex << +x << ", V" << +y;
+    else
+      out << "??? (" << std::hex << std::uppercase << opcode << ")";
     break;
 
   case 0xA:
@@ -160,7 +166,7 @@ std::string Disassembler::Decode(uint16_t opcode) {
 }
 
 std::string Disassembler::DecodeRomFromArray(std::vector<uint8_t> rom,
-                                             bool verbose = false) {
+                                             bool verbose) {
   std::ostringstream out;
 
   for (size_t i = 0; i + 1 < rom.size(); i += 2) {

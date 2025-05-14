@@ -36,15 +36,15 @@ int main(int argc, char *argv[]) {
   Disassembler dasm;
   std::cout << dasm.DecodeRomFromArray(rom, true);
 
-  Chip8 cpu;
-  cpu.LoadFromArray(rom.data(), rom.size());
-
-  while (true) {
-    std::cout << "\033[2J\033[H";
-    std::cout << cpu.DumpVideo();
-    cpu.Cycle();
-    std::this_thread::sleep_for(std::chrono::milliseconds(16));
-  }
+  // Chip8 cpu;
+  // cpu.LoadFromArray(rom.data(), rom.size());
+  //
+  // while (true) {
+  //   std::cout << "\033[2J\033[H";
+  //   std::cout << cpu.DumpVideo();
+  //   cpu.Cycle();
+  //   std::this_thread::sleep_for(std::chrono::milliseconds(16));
+  // }
 
   return EXIT_SUCCESS;
 }
