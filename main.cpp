@@ -1,13 +1,10 @@
-#include "./include/chip8.hpp"
-#include "include/chip8_assembler.hpp"
-#include "include/chip8_disassembler.hpp"
-#include <chrono>
 #include <cstdint>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
-#include <thread>
 #include <vector>
+
+#include "./include/assembler/assembler.hpp"
 
 // ====== ROM Loader ======
 std::vector<uint8_t> LoadRomFromFile(const std::string &filename) {
@@ -31,22 +28,6 @@ std::vector<uint8_t> LoadRomFromFile(const std::string &filename) {
 
 int main(int argc, char *argv[]) {
 
-  const std::string filename = "./roms/test/octojam.ch8";
-  auto rom = LoadRomFromFile(filename);
-
-  // Disassembler dasm;
-  // std::cout << dasm.DecodeRomFromArray(rom, true);
-  //
-  // Chip8 cpu;
-  // cpu.LoadFromArray(rom.data(), rom.size());
-  //
-  // while (true) {
-  //   std::cout << "\033[2J\033[H";
-  //   std::cout << cpu.DumpVideo();
-  //   cpu.Cycle();
-  //   std::this_thread::sleep_for(std::chrono::milliseconds(16));
-  // }
-  //
   std::string source = R"(; Test program for tokenizer coverage
 
 Start:
