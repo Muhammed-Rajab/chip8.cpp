@@ -10,6 +10,7 @@
 
 #include "../../include/assembler/assembler.hpp"
 
+// ====== Stages ======
 void Assembler::run_first_pass() {
   uint16_t PC = 0x200;
   for (const auto &tl : tkzr.get_token_lines()) {
@@ -86,15 +87,15 @@ uint16_t Assembler::resolve_immediate_and_label(const Token &tk) {
 
 // ====== Instruction parsers ======
 uint16_t Assembler::parse_JP(const std::vector<Token> &line) {
-  // nnn could also be a label
+  // ! nnn could also be a label
 
-  // JP nnn -> 1nnn
+  // 1nnn - JP addr
   if (line.size() == 2 && is_immediate_or_label(line[1])) {
     uint16_t addr = resolve_immediate_and_label(line[1]);
     return 0x1000 | (addr & 0x0FFF);
   }
 
-  // JP V0, addr -> Bnnn
+  // Bnnn - JP V0, addr
   if (line.size() == 4 && line[1].type == TokenType::Register &&
       line[1].text == "V0" && line[2].type == TokenType::Comma &&
       is_immediate_or_label(line[3])) {
@@ -103,28 +104,25 @@ uint16_t Assembler::parse_JP(const std::vector<Token> &line) {
   }
 
   throw_invalid_instruction("JP", line);
-  return 0x0; // shouldn't reach here cause "throw"
+  return 0x0;
 }
 
 uint16_t Assembler::parse_CALL(const std::vector<Token> &line) {
+  // ! nnn could also be a label
 
-  // CALL nnn
-  // or
-  // CALL labelref
+  // 2nnn - CALL addr
   if (line.size() == 2 && is_immediate_or_label(line[1])) {
     uint16_t addr = resolve_immediate_and_label(line[1]);
     return 0x2000 | (addr & 0x0FFF);
   }
 
   throw_invalid_instruction("CALL", line);
-  return 0x0; // shouldn't reach here cause "throw"
+  return 0x0;
 }
 
 uint16_t Assembler::parse_SE(std::vector<Token> &line) {
 
-  // SE Vx, kk
-  // SE Vx, Vy
-  // 3xkk
+  // 3xkk - SE Vx, byte
   if (line[1].type == TokenType::Register && line[2].type == TokenType::Comma &&
       line[3].type == TokenType::Immediate) {
 
@@ -136,7 +134,7 @@ uint16_t Assembler::parse_SE(std::vector<Token> &line) {
     return (0x3000 | (x << 8u)) | kk;
   }
 
-  // 5xy0
+  // 5xy0 - SE Vx, Vy
   if (line[1].type == TokenType::Register && line[2].type == TokenType::Comma &&
       line[3].type == TokenType::Register) {
 
@@ -147,14 +145,12 @@ uint16_t Assembler::parse_SE(std::vector<Token> &line) {
   }
 
   throw_invalid_instruction("SE", line);
-  return 0x0; // shouldn't reach here cause "throw"
+  return 0x0;
 }
 
 uint16_t Assembler::parse_SNE(std::vector<Token> &line) {
 
-  // SNE Vx, kk
-  // SNE Vx, Vy
-  // 4xkk
+  // 4xkk - SNE Vx, byte
   if (line[1].type == TokenType::Register && line[2].type == TokenType::Comma &&
       line[3].type == TokenType::Immediate) {
 
@@ -166,7 +162,7 @@ uint16_t Assembler::parse_SNE(std::vector<Token> &line) {
     return (0x4000 | (x << 8u)) | kk;
   }
 
-  // 9xy0
+  // 9xy0 - SNE Vx, Vy
   if (line[1].type == TokenType::Register && line[2].type == TokenType::Comma &&
       line[3].type == TokenType::Register) {
 
@@ -177,7 +173,7 @@ uint16_t Assembler::parse_SNE(std::vector<Token> &line) {
   }
 
   throw_invalid_instruction("SNE", line);
-  return 0x0; // shouldn't reach here cause "throw"
+  return 0x0;
 }
 
 uint16_t Assembler::parse_ADD(std::vector<Token> &line) {
@@ -213,7 +209,7 @@ uint16_t Assembler::parse_ADD(std::vector<Token> &line) {
   }
 
   throw_invalid_instruction("ADD", line);
-  return 0x0; // shouldn't reach here cause "throw"
+  return 0x0;
 }
 
 uint16_t Assembler::assemble_instruction(std::vector<Token> line) {
