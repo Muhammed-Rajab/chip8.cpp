@@ -361,6 +361,7 @@ private:
       return (0x3000 | (x << 8u)) | kk;
     }
 
+    // 5xy0
     if (line[1].type == TokenType::Register &&
         line[2].type == TokenType::Comma &&
         line[3].type == TokenType::Register) {
@@ -372,6 +373,38 @@ private:
     }
 
     throw_invalid_instruction("SE", line);
+    return 0x0; // shouldn't reach here cause "throw"
+  }
+
+  uint16_t parse_SNE(std::vector<Token> &line) {
+
+    // SNE Vx, kk
+    // SNE Vx, Vy
+    // 4xkk
+    if (line[1].type == TokenType::Register &&
+        line[2].type == TokenType::Comma &&
+        line[3].type == TokenType::Immediate) {
+
+      uint8_t x = parse_register(line[1].text);
+      uint16_t kk = parse_immediate(line[3].text);
+      if (kk > 0xFF)
+        throw std::runtime_error("immediate value out of range for a byte");
+
+      return (0x4000 | (x << 8u)) | kk;
+    }
+
+    // 9xy0
+    if (line[1].type == TokenType::Register &&
+        line[2].type == TokenType::Comma &&
+        line[3].type == TokenType::Register) {
+
+      uint8_t x = parse_register(line[1].text);
+      uint8_t y = parse_register(line[3].text);
+
+      return (0x9000 | (x << 8u)) | (y << 4u);
+    }
+
+    throw_invalid_instruction("SNE", line);
     return 0x0; // shouldn't reach here cause "throw"
   }
 
@@ -403,6 +436,11 @@ private:
     // SE
     if (mnemonic == "SE") {
       return parse_SE(line);
+    }
+
+    // SNE
+    if (mnemonic == "SNE") {
+      return parse_SNE(line);
     }
 
     return 0x0000;

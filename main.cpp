@@ -61,6 +61,8 @@ Start:
     CALL 0x200
     SE V0, 0x22
     SE V0, V1
+    SNE V0, 0x22
+    SNE V0, V1
 )";
   Assembler chip8_asm(source);
 
