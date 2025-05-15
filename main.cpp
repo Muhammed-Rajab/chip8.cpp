@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "./include/assembler/assembler.hpp"
+#include "./include/disassembler/disassembler.hpp"
 
 // ====== ROM Loader ======
 std::vector<uint8_t> LoadRomFromFile(const std::string &filename) {
@@ -27,6 +28,13 @@ std::vector<uint8_t> LoadRomFromFile(const std::string &filename) {
 }
 
 int main(int argc, char *argv[]) {
+
+  auto rom = LoadRomFromFile("./roms/test/ibm.ch8");
+
+  Disassembler dasm;
+  std::cout << dasm.DecodeRomFromArray(rom, true);
+
+  return EXIT_SUCCESS;
 
   std::string source = R"(; Test program for tokenizer coverage
 

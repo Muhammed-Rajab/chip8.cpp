@@ -1,4 +1,4 @@
-#include "../include/chip8_disassembler.hpp"
+#include "../../include/disassembler/disassembler.hpp"
 #include <cstddef>
 #include <cstdint>
 #include <iomanip>
