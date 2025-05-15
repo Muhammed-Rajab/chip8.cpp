@@ -309,6 +309,23 @@ private:
     throw std::runtime_error(oss.str());
   }
 
+  uint16_t parse_CALL(const std::vector<Token> &line) {
+
+    // CALL nnn
+    // or
+    // CALL labelref
+    if (line.size() == 2 && is_immediate_or_label(line[1])) {
+      uint16_t addr = resolve_value(line[1]);
+      return 0x2000 | (addr & 0x0FFF);
+    }
+
+    std::ostringstream oss;
+    oss << "invalid CALL instruction: ";
+    for (const auto &tk : line)
+      oss << tk.text << ' ';
+    throw std::runtime_error(oss.str());
+  }
+
   uint16_t assemble_instruction(std::vector<Token> line) {
 
     if (line.empty())
@@ -327,6 +344,11 @@ private:
     // JP
     if (mnemonic == "JP") {
       return parse_JP(line);
+    }
+
+    // CALL
+    if (mnemonic == "CALL") {
+      return parse_CALL(line);
     }
 
     return 0x0000;
