@@ -261,6 +261,16 @@ private:
   }
 
   // ====== Parsing helpers ======
+
+  void throw_invalid_instruction(const char *MNEMONIC,
+                                 const std::vector<Token> &line) const {
+    std::ostringstream oss;
+    oss << "invalid " << MNEMONIC << " instruction: ";
+    for (const auto &tk : line)
+      oss << tk.text << ' ';
+    throw std::runtime_error(oss.str());
+  }
+
   uint16_t parse_immediate(const std::string &s) {
     // hex
     if (s.rfind("0x", 0) == 0 || s.rfind("0X", 0) == 0)
@@ -269,7 +279,21 @@ private:
     return std::stoul(s, nullptr, 10);
   }
 
-  uint16_t resolve_value(const Token &tk) {
+  uint8_t parse_register(const std::string &s) {
+    if (s.size() != 2 || s[0] != 'V')
+      throw std::runtime_error("invalid register name: " + s);
+
+    char reg = std::toupper(s[1]);
+
+    if (reg >= '0' && reg <= '9')
+      return reg - '0';
+    if (reg >= 'A' && reg <= 'F')
+      return 10 + (reg - 'A');
+
+    throw std::runtime_error("invalid register name: " + s);
+  }
+
+  uint16_t resolve_immediate_and_label(const Token &tk) {
     if (tk.type == TokenType::Immediate)
       return parse_immediate(tk.text);
     if (tk.type == TokenType::LabelRef) {
@@ -290,7 +314,7 @@ private:
 
     // JP nnn -> 1nnn
     if (line.size() == 2 && is_immediate_or_label(line[1])) {
-      uint16_t addr = resolve_value(line[1]);
+      uint16_t addr = resolve_immediate_and_label(line[1]);
       return 0x1000 | (addr & 0x0FFF);
     }
 
@@ -298,15 +322,12 @@ private:
     if (line.size() == 4 && line[1].type == TokenType::Register &&
         line[1].text == "V0" && line[2].type == TokenType::Comma &&
         is_immediate_or_label(line[3])) {
-      uint16_t addr = resolve_value(line[3]);
+      uint16_t addr = resolve_immediate_and_label(line[3]);
       return 0xB000 | (addr & 0x0FFF);
     }
 
-    std::ostringstream oss;
-    oss << "invalid JP instruction: ";
-    for (const auto &tk : line)
-      oss << tk.text << ' ';
-    throw std::runtime_error(oss.str());
+    throw_invalid_instruction("JP", line);
+    return 0x0; // shouldn't reach here cause "throw"
   }
 
   uint16_t parse_CALL(const std::vector<Token> &line) {
@@ -315,15 +336,43 @@ private:
     // or
     // CALL labelref
     if (line.size() == 2 && is_immediate_or_label(line[1])) {
-      uint16_t addr = resolve_value(line[1]);
+      uint16_t addr = resolve_immediate_and_label(line[1]);
       return 0x2000 | (addr & 0x0FFF);
     }
 
-    std::ostringstream oss;
-    oss << "invalid CALL instruction: ";
-    for (const auto &tk : line)
-      oss << tk.text << ' ';
-    throw std::runtime_error(oss.str());
+    throw_invalid_instruction("CALL", line);
+    return 0x0; // shouldn't reach here cause "throw"
+  }
+
+  uint16_t parse_SE(std::vector<Token> &line) {
+
+    // SE Vx, kk
+    // SE Vx, Vy
+    // 3xkk
+    if (line[1].type == TokenType::Register &&
+        line[2].type == TokenType::Comma &&
+        line[3].type == TokenType::Immediate) {
+
+      uint8_t x = parse_register(line[1].text);
+      uint16_t kk = parse_immediate(line[3].text);
+      if (kk > 0xFF)
+        throw std::runtime_error("immediate value out of range for a byte");
+
+      return (0x3000 | (x << 8u)) | kk;
+    }
+
+    if (line[1].type == TokenType::Register &&
+        line[2].type == TokenType::Comma &&
+        line[3].type == TokenType::Register) {
+
+      uint8_t x = parse_register(line[1].text);
+      uint8_t y = parse_register(line[3].text);
+
+      return (0x5000 | (x << 8u)) | (y << 4u);
+    }
+
+    throw_invalid_instruction("SE", line);
+    return 0x0; // shouldn't reach here cause "throw"
   }
 
   uint16_t assemble_instruction(std::vector<Token> line) {
@@ -349,6 +398,11 @@ private:
     // CALL
     if (mnemonic == "CALL") {
       return parse_CALL(line);
+    }
+
+    // SE
+    if (mnemonic == "SE") {
+      return parse_SE(line);
     }
 
     return 0x0000;
