@@ -408,6 +408,45 @@ private:
     return 0x0; // shouldn't reach here cause "throw"
   }
 
+  uint16_t parse_ADD(std::vector<Token> &line) {
+
+    // 7xkk - ADD Vx, byte
+    if (line[1].type == TokenType::Register &&
+        line[2].type == TokenType::Comma &&
+        line[3].type == TokenType::Immediate) {
+
+      uint8_t x = parse_register(line[1].text);
+      uint16_t kk = parse_immediate(line[3].text);
+      if (kk > 0xFF)
+        throw std::runtime_error("immediate value out of range for a byte");
+
+      return (0x7000 | (x << 8u)) | kk;
+    }
+
+    // 8xy4 - ADD Vx, Vy
+    if (line[1].type == TokenType::Register &&
+        line[2].type == TokenType::Comma &&
+        line[3].type == TokenType::Register) {
+
+      uint8_t x = parse_register(line[1].text);
+      uint8_t y = parse_register(line[3].text);
+
+      return (0x8004 | (x << 8u)) | (y << 4u);
+    }
+
+    // Fx1E - ADD I, Vx
+    if (line[1].type == TokenType::SpecialRegister && line[1].text == "I" &&
+        line[2].type == TokenType::Comma &&
+        line[3].type == TokenType::Register) {
+      uint8_t x = parse_register(line[3].text);
+
+      return (0xF01E | (x << 8u));
+    }
+
+    throw_invalid_instruction("ADD", line);
+    return 0x0; // shouldn't reach here cause "throw"
+  }
+
   uint16_t assemble_instruction(std::vector<Token> line) {
 
     if (line.empty())
@@ -443,6 +482,12 @@ private:
       return parse_SNE(line);
     }
 
+    // ADD
+    if (mnemonic == "ADD") {
+      return parse_ADD(line);
+    }
+
+    throw_invalid_instruction(mnemonic.c_str(), line);
     return 0x0000;
   }
 

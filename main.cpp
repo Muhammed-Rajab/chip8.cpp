@@ -63,6 +63,9 @@ Start:
     SE V0, V1
     SNE V0, 0x22
     SNE V0, V1
+    ADD V0, 0x22
+    ADD V0, V1
+    ADD I, VF
 )";
   Assembler chip8_asm(source);
 
