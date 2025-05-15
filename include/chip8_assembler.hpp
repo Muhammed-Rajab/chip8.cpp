@@ -5,8 +5,10 @@
 #include <cctype>
 #include <cstddef>
 #include <cstdint>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -253,7 +255,82 @@ private:
     }
   }
 
-  uint16_t assemble_instruction(std::vector<Token> line) { return 0x0; }
+  // ====== Checkers ======
+  bool is_immediate_or_label(const Token &tk) {
+    return tk.type == TokenType::Immediate || tk.type == TokenType::LabelRef;
+  }
+
+  // ====== Parsing helpers ======
+  uint16_t parse_immediate(const std::string &s) {
+    // hex
+    if (s.rfind("0x", 0) == 0 || s.rfind("0X", 0) == 0)
+      return std::stoul(s, nullptr, 16);
+    // decimal
+    return std::stoul(s, nullptr, 10);
+  }
+
+  uint16_t resolve_value(const Token &tk) {
+    if (tk.type == TokenType::Immediate)
+      return parse_immediate(tk.text);
+    if (tk.type == TokenType::LabelRef) {
+      if (label_table.count(tk.text))
+        return label_table[tk.text];
+      else {
+        std::ostringstream oss;
+        oss << "error: unknown label: " << tk.text;
+        throw std::runtime_error(oss.str());
+      }
+    }
+    return 0;
+  }
+
+  // ====== Instruction parsers ======
+  uint16_t parse_JP(const std::vector<Token> &line) {
+    // nnn could also be a label
+
+    // JP nnn -> 1nnn
+    if (line.size() == 2 && is_immediate_or_label(line[1])) {
+      uint16_t addr = resolve_value(line[1]);
+      return 0x1000 | (addr & 0x0FFF);
+    }
+
+    // JP V0, addr -> Bnnn
+    if (line.size() == 4 && line[1].type == TokenType::Register &&
+        line[1].text == "V0" && line[2].type == TokenType::Comma &&
+        is_immediate_or_label(line[3])) {
+      uint16_t addr = resolve_value(line[3]);
+      return 0xB000 | (addr & 0x0FFF);
+    }
+
+    std::ostringstream oss;
+    oss << "invalid JP instruction: ";
+    for (const auto &tk : line)
+      oss << tk.text << ' ';
+    throw std::runtime_error(oss.str());
+  }
+
+  uint16_t assemble_instruction(std::vector<Token> line) {
+
+    if (line.empty())
+      return 0x0000;
+
+    const std::string &mnemonic = line[0].text;
+
+    // CLS
+    if (mnemonic == "CLS")
+      return 0x00E0;
+
+    // RET
+    if (mnemonic == "RET")
+      return 0x00EE;
+
+    // JP
+    if (mnemonic == "JP") {
+      return parse_JP(line);
+    }
+
+    return 0x0000;
+  }
 
 public:
   Assembler(std::string source_code) : tkzr(source_code) {
@@ -270,6 +347,9 @@ public:
 
       bytes.push_back(((opcode & 0xFF00u) >> 8u));
       bytes.push_back((opcode & 0x00FFu));
+
+      std::cout << "0x" << std::hex << std::setw(4) << std::setfill('0')
+                << std::uppercase << opcode << std::endl;
 
       PC += 2;
     }

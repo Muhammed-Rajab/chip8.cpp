@@ -51,35 +51,13 @@ int main(int argc, char *argv[]) {
 
 Start:
     CLS
-    LD V0, 0x0A
-    LD V1, 15
-    LD I, 0x300
-    LD DT, V1
-    LD ST, V0
-    LD [I], V2
-    LD V3, [I]
-    DRW V0, V1, 5
-    SE V0, V1
-    SNE V0, V1
-    ADD V0, V1
-    OR V0, V1
-    AND V0, V1
-    XOR V0, V1
-    SUB V0, V1
-    SUBN V0, V1
-    SHR V0
-    SHL V1
-    RND V2, 0xF0
-    SKP V2
-    SKNP V2
-    CALL DoSomething
+    RET
     JP Start
-
-DoSomething:
-    LD I, 0x400
-    LD [I], V4
-    LD V5, [I]
-    RET)";
+    JP V0, Start
+    JP Start
+    JP V0, 0x222
+    JP 0x333
+)";
   Assembler chip8_asm(source);
 
   return EXIT_SUCCESS;
