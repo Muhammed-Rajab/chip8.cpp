@@ -1,11 +1,8 @@
 #ifndef TOKENIZER_4_CHIP8_HPP
 #define TOKENIZER_4_CHIP8_HPP
 
-#include <algorithm>
 #include <cctype>
 #include <cstddef>
-#include <iostream>
-#include <sstream>
 #include <string>
 #include <unordered_set>
 #include <vector>
