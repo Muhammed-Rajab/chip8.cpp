@@ -59,6 +59,12 @@ Start:
     SUBN V3, V4
     LD V3, 0x22
     LD V0, V1
+    LD I, 0x222
+    LD I, Start
+    LD I, name
+
+name:
+    RET
 )";
   Assembler chip8_asm(source);
 

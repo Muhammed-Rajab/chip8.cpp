@@ -323,6 +323,17 @@ uint16_t Assembler::parse_LD(std::vector<Token> &line) {
     return (0x8000 | (x << 8u)) | (y << 4u);
   }
 
+  // Annn - LD I, addr
+  if (line[1].type == TokenType::SpecialRegister && line[1].text == "I" &&
+      line[2].type == TokenType::Comma && is_immediate_or_label(line[3])) {
+    uint16_t addr = resolve_immediate_and_label(line[3]);
+
+    if (addr > 0xFFF)
+      throw std::runtime_error("immediate value out of range ( <= 0xFFF)");
+
+    return (0xA000 | addr);
+  }
+
   throw_invalid_instruction("LD", line);
   return 0x0;
 }
