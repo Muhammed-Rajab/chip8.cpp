@@ -3,7 +3,7 @@
 
 #include "../../include/assembler/assembler.hpp"
 
-int main() {
+int TestAssembler() {
 
   std::string source = R"(; Test program for tokenizer coverage
 

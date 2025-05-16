@@ -1,10 +1,14 @@
+#include <chrono>
 #include <cstdint>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
+#include <string>
+#include <thread>
 #include <vector>
 
 #include "./include/assembler/assembler.hpp"
+#include "./include/chip8.hpp"
 #include "./include/disassembler/disassembler.hpp"
 
 // ====== ROM Loader ======
@@ -29,9 +33,27 @@ std::vector<uint8_t> LoadRomFromFile(const std::string &filename) {
 
 int main(int argc, char *argv[]) {
 
-  // auto rom = LoadRomFromFile("./roms/test/ibm.ch8");
-  // Disassembler dasm;
-  // std::cout << dasm.DecodeRomFromArray(rom, true);
+  std::string source = R"(; Welcome
+  LD V0, 0x22
+  )";
+
+  Assembler chasm(source);
+
+  auto rom = chasm.get_bytes();
+  auto ibm = LoadRomFromFile("./roms/test/ibm.ch8");
+
+  Chip8 cpu;
+
+  // cpu.LoadFromArray(rom.data(), rom.size());
+  cpu.LoadFromArray(ibm.data(), ibm.size());
+
+  while (true) {
+    std::cout << "\033[2J";
+    std::cout << "\033[H";
+    std::cout << cpu.DumpVideo();
+    cpu.Cycle();
+    std::this_thread::sleep_for(std::chrono::milliseconds(16));
+  }
 
   return EXIT_SUCCESS;
 }
