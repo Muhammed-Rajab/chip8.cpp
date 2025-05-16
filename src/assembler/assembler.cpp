@@ -334,6 +334,20 @@ uint16_t Assembler::parse_LD(std::vector<Token> &line) {
     return (0xA000 | addr);
   }
 
+  // Fx55 - LD [I], Vx
+  if (line[1].type == TokenType::MemoryDereference &&
+      line[2].type == TokenType::Comma && line[3].type == TokenType::Register) {
+    uint8_t x = parse_register(line[3].text);
+    return (0xF055 | (x << 8u));
+  }
+
+  // Fx65 - LD Vx, [I]
+  if (line[1].type == TokenType::Register && line[2].type == TokenType::Comma &&
+      line[3].type == TokenType::MemoryDereference) {
+    uint8_t x = parse_register(line[1].text);
+    return (0xF065 | (x << 8u));
+  }
+
   throw_invalid_instruction("LD", line);
   return 0x0;
 }

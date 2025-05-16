@@ -62,7 +62,8 @@ Start:
     LD I, 0x222
     LD I, Start
     LD I, name
-
+    LD [I], V0
+    LD V1, [I]
 name:
     RET
 )";
