@@ -65,6 +65,8 @@ Start:
     LD [I], V0
     LD V1, [I]
     LD V5, DT
+    LD ST, V4
+    LD DT, V2
 name:
     RET
 )";

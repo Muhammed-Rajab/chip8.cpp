@@ -355,6 +355,20 @@ uint16_t Assembler::parse_LD(std::vector<Token> &line) {
     return (0xF007 | (x << 8u));
   }
 
+  // Fx15 - LD DT, Vx
+  if (line[1].type == TokenType::SpecialRegister && line[1].text == "DT" &&
+      line[2].type == TokenType::Comma && line[3].type == TokenType::Register) {
+    uint8_t x = parse_register(line[3].text);
+    return (0xF015 | (x << 8u));
+  }
+
+  // Fx18 - LD ST, Vx
+  if (line[1].type == TokenType::SpecialRegister && line[1].text == "ST" &&
+      line[2].type == TokenType::Comma && line[3].type == TokenType::Register) {
+    uint8_t x = parse_register(line[3].text);
+    return (0xF018 | (x << 8u));
+  }
+
   throw_invalid_instruction("LD", line);
   return 0x0;
 }
