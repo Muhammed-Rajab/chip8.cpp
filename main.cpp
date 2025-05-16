@@ -71,6 +71,8 @@ Start:
     LD B, V1
     LD V4, K
     RND V0, 0x22
+    SKP V0
+    SKPN V9
 name:
     RET
 )";

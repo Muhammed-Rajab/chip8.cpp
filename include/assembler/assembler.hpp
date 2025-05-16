@@ -45,6 +45,9 @@ private:
   uint16_t parse_LD(std::vector<Token> &line);
   uint16_t parse_RND(std::vector<Token> &line);
 
+  uint16_t parse_SKP(std::vector<Token> &line);
+  uint16_t parse_SKPN(std::vector<Token> &line);
+
   uint16_t assemble_instruction(std::vector<Token> line);
 
 public:

@@ -410,6 +410,28 @@ uint16_t Assembler::parse_RND(std::vector<Token> &line) {
   return 0x0;
 }
 
+uint16_t Assembler::parse_SKP(std::vector<Token> &line) {
+  // Ex9E - SKP Vx
+  if (line[1].type == TokenType::Register) {
+    uint8_t x = parse_register(line[1].text);
+    return (0xE09E | (x << 8u));
+  }
+
+  throw_invalid_instruction("SKP", line);
+  return 0x0;
+}
+
+uint16_t Assembler::parse_SKPN(std::vector<Token> &line) {
+  // ExA1 - SKNP Vx
+  if (line[1].type == TokenType::Register) {
+    uint8_t x = parse_register(line[1].text);
+    return (0xE0A1 | (x << 8u));
+  }
+
+  throw_invalid_instruction("SKPN", line);
+  return 0x0;
+}
+
 uint16_t Assembler::assemble_instruction(std::vector<Token> line) {
 
   if (line.empty())
@@ -483,6 +505,16 @@ uint16_t Assembler::assemble_instruction(std::vector<Token> line) {
   // RND
   if (mnemonic == "RND") {
     return parse_RND(line);
+  }
+
+  // SKP
+  if (mnemonic == "SKP") {
+    return parse_SKP(line);
+  }
+
+  // SKPN
+  if (mnemonic == "SKPN") {
+    return parse_SKPN(line);
   }
 
   throw_invalid_instruction(mnemonic.c_str(), line);
