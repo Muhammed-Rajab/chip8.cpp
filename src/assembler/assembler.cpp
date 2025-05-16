@@ -432,6 +432,24 @@ uint16_t Assembler::parse_SKPN(std::vector<Token> &line) {
   return 0x0;
 }
 
+uint16_t Assembler::parse_DRW(std::vector<Token> &line) {
+  // Dxyn - DRW Vx, Vy, nibble
+  if (line[1].type == TokenType::Register && line[2].type == TokenType::Comma &&
+      line[3].type == TokenType::Register && line[4].type == TokenType::Comma &&
+      line[5].type == TokenType::Immediate) {
+    uint8_t x = parse_register(line[1].text);
+    uint8_t y = parse_register(line[3].text);
+    uint16_t n = parse_immediate(line[5].text);
+
+    if (n > 0xF)
+      throw std::runtime_error("immediate value out of range for a nibble");
+
+    return (0xD000 | (x << 8u) | (y << 4u) | (n));
+  }
+  throw_invalid_instruction("DRW", line);
+  return 0x0;
+}
+
 uint16_t Assembler::assemble_instruction(std::vector<Token> line) {
 
   if (line.empty())
@@ -515,6 +533,11 @@ uint16_t Assembler::assemble_instruction(std::vector<Token> line) {
   // SKPN
   if (mnemonic == "SKPN") {
     return parse_SKPN(line);
+  }
+
+  // DRW
+  if (mnemonic == "DRW") {
+    return parse_DRW(line);
   }
 
   throw_invalid_instruction(mnemonic.c_str(), line);

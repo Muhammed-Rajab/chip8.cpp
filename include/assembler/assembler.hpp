@@ -48,6 +48,11 @@ private:
   uint16_t parse_SKP(std::vector<Token> &line);
   uint16_t parse_SKPN(std::vector<Token> &line);
 
+  uint16_t parse_DRW(std::vector<Token> &line);
+
+  uint16_t parse_SHR(std::vector<Token> &line);
+  uint16_t parse_SHL(std::vector<Token> &line);
+
   uint16_t assemble_instruction(std::vector<Token> line);
 
 public:

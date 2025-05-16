@@ -73,6 +73,7 @@ Start:
     RND V0, 0x22
     SKP V0
     SKPN V9
+    DRW V0, V1, 5
 name:
     RET
 )";
