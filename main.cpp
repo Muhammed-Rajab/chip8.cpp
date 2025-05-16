@@ -64,6 +64,7 @@ Start:
     LD I, name
     LD [I], V0
     LD V1, [I]
+    LD V5, DT
 name:
     RET
 )";
