@@ -70,6 +70,7 @@ Start:
     LD F, V0
     LD B, V1
     LD V4, K
+    RND V0, 0x22
 name:
     RET
 )";

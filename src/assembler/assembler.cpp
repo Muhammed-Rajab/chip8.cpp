@@ -394,6 +394,22 @@ uint16_t Assembler::parse_LD(std::vector<Token> &line) {
   return 0x0;
 }
 
+uint16_t Assembler::parse_RND(std::vector<Token> &line) {
+
+  // Cxkk - RND Vx, byte
+  if (line[1].type == TokenType::Register && line[2].type == TokenType::Comma &&
+      line[3].type == TokenType::Immediate) {
+    uint8_t x = parse_register(line[1].text);
+    uint16_t kk = parse_immediate(line[3].text);
+    if (kk > 0xFF)
+      throw std::runtime_error("immediate value out of range for a byte");
+
+    return (0xC000 | (x << 8u)) | kk;
+  }
+  throw_invalid_instruction("RND", line);
+  return 0x0;
+}
+
 uint16_t Assembler::assemble_instruction(std::vector<Token> line) {
 
   if (line.empty())
@@ -462,6 +478,11 @@ uint16_t Assembler::assemble_instruction(std::vector<Token> line) {
   // LD
   if (mnemonic == "LD") {
     return parse_LD(line);
+  }
+
+  // RND
+  if (mnemonic == "RND") {
+    return parse_RND(line);
   }
 
   throw_invalid_instruction(mnemonic.c_str(), line);
