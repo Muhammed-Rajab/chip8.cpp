@@ -141,14 +141,14 @@ Tokenizer::tokenize(const std::vector<std::string> &string_tokens) {
       tokens.push_back(create_token(TokenType::Comma, st));
     } else if (is_register(st)) {
       tokens.push_back(create_token(TokenType::Register, st));
+    } else if (is_special_mnemonic(st)) {
+      tokens.push_back(create_token(TokenType::SpecialMnemonic, st));
     } else if (is_special_register(st)) {
       tokens.push_back(create_token(TokenType::SpecialRegister, st));
     } else if (is_memory_dereference(st)) {
       tokens.push_back(create_token(TokenType::MemoryDereference, st));
     } else if (is_immediate(st)) {
       tokens.push_back(create_token(TokenType::Immediate, st));
-    } else if (is_special_mnemonic(st)) {
-      tokens.push_back(create_token(TokenType::SpecialMnemonic, st));
     } else {
       tokens.push_back(create_token(TokenType::LabelRef, st));
     }
