@@ -421,14 +421,14 @@ uint16_t Assembler::parse_SKP(std::vector<Token> &line) {
   return 0x0;
 }
 
-uint16_t Assembler::parse_SKPN(std::vector<Token> &line) {
+uint16_t Assembler::parse_SKNP(std::vector<Token> &line) {
   // ExA1 - SKNP Vx
   if (line[1].type == TokenType::Register) {
     uint8_t x = parse_register(line[1].text);
     return (0xE0A1 | (x << 8u));
   }
 
-  throw_invalid_instruction("SKPN", line);
+  throw_invalid_instruction("SKNP", line);
   return 0x0;
 }
 
@@ -450,6 +450,30 @@ uint16_t Assembler::parse_DRW(std::vector<Token> &line) {
   return 0x0;
 }
 
+uint16_t Assembler::parse_SHR(std::vector<Token> &line) {
+  // 8xy6 - SHR Vx
+  if (line[1].type == TokenType::Register) {
+    uint8_t x = parse_register(line[1].text);
+    return (0x8006 | (x << 8u));
+  }
+  throw_invalid_instruction("SHR", line);
+  return 0x0;
+}
+
+uint16_t Assembler::parse_SHL(std::vector<Token> &line) {
+  // 8xyE - SHL Vx {, Vy}
+  if (line[1].type == TokenType::Register) {
+    uint8_t x = parse_register(line[1].text);
+    return (0x800E | (x << 8u));
+  }
+  throw_invalid_instruction("SHL", line);
+  return 0x0;
+}
+
+uint16_t Assembler::parse_CLS(std::vector<Token> &line) { return 0x00E0; }
+
+uint16_t Assembler::parse_RET(std::vector<Token> &line) { return 0x00EE; }
+
 uint16_t Assembler::assemble_instruction(std::vector<Token> line) {
 
   if (line.empty())
@@ -459,11 +483,11 @@ uint16_t Assembler::assemble_instruction(std::vector<Token> line) {
 
   // CLS
   if (mnemonic == "CLS")
-    return 0x00E0;
+    return parse_CLS(line);
 
   // RET
   if (mnemonic == "RET")
-    return 0x00EE;
+    return parse_RET(line);
 
   // JP
   if (mnemonic == "JP") {
@@ -531,13 +555,23 @@ uint16_t Assembler::assemble_instruction(std::vector<Token> line) {
   }
 
   // SKPN
-  if (mnemonic == "SKPN") {
-    return parse_SKPN(line);
+  if (mnemonic == "SKNP") {
+    return parse_SKNP(line);
   }
 
   // DRW
   if (mnemonic == "DRW") {
     return parse_DRW(line);
+  }
+
+  // SHR
+  if (mnemonic == "SHR") {
+    return parse_SHR(line);
+  }
+
+  // SHL
+  if (mnemonic == "SHL") {
+    return parse_SHL(line);
   }
 
   throw_invalid_instruction(mnemonic.c_str(), line);

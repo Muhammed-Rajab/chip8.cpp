@@ -29,6 +29,9 @@ private:
                                  const std::vector<Token> &line) const;
 
   // ====== Instruction parsers ======
+  uint16_t parse_CLS(std::vector<Token> &line);
+  uint16_t parse_RET(std::vector<Token> &line);
+
   uint16_t parse_JP(const std::vector<Token> &line);
   uint16_t parse_CALL(const std::vector<Token> &line);
   uint16_t parse_SE(std::vector<Token> &line);
@@ -46,7 +49,7 @@ private:
   uint16_t parse_RND(std::vector<Token> &line);
 
   uint16_t parse_SKP(std::vector<Token> &line);
-  uint16_t parse_SKPN(std::vector<Token> &line);
+  uint16_t parse_SKNP(std::vector<Token> &line);
 
   uint16_t parse_DRW(std::vector<Token> &line);
 
