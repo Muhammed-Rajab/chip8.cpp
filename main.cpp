@@ -67,6 +67,8 @@ Start:
     LD V5, DT
     LD ST, V4
     LD DT, V2
+    LD F, Vx
+    LD B, Vx
 name:
     RET
 )";

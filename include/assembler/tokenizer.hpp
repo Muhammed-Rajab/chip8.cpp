@@ -15,6 +15,7 @@ enum class TokenType {
   LabelRef,
   Comma,
   SpecialRegister,
+  SpecialMnemonic,
   MemoryDereference,
   Unknown
 };
@@ -34,6 +35,8 @@ const std::unordered_set<std::string> CHIP8_MNEMONICS = {
 
 const std::unordered_set<std::string> SPECIAL_REGISTERS = {"I", "DT", "ST"};
 
+const std::unordered_set<std::string> SPECIAL_MNEMONICS = {"F", "B"};
+
 class Tokenizer {
 
 private:
@@ -49,6 +52,7 @@ private:
   bool is_labeldef(const std::string &s, size_t tokens_so_far);
   bool is_special_register(const std::string &s);
   bool is_memory_dereference(const std::string &s);
+  bool is_special_mnemonic(const std::string &s);
 
   // strips away comment
   std::string strip_comments(const std::string &line);

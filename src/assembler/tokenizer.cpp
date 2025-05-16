@@ -38,6 +38,9 @@ std::string Token::as_string() {
   case TokenType::Comma:
     type_as_string = "Comma";
     break;
+  case TokenType::SpecialMnemonic:
+    type_as_string = "SpecialMnemonic";
+    break;
   case TokenType::Unknown:
     type_as_string = "Unknown";
     break;
@@ -81,6 +84,9 @@ bool Tokenizer::is_special_register(const std::string &s) {
 }
 bool Tokenizer::is_memory_dereference(const std::string &s) {
   return s == "[I]"; //
+}
+bool Tokenizer::is_special_mnemonic(const std::string &s) {
+  return SPECIAL_MNEMONICS.count(s); //
 }
 
 // strips away comment
@@ -141,6 +147,8 @@ Tokenizer::tokenize(const std::vector<std::string> &string_tokens) {
       tokens.push_back(create_token(TokenType::MemoryDereference, st));
     } else if (is_immediate(st)) {
       tokens.push_back(create_token(TokenType::Immediate, st));
+    } else if (is_special_mnemonic(st)) {
+      tokens.push_back(create_token(TokenType::SpecialMnemonic, st));
     } else {
       tokens.push_back(create_token(TokenType::LabelRef, st));
     }
