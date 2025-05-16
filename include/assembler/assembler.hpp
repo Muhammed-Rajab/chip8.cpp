@@ -35,6 +35,13 @@ private:
   uint16_t parse_SNE(std::vector<Token> &line);
   uint16_t parse_ADD(std::vector<Token> &line);
 
+  uint16_t parse_AND(std::vector<Token> &line);
+  uint16_t parse_OR(std::vector<Token> &line);
+  uint16_t parse_XOR(std::vector<Token> &line);
+
+  uint16_t parse_SUB(std::vector<Token> &line);
+  uint16_t parse_SUBN(std::vector<Token> &line);
+
   uint16_t assemble_instruction(std::vector<Token> line);
 
 public:

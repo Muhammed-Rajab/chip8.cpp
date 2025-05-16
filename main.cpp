@@ -52,6 +52,11 @@ Start:
     ADD V0, 0x22
     ADD V0, V1
     ADD I, VF
+    AND V1, V2
+    OR V2, V3
+    XOR V3, V4
+    SUB V3, V4
+    SUBN V3, V4
 )";
   Assembler chip8_asm(source);
 

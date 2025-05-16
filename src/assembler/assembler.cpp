@@ -212,6 +212,91 @@ uint16_t Assembler::parse_ADD(std::vector<Token> &line) {
   return 0x0;
 }
 
+uint16_t Assembler::parse_AND(std::vector<Token> &line) {
+  if (line.size() != 4)
+    throw_invalid_instruction("AND", line);
+
+  // 8xy2 - AND Vx, Vy
+  if (line[1].type == TokenType::Register && line[2].type == TokenType::Comma &&
+      line[3].type == TokenType::Register) {
+    uint8_t x = parse_register(line[1].text);
+    uint8_t y = parse_register(line[3].text);
+
+    return (0x8002) | (x << 8u) | (y << 4u);
+  }
+
+  throw_invalid_instruction("AND", line);
+  return 0x0000;
+}
+
+uint16_t Assembler::parse_OR(std::vector<Token> &line) {
+  if (line.size() != 4)
+    throw_invalid_instruction("OR", line);
+
+  // 8xy1 - OR Vx, Vy
+  if (line[1].type == TokenType::Register && line[2].type == TokenType::Comma &&
+      line[3].type == TokenType::Register) {
+    uint8_t x = parse_register(line[1].text);
+    uint8_t y = parse_register(line[3].text);
+
+    return (0x8001) | (x << 8u) | (y << 4u);
+  }
+
+  throw_invalid_instruction("OR", line);
+  return 0x0000;
+}
+
+uint16_t Assembler::parse_XOR(std::vector<Token> &line) {
+  if (line.size() != 4)
+    throw_invalid_instruction("XOR", line);
+
+  // 8xy3 - XOR Vx, Vy
+  if (line[1].type == TokenType::Register && line[2].type == TokenType::Comma &&
+      line[3].type == TokenType::Register) {
+    uint8_t x = parse_register(line[1].text);
+    uint8_t y = parse_register(line[3].text);
+
+    return (0x8003) | (x << 8u) | (y << 4u);
+  }
+
+  throw_invalid_instruction("XOR", line);
+  return 0x0000;
+}
+
+uint16_t Assembler::parse_SUB(std::vector<Token> &line) {
+  if (line.size() != 4)
+    throw_invalid_instruction("SUB", line);
+
+  // 8xy5 - SUB Vx, Vy
+  if (line[1].type == TokenType::Register && line[2].type == TokenType::Comma &&
+      line[3].type == TokenType::Register) {
+    uint8_t x = parse_register(line[1].text);
+    uint8_t y = parse_register(line[3].text);
+
+    return (0x8005) | (x << 8u) | (y << 4u);
+  }
+
+  throw_invalid_instruction("SUB", line);
+  return 0x0000;
+}
+
+uint16_t Assembler::parse_SUBN(std::vector<Token> &line) {
+  if (line.size() != 4)
+    throw_invalid_instruction("SUBN", line);
+
+  // 8xy7 - SUBN Vx, Vy
+  if (line[1].type == TokenType::Register && line[2].type == TokenType::Comma &&
+      line[3].type == TokenType::Register) {
+    uint8_t x = parse_register(line[1].text);
+    uint8_t y = parse_register(line[3].text);
+
+    return (0x8007) | (x << 8u) | (y << 4u);
+  }
+
+  throw_invalid_instruction("SUBN", line);
+  return 0x0000;
+}
+
 uint16_t Assembler::assemble_instruction(std::vector<Token> line) {
 
   if (line.empty())
@@ -250,6 +335,31 @@ uint16_t Assembler::assemble_instruction(std::vector<Token> line) {
   // ADD
   if (mnemonic == "ADD") {
     return parse_ADD(line);
+  }
+
+  // AND
+  if (mnemonic == "AND") {
+    return parse_AND(line);
+  }
+
+  // OR
+  if (mnemonic == "OR") {
+    return parse_OR(line);
+  }
+
+  // XOR
+  if (mnemonic == "XOR") {
+    return parse_XOR(line);
+  }
+
+  // SUB
+  if (mnemonic == "SUB") {
+    return parse_SUB(line);
+  }
+
+  // SUBN
+  if (mnemonic == "SUBN") {
+    return parse_SUBN(line);
   }
 
   throw_invalid_instruction(mnemonic.c_str(), line);
