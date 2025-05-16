@@ -72,8 +72,10 @@ Start:
     LD V4, K
     RND V0, 0x22
     SKP V0
-    SKPN V9
+    SKNP V9
     DRW V0, V1, 5
+    SHR V2
+    SHL V1
 name:
     RET
 )";
