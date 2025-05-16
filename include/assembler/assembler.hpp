@@ -42,6 +42,8 @@ private:
   uint16_t parse_SUB(std::vector<Token> &line);
   uint16_t parse_SUBN(std::vector<Token> &line);
 
+  uint16_t parse_LD(std::vector<Token> &line);
+
   uint16_t assemble_instruction(std::vector<Token> line);
 
 public:

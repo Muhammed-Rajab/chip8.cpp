@@ -57,6 +57,8 @@ Start:
     XOR V3, V4
     SUB V3, V4
     SUBN V3, V4
+    LD V3, 0x22
+    LD V0, V1
 )";
   Assembler chip8_asm(source);
 

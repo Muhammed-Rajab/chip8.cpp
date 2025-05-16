@@ -297,6 +297,36 @@ uint16_t Assembler::parse_SUBN(std::vector<Token> &line) {
   return 0x0000;
 }
 
+uint16_t Assembler::parse_LD(std::vector<Token> &line) {
+  if (line.size() != 4)
+    throw_invalid_instruction("LD", line);
+
+  // 6xkk - LD Vx, byte
+  if (line[1].type == TokenType::Register && line[2].type == TokenType::Comma &&
+      line[3].type == TokenType::Immediate) {
+
+    uint8_t x = parse_register(line[1].text);
+    uint16_t kk = parse_immediate(line[3].text);
+    if (kk > 0xFF)
+      throw std::runtime_error("immediate value out of range for a byte");
+
+    return (0x6000 | (x << 8u)) | kk;
+  }
+
+  // 8xy0 - LD Vx, Vy
+  if (line[1].type == TokenType::Register && line[2].type == TokenType::Comma &&
+      line[3].type == TokenType::Register) {
+
+    uint8_t x = parse_register(line[1].text);
+    uint8_t y = parse_register(line[3].text);
+
+    return (0x8000 | (x << 8u)) | (y << 4u);
+  }
+
+  throw_invalid_instruction("LD", line);
+  return 0x0;
+}
+
 uint16_t Assembler::assemble_instruction(std::vector<Token> line) {
 
   if (line.empty())
@@ -360,6 +390,11 @@ uint16_t Assembler::assemble_instruction(std::vector<Token> line) {
   // SUBN
   if (mnemonic == "SUBN") {
     return parse_SUBN(line);
+  }
+
+  // LD
+  if (mnemonic == "LD") {
+    return parse_LD(line);
   }
 
   throw_invalid_instruction(mnemonic.c_str(), line);
