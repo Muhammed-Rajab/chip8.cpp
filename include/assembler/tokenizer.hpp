@@ -35,7 +35,7 @@ const std::unordered_set<std::string> CHIP8_MNEMONICS = {
 
 const std::unordered_set<std::string> SPECIAL_REGISTERS = {"I", "DT", "ST"};
 
-const std::unordered_set<std::string> SPECIAL_MNEMONICS = {"F", "B"};
+const std::unordered_set<std::string> SPECIAL_MNEMONICS = {"F", "B", "K"};
 
 class Tokenizer {
 

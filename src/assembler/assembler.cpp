@@ -383,6 +383,13 @@ uint16_t Assembler::parse_LD(std::vector<Token> &line) {
     return (0xF033 | (x << 8u));
   }
 
+  // Fx0A - LD Vx, K
+  if (line[1].type == TokenType::Register && line[2].type == TokenType::Comma &&
+      line[3].type == TokenType::SpecialMnemonic && line[3].text == "K") {
+    uint8_t x = parse_register(line[1].text);
+    return (0xF00A | (x << 8u));
+  }
+
   throw_invalid_instruction("LD", line);
   return 0x0;
 }
