@@ -582,7 +582,6 @@ Assembler::Assembler(std::string source_code) : tkzr(source_code) {
   run_first_pass(); //
 
   uint16_t PC = 0x200;
-  std::vector<uint8_t> bytes;
 
   for (const auto &line : tkzr.get_token_lines()) {
     if (line.empty() || line.front().type == TokenType::LabelDef)
@@ -593,9 +592,11 @@ Assembler::Assembler(std::string source_code) : tkzr(source_code) {
     bytes.push_back(((opcode & 0xFF00u) >> 8u));
     bytes.push_back((opcode & 0x00FFu));
 
-    std::cout << "0x" << std::hex << std::setw(4) << std::setfill('0')
-              << std::uppercase << opcode << std::endl;
+    // std::cout << "0x" << std::hex << std::setw(4) << std::setfill('0')
+    //           << std::uppercase << opcode << std::endl;
 
     PC += 2;
   }
 }
+
+std::vector<uint8_t> Assembler::get_bytes() const { return bytes; }

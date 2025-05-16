@@ -13,6 +13,7 @@ class Assembler {
 
 private:
   Tokenizer tkzr;
+  std::vector<uint8_t> bytes;
   std::unordered_map<std::string, uint16_t> label_table;
 
   // ====== Stages ======
@@ -60,6 +61,7 @@ private:
 
 public:
   Assembler(std::string source_code);
+  std::vector<uint8_t> get_bytes() const;
 };
 
 #endif
