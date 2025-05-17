@@ -50,16 +50,71 @@ void DisplayRomAsOpcode(const std::vector<uint8_t> &rom,
 
 int main(int argc, char *argv[]) {
 
-  std::string source = R"(; Welcome
-  LD I, ff
-  LD V0, 0x1
-  LD V1, 0x1
-  CLS
-  DRW V0, V1, 5
-  ADD V0, 0x1
-  JP 0x206
-  ff: .byte 0xFF
-  )";
+  std::string source = R"(
+  CALL start
+
+  start:
+    JP loop
+
+  nextchar:
+    ADD V0, 0x08
+    RET
+
+  loadf:
+    LD I, ff
+    DRW V0, V1, 5
+    CALL nextchar
+    RET
+
+  loadu:
+    LD I, uu
+    DRW V0, V1, 5
+    CALL nextchar
+    RET
+
+  loadc:
+    LD I, cc
+    DRW V0, V1, 5
+    CALL nextchar
+    RET
+
+  loadk:
+    LD I, kk
+    DRW V0, V1, 5
+    CALL nextchar
+    RET
+
+  loady:
+    LD I, yy
+    DRW V0, V1, 5
+    CALL nextchar
+    RET
+
+  loado:
+    LD I, oo
+    DRW V0, V1, 5
+    CALL nextchar
+    RET
+
+  loop:
+    CLS
+    LD V0, 0x0
+    LD V1, 0x0
+    CALL loadf
+    CALL loadu
+    CALL loadc
+    CALL loadk
+    CALL loady
+    CALL loado
+    CALL loadu
+    JP loop
+
+  ff: .byte 0xF0, 0x80, 0xF0, 0x80, 0x80
+  uu: .byte 0x88, 0x88, 0x88, 0x88, 0xF8
+  cc: .byte 0xF0, 0x80, 0x80, 0x80, 0xF0
+  kk: .byte 0x90, 0xA0, 0xC0, 0xA0, 0x90
+  yy: .byte 0x90, 0x90, 0xF0, 0x60, 0x60
+  oo: .byte 0xF0, 0x90, 0x90, 0x90, 0xF0)";
 
   Assembler chasm(source);
   // DisplayRomAsOpcode(chasm.get_bytes());
