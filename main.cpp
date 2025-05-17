@@ -96,6 +96,12 @@ int main(int argc, char *argv[]) {
     CALL nextchar
     RET
 
+  load!!:
+    LD I, !!
+    DRW V0, V1, 5
+    CALL nextchar
+    RET
+
   loop:
     CLS
     LD V0, 0x0
@@ -107,6 +113,7 @@ int main(int argc, char *argv[]) {
     CALL loady
     CALL loado
     CALL loadu
+    CALL load!!
     JP loop
 
   ff: .byte 0xF0, 0x80, 0xF0, 0x80, 0x80
@@ -114,7 +121,9 @@ int main(int argc, char *argv[]) {
   cc: .byte 0xF0, 0x80, 0x80, 0x80, 0xF0
   kk: .byte 0x90, 0xA0, 0xC0, 0xA0, 0x90
   yy: .byte 0x90, 0x90, 0xF0, 0x60, 0x60
-  oo: .byte 0xF0, 0x90, 0x90, 0x90, 0xF0)";
+  oo: .byte 0xF0, 0x90, 0x90, 0x90, 0xF0
+  !!: .byte 0xC0, 0xC0, 0xC0, 0x00, 0xC0
+  )";
 
   Assembler chasm(source);
   // DisplayRomAsOpcode(chasm.get_bytes());
