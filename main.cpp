@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
   loop:
     CLS
     LD V0, 0x0
-    LD V1, 0x0
+    LD V1, 0xD
     CALL loadf
     CALL loadu
     CALL loadc
