@@ -34,7 +34,12 @@ std::vector<uint8_t> LoadRomFromFile(const std::string &filename) {
 int main(int argc, char *argv[]) {
 
   std::string source = R"(; Welcome
-  LD V0, 0x22
+  LD V0, 0x1 ; V0 = 1
+  LD I, 0x20B
+  LD V1, 0x0
+  LD V2, 0x0
+  DRW V1, V2, 2
+  JP 0x20A
   )";
 
   Assembler chasm(source);
@@ -44,8 +49,10 @@ int main(int argc, char *argv[]) {
 
   Chip8 cpu;
 
-  // cpu.LoadFromArray(rom.data(), rom.size());
-  cpu.LoadFromArray(ibm.data(), ibm.size());
+  cpu.LoadFromArray(rom.data(), rom.size());
+  // cpu.LoadFromArray(ibm.data(), ibm.size());
+  //
+  cpu.memory[0x20B] = 0x80;
 
   while (true) {
     std::cout << "\033[2J";
