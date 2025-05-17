@@ -51,13 +51,14 @@ void DisplayRomAsOpcode(const std::vector<uint8_t> &rom,
 int main(int argc, char *argv[]) {
 
   std::string source = R"(; Welcome
-  LD I, sprite
+  LD I, ff
   LD V0, 0x1
   LD V1, 0x1
-  DRW V1, V2, 3
+  CLS
+  DRW V0, V1, 5
+  ADD V0, 0x1
   JP 0x206
-  sprite:
-  .byte 0x80, 0x40, 0x20
+  ff: .byte 0xFF
   )";
 
   Assembler chasm(source);
