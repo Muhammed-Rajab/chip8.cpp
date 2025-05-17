@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <string>
 #include <thread>
@@ -12,6 +13,7 @@
 #include "./include/disassembler/disassembler.hpp"
 
 // ====== ROM Loader ======
+
 std::vector<uint8_t> LoadRomFromFile(const std::string &filename) {
   std::ifstream file(filename,
                      std::ios::binary | std::ios::ate); // ate = seek to end
@@ -31,38 +33,51 @@ std::vector<uint8_t> LoadRomFromFile(const std::string &filename) {
   return rom;
 }
 
+// ====== ROM display ======
+void DisplayRomAsOpcode(const std::vector<uint8_t> &rom,
+                        uint16_t start_address = 0x200) {
+  if (rom.size() % 2 != 0) {
+    std::cerr << "warning: ROM size is not aligned to 2 bytes. last byte will "
+                 "be ignored.\n";
+  }
+
+  for (size_t i = 0; i + 1 < rom.size(); i += 2) {
+    uint16_t opcode = (rom[i] << 8) | rom[i + 1];
+    std::cout << "0x" << std::hex << std::uppercase << std::setw(4)
+              << std::setfill('0') << opcode << "\n";
+  }
+}
+
 int main(int argc, char *argv[]) {
 
   std::string source = R"(; Welcome
   LD I, sprite
-
+  LD V0, 0x1
+  LD V1, 0x1
+  DRW V1, V2, 3
+  JP 0x206
   sprite:
   .byte 0x80, 0x40, 0x20
-
-  hex:
-  LD V0, V1
-
-  hehe: .byte 0x80, 0x40, 0x30
   )";
 
   Assembler chasm(source);
+  // DisplayRomAsOpcode(chasm.get_bytes());
 
-  // auto rom = chasm.get_bytes();
-  // auto ibm = LoadRomFromFile("./roms/test/ibm.ch8");
-  //
-  // Chip8 cpu;
-  //
-  // cpu.LoadFromArray(rom.data(), rom.size());
-  // // cpu.LoadFromArray(ibm.data(), ibm.size());
-  //
-  //
-  // while (true) {
-  //   std::cout << "\033[2J";
-  //   std::cout << "\033[H";
-  //   std::cout << cpu.DumpVideo();
-  //   cpu.Cycle();
-  //   std::this_thread::sleep_for(std::chrono::milliseconds(16));
-  // }
+  auto rom = chasm.get_bytes();
+  auto ibm = LoadRomFromFile("./roms/test/ibm.ch8");
+
+  Chip8 cpu;
+
+  cpu.LoadFromArray(rom.data(), rom.size());
+  // cpu.LoadFromArray(ibm.data(), ibm.size());
+
+  while (true) {
+    std::cout << "\033[2J";
+    std::cout << "\033[H";
+    std::cout << cpu.DumpVideo();
+    cpu.Cycle();
+    std::this_thread::sleep_for(std::chrono::milliseconds(16));
+  }
 
   return EXIT_SUCCESS;
 }
