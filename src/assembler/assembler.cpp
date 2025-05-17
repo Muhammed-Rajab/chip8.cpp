@@ -1,6 +1,8 @@
 #include <cctype>
+#include <cstddef>
 #include <cstdint>
 #include <iostream>
+#include <iterator>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -12,23 +14,40 @@
 // ====== Stages ======
 void Assembler::run_first_pass() {
   uint16_t PC = 0x200;
-  for (const auto &tl : tkzr.get_token_lines()) {
+  for (const auto &line : tkzr.get_token_lines()) {
 
-    if (tl.empty())
+    if (line.empty())
       continue;
 
-    if (tl.front().type == TokenType::LabelDef) {
+    size_t start = 0;
+
+    if (line.front().type == TokenType::LabelDef) {
       const std::string label =
-          tl.front().text.substr(0, tl.front().text.size() - 1);
+          line.front().text.substr(0, line.front().text.size() - 1);
 
       if (label_table.find(label) != label_table.end()) {
         std::cerr << "error: duplicate label: " << label << "\n";
       } else {
         label_table[label] = PC;
       }
+
+      start = 1;
+      if (line.size() == 1)
+        continue; // only label
     }
 
-    PC += 2;
+    if (line[start].type == TokenType::ByteDirective) {
+      size_t byte_count = 0;
+      for (const auto &tk : line) {
+        if (tk.type == TokenType::Immediate)
+          byte_count += 1;
+      }
+
+      PC += byte_count;
+    } else {
+
+      PC += 2;
+    }
   }
 }
 
@@ -578,23 +597,60 @@ uint16_t Assembler::assemble_instruction(std::vector<Token> line) {
 }
 
 Assembler::Assembler(std::string source_code) : tkzr(source_code) {
+
+  // ====== Tokenizer Tester ======
+
+  // uint16_t PC = 0x200;
+  // for (const auto &line : tkzr.get_token_lines()) {
+  //
+  //   if (line.empty())
+  //     continue;
+  //
+  //   std::cout << "0x" << std::hex << PC << ": ";
+  //   for (auto &tk : line) {
+  //     std::cout << tk.as_string() << " ";
+  //   }
+  //   std::cout << std::endl;
+  //   PC += 2;
+  // }
+
   run_first_pass(); //
 
   uint16_t PC = 0x200;
 
   for (const auto &line : tkzr.get_token_lines()) {
-    if (line.empty() || line.front().type == TokenType::LabelDef)
+    if (line.empty())
       continue;
 
-    uint16_t opcode = assemble_instruction(line);
+    size_t start = 0;
+    if (line.front().type == TokenType::LabelDef) {
+      start = 1;
+      if (line.size() == 1)
+        continue;
+    }
 
-    bytes.push_back(((opcode & 0xFF00u) >> 8u));
-    bytes.push_back((opcode & 0x00FFu));
+    if (line[start].type == TokenType::ByteDirective) {
+      for (size_t i = start + 1; i < line.size(); i += 1) {
+        if (line[i].type == TokenType::Immediate) {
+          uint16_t val = parse_immediate(line[i].text);
 
-    // std::cout << "0x" << std::hex << std::setw(4) << std::setfill('0')
-    //           << std::uppercase << opcode << std::endl;
+          if (val > 0xFF)
+            throw std::runtime_error("immediate value out of range for a byte");
+          bytes.push_back(val);
+          PC += 1;
+        }
+      }
+    } else {
+      uint16_t opcode = assemble_instruction(line);
 
-    PC += 2;
+      bytes.push_back(((opcode & 0xFF00u) >> 8u));
+      bytes.push_back((opcode & 0x00FFu));
+
+      // std::cout << "0x" << std::hex << std::setw(4) << std::setfill('0')
+      //           << std::uppercase << opcode << std::endl;
+
+      PC += 2;
+    }
   }
 }
 

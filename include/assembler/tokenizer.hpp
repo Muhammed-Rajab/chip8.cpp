@@ -17,6 +17,7 @@ enum class TokenType {
   SpecialRegister,
   SpecialMnemonic,
   MemoryDereference,
+  ByteDirective,
   Unknown
 };
 
@@ -24,7 +25,7 @@ struct Token {
   TokenType type;
   std::string text;
 
-  std::string as_string();
+  std::string as_string() const;
 };
 
 Token create_token(TokenType tt, std::string text);
@@ -53,6 +54,7 @@ private:
   bool is_special_register(const std::string &s);
   bool is_memory_dereference(const std::string &s);
   bool is_special_mnemonic(const std::string &s);
+  bool is_byte_directive(const std::string &s);
 
   // strips away comment
   std::string strip_comments(const std::string &line);

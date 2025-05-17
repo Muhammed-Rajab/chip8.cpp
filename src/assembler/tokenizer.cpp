@@ -9,7 +9,7 @@
 #include <vector>
 
 // ====== Token ======
-std::string Token::as_string() {
+std::string Token::as_string() const {
 
   std::string type_as_string;
 
@@ -34,6 +34,9 @@ std::string Token::as_string() {
     break;
   case TokenType::LabelRef:
     type_as_string = "LabelRef";
+    break;
+  case TokenType::ByteDirective:
+    type_as_string = "ByteDirective";
     break;
   case TokenType::Comma:
     type_as_string = "Comma";
@@ -87,6 +90,9 @@ bool Tokenizer::is_memory_dereference(const std::string &s) {
 }
 bool Tokenizer::is_special_mnemonic(const std::string &s) {
   return SPECIAL_MNEMONICS.count(s); //
+}
+bool Tokenizer::is_byte_directive(const std::string &s) {
+  return s == ".byte"; //
 }
 
 // strips away comment
@@ -147,6 +153,8 @@ Tokenizer::tokenize(const std::vector<std::string> &string_tokens) {
       tokens.push_back(create_token(TokenType::SpecialRegister, st));
     } else if (is_memory_dereference(st)) {
       tokens.push_back(create_token(TokenType::MemoryDereference, st));
+    } else if (is_byte_directive(st)) {
+      tokens.push_back(create_token(TokenType::ByteDirective, st));
     } else if (is_immediate(st)) {
       tokens.push_back(create_token(TokenType::Immediate, st));
     } else {

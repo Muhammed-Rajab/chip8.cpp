@@ -34,33 +34,35 @@ std::vector<uint8_t> LoadRomFromFile(const std::string &filename) {
 int main(int argc, char *argv[]) {
 
   std::string source = R"(; Welcome
-  LD V0, 0x1 ; V0 = 1
-  LD I, 0x20B
-  LD V1, 0x0
-  LD V2, 0x0
-  DRW V1, V2, 2
-  JP 0x20A
+  LD I, sprite
+
+  sprite:
+  .byte 0x80, 0x40, 0x20
+
+  hex:
+  LD V0, V1
+
+  hehe: .byte 0x80, 0x40, 0x30
   )";
 
   Assembler chasm(source);
 
-  auto rom = chasm.get_bytes();
-  auto ibm = LoadRomFromFile("./roms/test/ibm.ch8");
-
-  Chip8 cpu;
-
-  cpu.LoadFromArray(rom.data(), rom.size());
-  // cpu.LoadFromArray(ibm.data(), ibm.size());
+  // auto rom = chasm.get_bytes();
+  // auto ibm = LoadRomFromFile("./roms/test/ibm.ch8");
   //
-  cpu.memory[0x20B] = 0x80;
-
-  while (true) {
-    std::cout << "\033[2J";
-    std::cout << "\033[H";
-    std::cout << cpu.DumpVideo();
-    cpu.Cycle();
-    std::this_thread::sleep_for(std::chrono::milliseconds(16));
-  }
+  // Chip8 cpu;
+  //
+  // cpu.LoadFromArray(rom.data(), rom.size());
+  // // cpu.LoadFromArray(ibm.data(), ibm.size());
+  //
+  //
+  // while (true) {
+  //   std::cout << "\033[2J";
+  //   std::cout << "\033[H";
+  //   std::cout << cpu.DumpVideo();
+  //   cpu.Cycle();
+  //   std::this_thread::sleep_for(std::chrono::milliseconds(16));
+  // }
 
   return EXIT_SUCCESS;
 }
