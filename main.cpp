@@ -8,12 +8,9 @@
 #include <thread>
 #include <vector>
 
-#include "./include/assembler/assembler.hpp"
 #include "./include/chip8.hpp"
-#include "./include/disassembler/disassembler.hpp"
 
 // ====== ROM Loader ======
-
 std::vector<uint8_t> LoadRomFromFile(const std::string &filename) {
   std::ifstream file(filename,
                      std::ios::binary | std::ios::ate); // ate = seek to end
