@@ -1,0 +1,72 @@
+CALL start
+
+start:
+  jp loop
+
+nextchar:
+  add v0, 0x08
+  ret
+
+loadf:
+  ld i, ff
+  drw v0, v1, 5
+  call nextchar
+  ret
+
+loadu:
+  ld i, uu
+  drw v0, v1, 5
+  call nextchar
+  ret
+
+loadc:
+  ld i, cc
+  drw v0, v1, 5
+  call nextchar
+  ret
+
+loadk:
+  ld i, kk
+  drw v0, v1, 5
+  call nextchar
+  ret
+
+loady:
+  ld i, yy
+  drw v0, v1, 5
+  call nextchar
+  ret
+
+loado:
+  ld i, oo
+  drw v0, v1, 5
+  call nextchar
+  ret
+
+load!!:
+  ld i, !!
+  drw v0, v1, 5
+  call nextchar
+  ret
+
+loop:
+  cls
+  ld v0, 0x0
+  ld v1, 0xd
+  call loadf
+  call loadu
+  call loadc
+  call loadk
+  call loady
+  call loado
+  call loadu
+  call load!!
+  jp loop
+
+ff: .byte 0xf0, 0x80, 0xf0, 0x80, 0x80
+uu: .byte 0x88, 0x88, 0x88, 0x88, 0xf8
+cc: .byte 0xf0, 0x80, 0x80, 0x80, 0xf0
+kk: .byte 0x90, 0xa0, 0xc0, 0xa0, 0x90
+yy: .byte 0x90, 0x90, 0xf0, 0x60, 0x60
+oo: .byte 0xf0, 0x90, 0x90, 0x90, 0xf0
+!!: .byte 0xc0, 0xc0, 0xc0, 0x00, 0xc0
