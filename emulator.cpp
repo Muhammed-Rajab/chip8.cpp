@@ -1,4 +1,6 @@
-#include <SDL2/SDL.h>
+#include <SDL2/SDL_events.h>
+#include <SDL2/SDL_render.h>
+#include <SDL2/SDL_video.h>
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
@@ -9,6 +11,7 @@
 #include <vector>
 
 #include "./include/chip8.hpp"
+#include "./include/sdl/sdl.hpp"
 
 // ====== ROM Loader ======
 std::vector<uint8_t> LoadRomFromFile(const std::string &filename) {
@@ -30,157 +33,188 @@ std::vector<uint8_t> LoadRomFromFile(const std::string &filename) {
   return rom;
 }
 
-namespace SDL {
-
-bool Init() {
-  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-    std::cerr << "failed to init SDL: " << SDL_GetError() << std::endl;
-    exit(EXIT_FAILURE);
-  }
-
-  return true;
-}
-
-SDL_Window *CreateWindow(const char *title, const int baseWidth,
-                         const int baseHeight) {
-  SDL_Window *window = SDL_CreateWindow(
-      "Hello World!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, baseWidth,
-      baseHeight, SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-
-  if (!window) {
-    std::cerr << "failed to create window: " << SDL_GetError() << std::endl;
-    SDL_Quit();
-    exit(EXIT_FAILURE);
-  }
-
-  SDL_MaximizeWindow(window);
-
-  return window;
-}
-
-SDL_Renderer *CreateRenderer(SDL_Window *window) {
-  SDL_Renderer *renderer =
-      SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-  if (!renderer) {
-    std::cerr << "failed to create renderer: " << SDL_GetError() << std::endl;
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-    exit(EXIT_FAILURE);
-  }
-  return renderer;
-}
-
-float GetDisplayScale() {
-  float scale = 1.0f;
-  float ddpi, hdpi = 96.0f, vdpi;
-  if (SDL_GetDisplayDPI(0, &ddpi, &hdpi, &vdpi) != 0) {
-    std::cerr << "failed to get display DPI: " << SDL_GetError() << std::endl;
-  } else {
-    scale = hdpi / 96.0f;
-    std::cout << "hdpi: " << hdpi << std::endl;
-    std::cout << "scale: " << scale << std::endl;
-  }
-
-  return scale;
-}
-
-struct LogicalDimensions {
-  int WIDTH;
-  int HEIGHT;
-};
-
-LogicalDimensions SetupLogicalWidthHeight(SDL_Renderer *renderer, float scale) {
-  int drawableWidth, drawableHeight;
-  SDL_GetRendererOutputSize(renderer, &drawableWidth, &drawableHeight);
-  std::cout << "drawable width: " << drawableWidth << " "
-            << "drawable height: " << drawableHeight << std::endl;
-
-  const int WIDTH = std::round(drawableWidth / scale);
-  const int HEIGHT = std::round(drawableHeight / scale);
-
-  SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT);
-  std::cout << "logical width: " << WIDTH << " "
-            << "logical height: " << HEIGHT << std::endl;
-
-  return {WIDTH, HEIGHT};
-}
-
-} // namespace SDL
-
-int main(int argc, char *args[]) {
-
-  const int baseWidth = 1280;
-  const int baseHeight = 720;
-
+class App {
+private:
+  // SDL2
   SDL_Window *window = nullptr;
+  SDL_Renderer *renderer = nullptr;
 
-  if (SDL::Init()) {
-    window = SDL::CreateWindow("My Window", baseWidth, baseHeight);
-  }
+  float SCREEN_SCALE = 1;
+  int SCREEN_WIDTH = 0;
+  int SCREEN_HEIGHT = 0;
 
-  SDL_Renderer *renderer = SDL::CreateRenderer(window);
+  bool quit = false;
 
-  // get scale
-  float scale = SDL::GetDisplayScale();
+  // Chip8
+  Chip8 &cpu;
 
-  // set logical size based on scale
-  auto dimensions = SDL::SetupLogicalWidthHeight(renderer, scale);
-  const int WIDTH = dimensions.WIDTH;
-  const int HEIGHT = dimensions.HEIGHT;
+public:
+  App(Chip8 &cpu) : cpu(cpu) {
 
-  bool running = true;
-  SDL_Event event;
-
-  // ================================================================
-  // RENDERING LOGIC
-  // ================================================================
-  std::srand(static_cast<unsigned>(std::time(nullptr)));
-  const int VW = 64;
-  const int VH = 32;
-
-  const int GRID_W = (WIDTH / 1.5) / 64;
-  const int GRID_H = GRID_W;
-
-  const int SCREEN_W = GRID_W * VW;
-  const int SCREEN_H = GRID_H * VH;
-
-  const int SCREEN_X_OFF = 10;
-  const int SCREEN_Y_OFF = 10;
-
-  std::cout << "GRID W: " << GRID_W << " " << "GRID H: " << GRID_H << std::endl;
-  std::cout << "SCREEN W: " << SCREEN_W << " " << "SCREEN H: " << SCREEN_H
-            << std::endl;
-
-  auto ibm = LoadRomFromFile("./roms/test/octojam.ch8");
-
-  Chip8 cpu;
-
-  cpu.LoadFromArray(ibm.data(), ibm.size());
-
-  while (running) {
-    while (SDL_PollEvent(&event)) {
-      if (event.type == SDL_QUIT) {
-        running = false;
-      }
-
-      if (event.type == SDL_KEYDOWN) {
-        switch (event.key.keysym.sym) {
-        case SDLK_q:
-          running = false;
-          break;
-        }
-      }
+    // Setup window
+    const int baseWidth = 1280;
+    const int baseHeight = 720;
+    if (SDL::Init()) {
+      window = SDL::CreateWindow("My Window", baseWidth, baseHeight);
     }
 
-    SDL_RenderClear(renderer);
+    // Setup renderer
+    renderer = SDL::CreateRenderer(window);
 
-    for (size_t y = 0; y < VH; y += 1) {
-      for (size_t x = 0; x < VW; x += 1) {
-        size_t index = y * VW + x;
+    // get scale
+    SCREEN_SCALE = SDL::GetDisplayScale();
+
+    auto dimensions = SDL::SetupLogicalWidthHeight(renderer, SCREEN_SCALE);
+    SCREEN_WIDTH = dimensions.WIDTH;
+    SCREEN_HEIGHT = dimensions.HEIGHT;
+  }
+
+  ~App() {
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+  }
+
+  // handle inputs
+  void handle_inputs() {
+    SDL_Event event;
+
+    while (SDL_PollEvent(&event)) {
+      switch (event.type) {
+      case SDL_QUIT:
+        quit = true;
+        break;
+
+      case SDL_KEYDOWN:
+        switch (event.key.keysym.sym) {
+        case SDLK_ESCAPE:
+          quit = true;
+          break;
+        case SDLK_x:
+          cpu.keypad[0x0] = 1;
+          break;
+        case SDLK_1:
+          cpu.keypad[0x1] = 1;
+          break;
+        case SDLK_2:
+          cpu.keypad[0x2] = 1;
+          break;
+        case SDLK_3:
+          cpu.keypad[0x3] = 1;
+          break;
+        case SDLK_q:
+          cpu.keypad[0x4] = 1;
+          break;
+        case SDLK_w:
+          cpu.keypad[0x5] = 1;
+          break;
+        case SDLK_e:
+          cpu.keypad[0x6] = 1;
+          break;
+        case SDLK_a:
+          cpu.keypad[0x7] = 1;
+          break;
+        case SDLK_s:
+          cpu.keypad[0x8] = 1;
+          break;
+        case SDLK_d:
+          cpu.keypad[0x9] = 1;
+          break;
+        case SDLK_z:
+          cpu.keypad[0xA] = 1;
+          break;
+        case SDLK_c:
+          cpu.keypad[0xB] = 1;
+          break;
+        case SDLK_4:
+          cpu.keypad[0xC] = 1;
+          break;
+        case SDLK_r:
+          cpu.keypad[0xD] = 1;
+          break;
+        case SDLK_f:
+          cpu.keypad[0xE] = 1;
+          break;
+        case SDLK_v:
+          cpu.keypad[0xF] = 1;
+          break;
+        }
+        break;
+
+      case SDL_KEYUP:
+        switch (event.key.keysym.sym) {
+        case SDLK_x:
+          cpu.keypad[0x0] = 0;
+          break;
+        case SDLK_1:
+          cpu.keypad[0x1] = 0;
+          break;
+        case SDLK_2:
+          cpu.keypad[0x2] = 0;
+          break;
+        case SDLK_3:
+          cpu.keypad[0x3] = 0;
+          break;
+        case SDLK_q:
+          cpu.keypad[0x4] = 0;
+          break;
+        case SDLK_w:
+          cpu.keypad[0x5] = 0;
+          break;
+        case SDLK_e:
+          cpu.keypad[0x6] = 0;
+          break;
+        case SDLK_a:
+          cpu.keypad[0x7] = 0;
+          break;
+        case SDLK_s:
+          cpu.keypad[0x8] = 0;
+          break;
+        case SDLK_d:
+          cpu.keypad[0x9] = 0;
+          break;
+        case SDLK_z:
+          cpu.keypad[0xA] = 0;
+          break;
+        case SDLK_c:
+          cpu.keypad[0xB] = 0;
+          break;
+        case SDLK_4:
+          cpu.keypad[0xC] = 0;
+          break;
+        case SDLK_r:
+          cpu.keypad[0xD] = 0;
+          break;
+        case SDLK_f:
+          cpu.keypad[0xE] = 0;
+          break;
+        case SDLK_v:
+          cpu.keypad[0xF] = 0;
+          break;
+        }
+        break;
+      }
+    }
+  }
+
+  // render video
+  void render_video() {
+    const int GRID_W = (SCREEN_WIDTH / 1.5) / 64;
+    const int GRID_H = GRID_W;
+
+    const int VIDEO_W = GRID_W * cpu.VIDEO_WIDTH;
+    const int VIDEO_H = GRID_H * cpu.VIDEO_HEIGHT;
+
+    const int VIDEO_X_OFF = 10;
+    const int VIDEO_Y_OFF = 10;
+
+    for (size_t y = 0; y < cpu.VIDEO_HEIGHT; y += 1) {
+      for (size_t x = 0; x < cpu.VIDEO_WIDTH; x += 1) {
+        size_t index = y * cpu.VIDEO_WIDTH + x;
         uint8_t pixel = cpu.video[index];
 
-        int rx = x * GRID_W + SCREEN_X_OFF;
-        int ry = y * GRID_H + SCREEN_Y_OFF;
+        int rx = x * GRID_W + VIDEO_X_OFF;
+        int ry = y * GRID_H + VIDEO_Y_OFF;
         SDL_Rect rect{rx, ry, GRID_W, GRID_H};
 
         if (pixel) {
@@ -197,23 +231,41 @@ int main(int argc, char *args[]) {
 
     // DRAW A SCREEN BORDER
     int padding = 5;
-    SDL_Rect border{SCREEN_X_OFF - padding, SCREEN_Y_OFF - padding,
-                    SCREEN_W + 2 * padding, SCREEN_H + 2 * padding};
+    SDL_Rect border{VIDEO_X_OFF - padding, VIDEO_Y_OFF - padding,
+                    VIDEO_W + 2 * padding, VIDEO_H + 2 * padding};
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderDrawRect(renderer, &border);
+  }
 
-    // SDL_SetRenderDrawColor(renderer, 25, 25, 25, 255);
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+  bool Quit() const { return quit; }
+
+  void render() {
+    render_video();
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderPresent(renderer);
+  }
+};
+
+int main(int argc, char *args[]) {
+
+  auto ibm = LoadRomFromFile("./roms/test/keypad.ch8");
+
+  Chip8 cpu;
+
+  cpu.LoadFromArray(ibm.data(), ibm.size());
+
+  App app(cpu);
+
+  while (!app.Quit()) {
+
+    app.handle_inputs();
+
+    app.render();
 
     cpu.Cycle();
 
-    SDL_Delay(16);
+    // SDL_Delay(16);
   }
-
-  SDL_DestroyRenderer(renderer);
-  SDL_DestroyWindow(window);
-  SDL_Quit();
 
   return EXIT_SUCCESS;
 }
