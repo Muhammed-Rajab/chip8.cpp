@@ -58,6 +58,9 @@ private:
   int VIDEO_X_OFF{};
   int VIDEO_Y_OFF{};
 
+  int px = 0;
+  int py = 0;
+
 public:
   App(Chip8 &cpu) : cpu(cpu) {
 
@@ -102,6 +105,11 @@ public:
       switch (event.type) {
       case SDL_QUIT:
         quit = true;
+        break;
+
+      case SDL_MOUSEMOTION:
+        px = event.motion.x;
+        py = event.motion.y;
         break;
 
       case SDL_KEYDOWN:
@@ -217,14 +225,14 @@ public:
   }
 
   // render video
-  void render_video() {
+  void render_video(int px, int py) {
     for (size_t y = 0; y < cpu.VIDEO_HEIGHT; y += 1) {
       for (size_t x = 0; x < cpu.VIDEO_WIDTH; x += 1) {
         size_t index = y * cpu.VIDEO_WIDTH + x;
         uint8_t pixel = cpu.video[index];
 
-        int rx = x * GRID_W + VIDEO_X_OFF;
-        int ry = y * GRID_H + VIDEO_Y_OFF;
+        int rx = px + x * GRID_W + VIDEO_X_OFF;
+        int ry = py + y * GRID_H + VIDEO_Y_OFF;
         SDL_Rect rect{rx, ry, GRID_W, GRID_H};
 
         if (pixel) {
@@ -241,7 +249,7 @@ public:
 
     // DRAW A SCREEN BORDER
     int padding = 5;
-    SDL_Rect border{VIDEO_X_OFF - padding, VIDEO_Y_OFF - padding,
+    SDL_Rect border{px + VIDEO_X_OFF - padding, py + VIDEO_Y_OFF - padding,
                     VIDEO_W + 2 * padding, VIDEO_H + 2 * padding};
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderDrawRect(renderer, &border);
@@ -250,7 +258,11 @@ public:
   bool Quit() const { return quit; }
 
   void render() {
-    render_video();
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
+    render_video(px, py);
+
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderPresent(renderer);
   }
