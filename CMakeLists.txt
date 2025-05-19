@@ -32,11 +32,11 @@ add_executable(ch8asm
 )
 target_include_directories(ch8asm PRIVATE include)
 
-# 3. ch8dasm: the disassembler
-add_executable(ch8dasm
+# 3. ch8dis: the disassembler
+add_executable(ch8dis
   # cli
-  ch8dasm.cpp
+  ch8dis.cpp
   # disassembler source code
   src/disassembler/disassembler.cpp
 )
-target_include_directories(ch8dasm PRIVATE include)
+target_include_directories(ch8dis PRIVATE include)
