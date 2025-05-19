@@ -259,7 +259,7 @@ public:
 
 int main(int argc, char *args[]) {
 
-  auto ibm = LoadRomFromFile("./roms/test/ibm.ch8");
+  auto ibm = LoadRomFromFile("./roms/test/f_you.ch8");
 
   Chip8 cpu;
 
@@ -275,7 +275,7 @@ int main(int argc, char *args[]) {
 
     cpu.Cycle();
 
-    // SDL_Delay(16);
+    SDL_Delay(16);
   }
 
   return EXIT_SUCCESS;

@@ -61,7 +61,12 @@ private:
 
 public:
   Assembler(std::string source_code);
-  std::vector<uint8_t> get_bytes() const;
+
+  static Assembler FromFile(const std::string &filename);
+
+  std::vector<uint8_t> GetBytes() const;
+
+  void WriteToFile(std::string path) const;
 };
 
 #endif

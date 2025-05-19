@@ -1,58 +1,58 @@
-CALL start
+call start
 
 start:
   jp loop
 
 nextchar:
-  add v0, 0x08
+  add V0, 0x08
   ret
 
 loadf:
-  ld i, ff
-  drw v0, v1, 5
+  ld I, ff
+  drw V0, V1, 5
   call nextchar
   ret
 
 loadu:
-  ld i, uu
-  drw v0, v1, 5
+  ld I, uu
+  drw V0, V1, 5
   call nextchar
   ret
 
 loadc:
-  ld i, cc
-  drw v0, v1, 5
+  ld I, cc
+  drw V0, V1, 5
   call nextchar
   ret
 
 loadk:
-  ld i, kk
-  drw v0, v1, 5
+  ld I, kk
+  drw V0, V1, 5
   call nextchar
   ret
 
 loady:
-  ld i, yy
-  drw v0, v1, 5
+  ld I, yy
+  drw V0, V1, 5
   call nextchar
   ret
 
 loado:
-  ld i, oo
-  drw v0, v1, 5
+  ld I, oo
+  drw V0, V1, 5
   call nextchar
   ret
 
 load!!:
-  ld i, !!
-  drw v0, v1, 5
+  ld I, !!
+  drw V0, V1, 5
   call nextchar
   ret
 
 loop:
   cls
-  ld v0, 0x0
-  ld v1, 0xd
+  ld V0, 0x4
+  ld V1, 0xd
   call loadf
   call loadu
   call loadc

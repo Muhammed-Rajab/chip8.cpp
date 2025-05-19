@@ -1,8 +1,9 @@
+#include <algorithm>
 #include <cctype>
 #include <cstddef>
 #include <cstdint>
+#include <fstream>
 #include <iostream>
-#include <iterator>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -57,6 +58,13 @@ bool Assembler::is_immediate_or_label(const Token &tk) {
 }
 
 // ====== Parsing helpers ======
+void print_token_line(const std::vector<Token> &line) {
+  for (const auto &token : line) {
+    std::cout << token.as_string();
+  }
+  std::cout << std::endl;
+}
+
 void Assembler::throw_invalid_instruction(
     const char *MNEMONIC, const std::vector<Token> &line) const {
   std::ostringstream oss;
@@ -104,6 +112,7 @@ uint16_t Assembler::resolve_immediate_and_label(const Token &tk) {
 }
 
 // ====== Instruction parsers ======
+
 uint16_t Assembler::parse_JP(const std::vector<Token> &line) {
   // ! nnn could also be a label
 
@@ -497,7 +506,8 @@ uint16_t Assembler::assemble_instruction(std::vector<Token> line) {
   if (line.empty())
     return 0x0000;
 
-  const std::string &mnemonic = line[0].text;
+  std::string mnemonic = line[0].text;
+  std::transform(mnemonic.begin(), mnemonic.end(), mnemonic.begin(), ::toupper);
 
   // CLS
   if (mnemonic == "CLS")
@@ -654,4 +664,27 @@ Assembler::Assembler(std::string source_code) : tkzr(source_code) {
   }
 }
 
-std::vector<uint8_t> Assembler::get_bytes() const { return bytes; }
+std::vector<uint8_t> Assembler::GetBytes() const { return bytes; }
+
+void Assembler::WriteToFile(std::string path) const {
+  std::ofstream file(path, std::ios::binary);
+  if (!file) {
+    throw std::runtime_error("failed to open file for writing: " + path);
+  }
+
+  file.write(reinterpret_cast<const char *>(bytes.data()), bytes.size());
+  if (!file) {
+    throw std::runtime_error("failed to write data to file: " + path);
+  }
+}
+
+Assembler Assembler::FromFile(const std::string &filename) {
+  std::ifstream file(filename);
+  if (!file) {
+    throw std::runtime_error("failed to open source file: " + filename);
+  }
+
+  std::stringstream buffer;
+  buffer << file.rdbuf();
+  return Assembler(buffer.str());
+}

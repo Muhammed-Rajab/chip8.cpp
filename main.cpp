@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "./include/chip8.hpp"
+#include "include/assembler/assembler.hpp"
 
 // ====== ROM Loader ======
 std::vector<uint8_t> LoadRomFromFile(const std::string &filename) {
@@ -47,20 +48,8 @@ void DisplayRomAsOpcode(const std::vector<uint8_t> &rom,
 
 int main(int argc, char *argv[]) {
 
-  auto ibm = LoadRomFromFile("./roms/test/ibm.ch8");
-
-  Chip8 cpu;
-
-  // cpu.LoadFromArray(rom.data(), rom.size());
-  cpu.LoadFromArray(ibm.data(), ibm.size());
-
-  while (true) {
-    std::cout << "\033[2J";
-    std::cout << "\033[H";
-    std::cout << cpu.DumpVideo();
-    cpu.Cycle();
-    std::this_thread::sleep_for(std::chrono::milliseconds(16));
-  }
+  Assembler chasm = Assembler::FromFile("./programs/f_you.chasm");
+  chasm.WriteToFile("./roms/test/f_you.ch8");
 
   return EXIT_SUCCESS;
 }
