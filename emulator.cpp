@@ -55,11 +55,8 @@ private:
   int VIDEO_W{};
   int VIDEO_H{};
 
-  int VIDEO_X_OFF{};
-  int VIDEO_Y_OFF{};
-
-  int px = 0;
-  int py = 0;
+  int VIDEO_X_OFF = 10;
+  int VIDEO_Y_OFF = 10;
 
 public:
   App(Chip8 &cpu) : cpu(cpu) {
@@ -86,9 +83,6 @@ public:
 
     VIDEO_W = GRID_W * cpu.VIDEO_WIDTH;
     VIDEO_H = GRID_H * cpu.VIDEO_HEIGHT;
-
-    VIDEO_X_OFF = 10;
-    VIDEO_Y_OFF = 10;
   }
 
   ~App() {
@@ -105,11 +99,6 @@ public:
       switch (event.type) {
       case SDL_QUIT:
         quit = true;
-        break;
-
-      case SDL_MOUSEMOTION:
-        px = event.motion.x;
-        py = event.motion.y;
         break;
 
       case SDL_KEYDOWN:
@@ -261,7 +250,7 @@ public:
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    render_video(px, py);
+    render_video((SCREEN_WIDTH - VIDEO_W) / 2, (SCREEN_HEIGHT - VIDEO_H) / 2);
 
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderPresent(renderer);
@@ -270,7 +259,7 @@ public:
 
 int main(int argc, char *args[]) {
 
-  auto ibm = LoadRomFromFile("./roms/test/keypad.ch8");
+  auto ibm = LoadRomFromFile("./roms/test/ibm.ch8");
 
   Chip8 cpu;
 
