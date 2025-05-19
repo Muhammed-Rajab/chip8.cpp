@@ -48,6 +48,16 @@ private:
   // Chip8
   Chip8 &cpu;
 
+  // video
+  int GRID_W{};
+  int GRID_H{};
+
+  int VIDEO_W{};
+  int VIDEO_H{};
+
+  int VIDEO_X_OFF{};
+  int VIDEO_Y_OFF{};
+
 public:
   App(Chip8 &cpu) : cpu(cpu) {
 
@@ -67,6 +77,15 @@ public:
     auto dimensions = SDL::SetupLogicalWidthHeight(renderer, SCREEN_SCALE);
     SCREEN_WIDTH = dimensions.WIDTH;
     SCREEN_HEIGHT = dimensions.HEIGHT;
+
+    GRID_W = (SCREEN_WIDTH / 1.5) / 64;
+    GRID_H = GRID_W;
+
+    VIDEO_W = GRID_W * cpu.VIDEO_WIDTH;
+    VIDEO_H = GRID_H * cpu.VIDEO_HEIGHT;
+
+    VIDEO_X_OFF = 10;
+    VIDEO_Y_OFF = 10;
   }
 
   ~App() {
@@ -199,15 +218,6 @@ public:
 
   // render video
   void render_video() {
-    const int GRID_W = (SCREEN_WIDTH / 1.5) / 64;
-    const int GRID_H = GRID_W;
-
-    const int VIDEO_W = GRID_W * cpu.VIDEO_WIDTH;
-    const int VIDEO_H = GRID_H * cpu.VIDEO_HEIGHT;
-
-    const int VIDEO_X_OFF = 10;
-    const int VIDEO_Y_OFF = 10;
-
     for (size_t y = 0; y < cpu.VIDEO_HEIGHT; y += 1) {
       for (size_t x = 0; x < cpu.VIDEO_WIDTH; x += 1) {
         size_t index = y * cpu.VIDEO_WIDTH + x;
