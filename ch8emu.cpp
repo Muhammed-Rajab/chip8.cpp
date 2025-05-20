@@ -42,9 +42,20 @@ private:
 
   void render_video() {}
 
-  void render_ui() {}
+  void render_ui() {
+    ClearBackground(RAYWHITE);
+    DrawText("WOMP WOMP!", 0, 0, 28, LIGHTGRAY);
+  }
 
-  void render() {}
+  void render() {
+
+    BeginDrawing();
+
+    render_video();
+    render_ui();
+
+    EndDrawing();
+  }
 
 public:
   App(Chip8 &cpu) : cpu(cpu) {
