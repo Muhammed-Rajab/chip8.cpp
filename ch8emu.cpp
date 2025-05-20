@@ -91,7 +91,7 @@ public:
     // ttf setup
     // TODO: Set it up properly with error handling
     TTF_Init();
-    font = TTF_OpenFont("./fonts/source-code-pro.ttf", 14);
+    font = TTF_OpenFont("./fonts/source-code-pro.ttf", 28);
     if (!font) {
       std::cerr << "failed to load font: " << TTF_GetError() << std::endl;
       exit(EXIT_FAILURE);
@@ -99,6 +99,9 @@ public:
   }
 
   ~App() {
+    TTF_CloseFont(font);
+    TTF_Quit();
+
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
@@ -258,15 +261,32 @@ public:
     SDL_RenderDrawRect(renderer, &border);
   }
 
-  void render_ui() {}
+  void render_ui() {
+    SDL_Color color = {255, 255, 255}; // White
+
+    SDL_Surface *surface =
+        TTF_RenderText_Solid(font, "Hello, Emulator!", color);
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+    // Set destination rect on screen
+    SDL_Rect dest = {50, 50, surface->w, surface->h};
+
+    // Draw to screen
+    SDL_RenderCopy(renderer, texture, nullptr, &dest);
+
+    // Cleanup
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
+  }
 
   void render() {
-    render_ui();
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
     render_video((SCREEN_WIDTH - VIDEO_W) / 2, (SCREEN_HEIGHT - VIDEO_H) / 2);
+
+    render_ui();
 
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderPresent(renderer);
@@ -277,7 +297,7 @@ public:
 
 int main(int argc, char *args[]) {
 
-  auto rom = LoadRomFromFile("./roms/test/f_you.ch8");
+  auto rom = LoadRomFromFile("./roms/test/ibm.ch8");
 
   Chip8 cpu;
 
