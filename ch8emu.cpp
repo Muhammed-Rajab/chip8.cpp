@@ -38,12 +38,61 @@ private:
 
   bool quit = false;
 
+  // state
+  constexpr static int WINDOW_WIDTH = 500;
+  constexpr static int WINDOW_HEIGHT = 500;
+
   void handle_inputs() {}
 
-  void render_video() {}
+  void render_video() {
+
+    int VIDEO_SCREEN_WIDTH = WINDOW_WIDTH * 0.95;
+    int VIDEO_X_COUNT = cpu.VIDEO_WIDTH;
+    int VIDEO_Y_COUNT = cpu.VIDEO_HEIGHT;
+
+    int GRID_SIZE = VIDEO_SCREEN_WIDTH / VIDEO_X_COUNT;
+    int VIDEO_SCREEN_HEIGHT = GRID_SIZE * VIDEO_Y_COUNT;
+
+    int pos_x = (WINDOW_WIDTH - VIDEO_SCREEN_WIDTH) / 2.0f;
+    int pos_y = (WINDOW_HEIGHT - VIDEO_SCREEN_HEIGHT) / 2.0f;
+
+    for (int j = 0; j < VIDEO_Y_COUNT; j += 1) {
+      for (int i = 0; i < VIDEO_X_COUNT; i += 1) {
+        int index = j * VIDEO_X_COUNT + i;
+        uint8_t pixel = cpu.video[index];
+
+        int x = pos_x + GRID_SIZE * i;
+        int y = pos_y + GRID_SIZE * j;
+
+        if (pixel) {
+          Rectangle rec = {(float)x, (float)y, (float)GRID_SIZE,
+                           (float)GRID_SIZE};
+          DrawRectangleRec(rec, WHITE);
+          DrawRectangleRec(rec, WHITE);
+          DrawRectangle(rec.x, rec.y, rec.width, 1, BLACK); // top
+          DrawRectangle(rec.x, rec.y + rec.height - 1, rec.width, 1,
+                        BLACK);                              // bottom
+          DrawRectangle(rec.x, rec.y, 1, rec.height, BLACK); // left
+          DrawRectangle(rec.x + rec.width - 1, rec.y, 1, rec.height,
+                        BLACK); // right
+        }
+      }
+    }
+
+    // render border
+    int thickness = 1;
+    Color color = WHITE;
+
+    DrawRectangle(pos_x, pos_y, VIDEO_SCREEN_WIDTH, thickness, color); // top
+    DrawRectangle(pos_x, pos_y + VIDEO_SCREEN_HEIGHT - thickness,
+                  VIDEO_SCREEN_WIDTH, thickness, color); // bottom
+    DrawRectangle(pos_x, pos_y, thickness, VIDEO_SCREEN_HEIGHT, color); // left
+    DrawRectangle(pos_x + VIDEO_SCREEN_WIDTH - thickness, pos_y, thickness,
+                  VIDEO_SCREEN_HEIGHT, color); // right
+  }
 
   void render_ui() {
-    ClearBackground(RAYWHITE);
+    ClearBackground(BLACK);
     DrawText("WOMP WOMP!", 0, 0, 28, LIGHTGRAY);
   }
 
@@ -65,7 +114,7 @@ public:
     // ! RAYLIB SETUP
     SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
     SetConfigFlags(FLAG_WINDOW_HIGHDPI);
-    InitWindow(800, 800, title);
+    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, title);
     SetTargetFPS(60);
   }
 
