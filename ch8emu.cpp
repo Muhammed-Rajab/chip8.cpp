@@ -31,6 +31,13 @@ std::vector<uint8_t> LoadRomFromFile(const std::string &filename) {
   return rom;
 }
 
+void DrawRectangleLinesBetter(Rectangle rec, float thickness, Color c) {
+  DrawRectangle(rec.x, rec.y, rec.width, thickness, c);
+  DrawRectangle(rec.x, rec.y + rec.height - thickness, rec.width, thickness, c);
+  DrawRectangle(rec.x, rec.y, thickness, rec.height, c);
+  DrawRectangle(rec.x + rec.width - thickness, rec.y, thickness, rec.height, c);
+}
+
 class App {
 private:
   // Chip8
@@ -69,27 +76,15 @@ private:
           Rectangle rec = {(float)x, (float)y, (float)GRID_SIZE,
                            (float)GRID_SIZE};
           DrawRectangleRec(rec, WHITE);
-          // DrawRectangleRec(rec, WHITE);
-          // DrawRectangle(rec.x, rec.y, rec.width, 1, BLACK); // top
-          // DrawRectangle(rec.x, rec.y + rec.height - 1, rec.width, 1,
-          //               BLACK);                              // bottom
-          // DrawRectangle(rec.x, rec.y, 1, rec.height, BLACK); // left
-          // DrawRectangle(rec.x + rec.width - 1, rec.y, 1, rec.height,
-          //               BLACK); // right
+          DrawRectangleLinesBetter(rec, 1, BLACK);
         }
       }
     }
 
-    // render border
-    int thickness = 1;
-    Color color = WHITE;
-
-    DrawRectangle(pos_x, pos_y, VIDEO_SCREEN_WIDTH, thickness, color); // top
-    DrawRectangle(pos_x, pos_y + VIDEO_SCREEN_HEIGHT - thickness,
-                  VIDEO_SCREEN_WIDTH, thickness, color); // bottom
-    DrawRectangle(pos_x, pos_y, thickness, VIDEO_SCREEN_HEIGHT, color); // left
-    DrawRectangle(pos_x + VIDEO_SCREEN_WIDTH - thickness, pos_y, thickness,
-                  VIDEO_SCREEN_HEIGHT, color); // right
+    // draw border
+    Rectangle border = {(float)pos_x, (float)pos_y, (float)VIDEO_SCREEN_WIDTH,
+                        (float)VIDEO_SCREEN_HEIGHT};
+    DrawRectangleLinesBetter(border, 1, GRAY);
   }
 
   void render_ui() {}
