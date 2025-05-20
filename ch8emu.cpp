@@ -91,10 +91,7 @@ private:
                   VIDEO_SCREEN_HEIGHT, color); // right
   }
 
-  void render_ui() {
-    ClearBackground(BLACK);
-    DrawText("WOMP WOMP!", 0, 0, 28, LIGHTGRAY);
-  }
+  void render_ui() {}
 
   void render() {
 
