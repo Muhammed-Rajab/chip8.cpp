@@ -52,7 +52,7 @@ private:
 
   void handle_inputs() {}
 
-  void render_video() {
+  void render_video(int px, int py) {
 
     int VIDEO_SCREEN_WIDTH = WINDOW_WIDTH * 0.95;
     int VIDEO_X_COUNT = cpu.VIDEO_WIDTH;
@@ -61,9 +61,10 @@ private:
     int GRID_SIZE = VIDEO_SCREEN_WIDTH / VIDEO_X_COUNT;
     int VIDEO_SCREEN_HEIGHT = GRID_SIZE * VIDEO_Y_COUNT;
 
-    int pos_x = (WINDOW_WIDTH - VIDEO_SCREEN_WIDTH) / 2.0f;
+    // int pos_x = (WINDOW_WIDTH - VIDEO_SCREEN_WIDTH) / 2.0f;
+    int pos_x = px;
     // int pos_y = (WINDOW_HEIGHT - VIDEO_SCREEN_HEIGHT) / 2.0f;
-    int pos_y = 10;
+    int pos_y = py;
 
     for (int j = 0; j < VIDEO_Y_COUNT; j += 1) {
       for (int i = 0; i < VIDEO_X_COUNT; i += 1) {
@@ -88,9 +89,7 @@ private:
     DrawRectangleLinesBetter(border, 1, GRAY);
   }
 
-  void render_memory() {
-    int px = 1;
-    int py = 1;
+  void render_memory(int px, int py) {
 
     for (size_t i = 0; i < 4096; i += 1) {
       size_t x = (i % 64) * 3;
@@ -98,14 +97,14 @@ private:
 
       uint8_t byte = cpu.memory[i];
 
-      Rectangle rec = {(float)x, (float)y, 3.0f, 3.0f};
+      Rectangle rec = {(float)(px + x), (float)(py + y), 3.0f, 3.0f};
       Color c = {byte, byte, byte, 255};
 
       DrawRectangleRec(rec, c);
     }
 
     Rectangle border = {(float)px - 1, (float)py - 1, 192 + 2, 192 + 2};
-    DrawRectangleLinesBetter(border, 1, WHITE);
+    DrawRectangleLinesBetter(border, 1, GRAY);
   }
 
   void render_ui() {}
@@ -114,9 +113,9 @@ private:
 
     BeginDrawing();
 
-    render_video();
+    render_video(10, 10);
 
-    render_memory();
+    render_memory(100, 100);
 
     render_ui();
 
