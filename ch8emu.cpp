@@ -1,5 +1,6 @@
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_render.h>
+#include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_video.h>
 #include <chrono>
 #include <cstdint>
@@ -35,16 +36,6 @@ std::vector<uint8_t> LoadRomFromFile(const std::string &filename) {
 
 class App {
 private:
-  // SDL2
-  SDL_Window *window = nullptr;
-  SDL_Renderer *renderer = nullptr;
-
-  float SCREEN_SCALE = 1;
-  int SCREEN_WIDTH = 0;
-  int SCREEN_HEIGHT = 0;
-
-  bool quit = false;
-
   // Chip8
   Chip8 &cpu;
 
@@ -57,6 +48,19 @@ private:
 
   int VIDEO_X_OFF = 0;
   int VIDEO_Y_OFF = 0;
+
+  // SDL2
+  SDL_Window *window = nullptr;
+  SDL_Renderer *renderer = nullptr;
+
+  float SCREEN_SCALE = 1;
+  int SCREEN_WIDTH = 0;
+  int SCREEN_HEIGHT = 0;
+
+  bool quit = false;
+
+  // - font
+  TTF_Font *font = nullptr;
 
 public:
   App(Chip8 &cpu) : cpu(cpu) {
@@ -78,11 +82,20 @@ public:
     SCREEN_WIDTH = dimensions.WIDTH;
     SCREEN_HEIGHT = dimensions.HEIGHT;
 
-    GRID_W = (SCREEN_WIDTH) / 64;
+    GRID_W = (SCREEN_WIDTH / 2) / 64;
     GRID_H = GRID_W;
 
     VIDEO_W = GRID_W * cpu.VIDEO_WIDTH;
     VIDEO_H = GRID_H * cpu.VIDEO_HEIGHT;
+
+    // ttf setup
+    // TODO: Set it up properly with error handling
+    TTF_Init();
+    font = TTF_OpenFont("./fonts/source-code-pro.ttf", 14);
+    if (!font) {
+      std::cerr << "failed to load font: " << TTF_GetError() << std::endl;
+      exit(EXIT_FAILURE);
+    }
   }
 
   ~App() {
@@ -264,11 +277,11 @@ public:
 
 int main(int argc, char *args[]) {
 
-  auto ibm = LoadRomFromFile("./roms/test/octojam.ch8");
+  auto rom = LoadRomFromFile("./roms/test/f_you.ch8");
 
   Chip8 cpu;
 
-  cpu.LoadFromArray(ibm.data(), ibm.size());
+  cpu.LoadFromArray(rom.data(), rom.size());
 
   App app(cpu);
 

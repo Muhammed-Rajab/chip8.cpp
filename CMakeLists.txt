@@ -8,7 +8,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # find SDL2
 find_package(SDL2 REQUIRED)
-include_directories(${SDL2_INCLUDE_DIRS})
+
+# find SDL2_ttf
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(SDL2_TTF REQUIRED SDL2_ttf)
 
 # 1. chip8emu: the emulator
 add_executable(ch8emu
@@ -16,10 +19,18 @@ add_executable(ch8emu
   src/chip8.cpp
   src/opcodes.cpp
 )
-target_link_libraries(ch8emu ${SDL2_LIBRARIES})
+
+link_directories(${SDL2_TTF_LIBRARY_DIRS})
+
+target_link_libraries(ch8emu 
+  ${SDL2_LIBRARIES}
+  ${SDL2_TTF_LIBRARIES}
+)
+
 target_include_directories(ch8emu PRIVATE 
   include
   ${SDL2_INCLUDE_DIRS}
+  ${SDL2_TTF_INCLUDE_DIRS}
 )
 
 # 2. ch8asm: the assembler
@@ -30,6 +41,7 @@ add_executable(ch8asm
   src/assembler/assembler.cpp
   src/assembler/tokenizer.cpp
 )
+
 target_include_directories(ch8asm PRIVATE include)
 
 # 3. ch8dis: the disassembler
@@ -39,4 +51,5 @@ add_executable(ch8dis
   # disassembler source code
   src/disassembler/disassembler.cpp
 )
+
 target_include_directories(ch8dis PRIVATE include)
