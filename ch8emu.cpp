@@ -39,8 +39,8 @@ private:
   bool quit = false;
 
   // state
-  constexpr static int WINDOW_WIDTH = 500;
-  constexpr static int WINDOW_HEIGHT = 500;
+  constexpr static int WINDOW_WIDTH = 600;
+  constexpr static int WINDOW_HEIGHT = 600;
 
   void handle_inputs() {}
 
@@ -54,7 +54,8 @@ private:
     int VIDEO_SCREEN_HEIGHT = GRID_SIZE * VIDEO_Y_COUNT;
 
     int pos_x = (WINDOW_WIDTH - VIDEO_SCREEN_WIDTH) / 2.0f;
-    int pos_y = (WINDOW_HEIGHT - VIDEO_SCREEN_HEIGHT) / 2.0f;
+    // int pos_y = (WINDOW_HEIGHT - VIDEO_SCREEN_HEIGHT) / 2.0f;
+    int pos_y = 10;
 
     for (int j = 0; j < VIDEO_Y_COUNT; j += 1) {
       for (int i = 0; i < VIDEO_X_COUNT; i += 1) {
@@ -68,13 +69,13 @@ private:
           Rectangle rec = {(float)x, (float)y, (float)GRID_SIZE,
                            (float)GRID_SIZE};
           DrawRectangleRec(rec, WHITE);
-          DrawRectangleRec(rec, WHITE);
-          DrawRectangle(rec.x, rec.y, rec.width, 1, BLACK); // top
-          DrawRectangle(rec.x, rec.y + rec.height - 1, rec.width, 1,
-                        BLACK);                              // bottom
-          DrawRectangle(rec.x, rec.y, 1, rec.height, BLACK); // left
-          DrawRectangle(rec.x + rec.width - 1, rec.y, 1, rec.height,
-                        BLACK); // right
+          // DrawRectangleRec(rec, WHITE);
+          // DrawRectangle(rec.x, rec.y, rec.width, 1, BLACK); // top
+          // DrawRectangle(rec.x, rec.y + rec.height - 1, rec.width, 1,
+          //               BLACK);                              // bottom
+          // DrawRectangle(rec.x, rec.y, 1, rec.height, BLACK); // left
+          // DrawRectangle(rec.x + rec.width - 1, rec.y, 1, rec.height,
+          //               BLACK); // right
         }
       }
     }
