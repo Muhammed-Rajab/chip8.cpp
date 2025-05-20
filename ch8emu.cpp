@@ -259,7 +259,7 @@ public:
 
 int main(int argc, char *args[]) {
 
-  auto ibm = LoadRomFromFile("./roms/test/f_you.ch8");
+  auto ibm = LoadRomFromFile("./roms/test/ibm.ch8");
 
   Chip8 cpu;
 
