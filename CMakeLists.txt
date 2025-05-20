@@ -19,7 +19,6 @@ add_executable(ch8emu
 target_link_libraries(ch8emu ${SDL2_LIBRARIES})
 target_include_directories(ch8emu PRIVATE 
   include
-  nuklear
   ${SDL2_INCLUDE_DIRS}
 )
 
