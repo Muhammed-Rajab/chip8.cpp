@@ -10,30 +10,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 
-# setup imgui
-set(IMGUI_SOURCES
-  imgui/imgui.cpp
-  imgui/imgui_draw.cpp
-  imgui/imgui_widgets.cpp
-  imgui/imgui_tables.cpp
-  imgui/backends/imgui_impl_sdl2.cpp
-  imgui/backends/imgui_impl_sdlrenderer2.cpp
-)
-
-add_library(imgui STATIC ${IMGUI_SOURCES})
-
-target_include_directories(imgui PUBLIC
-  imgui/
-  imgui/backends
-)
-
 # 1. chip8emu: the emulator
 add_executable(ch8emu
   ch8emu.cpp
   src/chip8.cpp
   src/opcodes.cpp
 )
-target_link_libraries(ch8emu imgui ${SDL2_LIBRARIES})
+target_link_libraries(ch8emu ${SDL2_LIBRARIES})
 target_include_directories(ch8emu PRIVATE 
   include
   ${SDL2_INCLUDE_DIRS}
