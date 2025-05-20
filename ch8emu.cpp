@@ -1,9 +1,12 @@
+#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <thread>
 #include <vector>
@@ -49,6 +52,8 @@ private:
   // state
   constexpr static int WINDOW_WIDTH = 600;
   constexpr static int WINDOW_HEIGHT = 600;
+
+  Font fontTTF;
 
   void handle_inputs() {}
 
@@ -109,13 +114,44 @@ private:
 
   void render_ui() {}
 
+  void render_registers(int px, int py) {
+
+    int line_height = 30;
+
+    auto reg_size = MeasureTextEx(fontTTF, "::Registers::", 20, 0);
+    DrawTextEx(fontTTF, "::Registers::", {(float)px, (float)py}, 20, 0, WHITE);
+
+    int fy = py + 25;
+
+    for (int i = 0; i < 16; i += 1) {
+      uint8_t val = cpu.V[i];
+      std::ostringstream oss;
+      oss << "V" << std::hex << i << ": 0x" << std::setw(2) << std::setfill('0')
+          << (int)val;
+
+      std::string str = oss.str();
+      // DrawText(str.c_str(), px, py + i * line_height, 20, WHITE);
+      auto val_size = MeasureTextEx(fontTTF, str.c_str(), 20, 0);
+
+      DrawTextEx(fontTTF, str.c_str(),
+                 {(float)px + (reg_size.x - val_size.x) / 2, (float)fy}, 20, 0,
+                 WHITE);
+
+      fy += line_height;
+    }
+  }
+
   void render() {
 
     BeginDrawing();
+    ClearBackground(BLACK);
 
-    render_video(10, 10);
+    // render_video(10, 10);
 
-    render_memory(100, 100);
+    // render_memory(100, 100);
+    //
+    auto mpos = GetMousePosition();
+    render_registers(mpos.x, mpos.y);
 
     render_ui();
 
@@ -132,6 +168,10 @@ public:
     SetConfigFlags(FLAG_WINDOW_HIGHDPI);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, title);
     SetTargetFPS(60);
+
+    fontTTF = LoadFontEx("./fonts/scp-bold.ttf", 128, 0, 0);
+
+    SetTextureFilter(fontTTF.texture, TEXTURE_FILTER_BILINEAR);
   }
 
   ~App() { CloseWindow(); }
