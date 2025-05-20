@@ -96,6 +96,7 @@ public:
     SDL_Event event;
 
     while (SDL_PollEvent(&event)) {
+
       switch (event.type) {
       case SDL_QUIT:
         quit = true;
@@ -244,22 +245,27 @@ public:
     SDL_RenderDrawRect(renderer, &border);
   }
 
-  bool Quit() const { return quit; }
+  void render_ui() {}
 
   void render() {
+
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
     render_video((SCREEN_WIDTH - VIDEO_W) / 2, (SCREEN_HEIGHT - VIDEO_H) / 2);
 
+    render_ui();
+
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderPresent(renderer);
   }
+
+  bool Quit() const { return quit; }
 };
 
 int main(int argc, char *args[]) {
 
-  auto ibm = LoadRomFromFile("./roms/test/ibm.ch8");
+  auto ibm = LoadRomFromFile("./roms/test/octojam.ch8");
 
   Chip8 cpu;
 
@@ -269,13 +275,23 @@ int main(int argc, char *args[]) {
 
   while (!app.Quit()) {
 
+    auto frame_start = std::chrono::high_resolution_clock::now();
+
     app.handle_inputs();
 
     app.render();
 
     cpu.Cycle();
 
-    SDL_Delay(16);
+    auto frame_end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<float> elapsed = frame_end - frame_start;
+    float frame_time = elapsed.count();
+    float target_time = 1.0f / 60.0f;
+
+    if (frame_time < target_time) {
+      std::this_thread::sleep_for(
+          std::chrono::duration<float>(target_time - frame_time));
+    }
   }
 
   return EXIT_SUCCESS;
