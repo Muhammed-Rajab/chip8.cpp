@@ -104,6 +104,8 @@ void Chip8::LoadFromArray(const uint8_t *rom, size_t size) {
 // ====== Reset CPU State ======
 void Chip8::Reset() {
 
+  std::fill(memory, memory + FONTSET_START_ADDRESS, 255);
+
   std::fill(memory + STARTING_ADDRESS, memory + 4096, 0);
 
   std::fill(V, V + 16, 0);

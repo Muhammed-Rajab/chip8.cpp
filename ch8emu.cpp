@@ -97,18 +97,34 @@ private:
   void render_memory(int px, int py) {
 
     for (size_t i = 0; i < 4096; i += 1) {
-      size_t x = (i % 64) * 3;
-      size_t y = (i / 64) * 3;
+      size_t x = (i % 64) * 5;
+      size_t y = (i / 64) * 5;
 
       uint8_t byte = cpu.memory[i];
 
-      Rectangle rec = {(float)(px + x), (float)(py + y), 3.0f, 3.0f};
       Color c = {byte, byte, byte, 255};
+
+      if (i < cpu.FONTSET_START_ADDRESS) {
+        c = {byte, 0, 0, 255};
+      } else if (i >= cpu.FONTSET_START_ADDRESS &&
+                 i < cpu.FONTSET_START_ADDRESS + cpu.FONTSET_SIZE) {
+        c = {byte, byte, 0, 255};
+      } else if (i > cpu.FONTSET_START_ADDRESS + cpu.FONTSET_SIZE &&
+                 i < cpu.STARTING_ADDRESS) {
+
+        c = {255, 0, 0, 255};
+      }
+
+      if (i == cpu.pc) {
+        c = {0, 255, 0, 255};
+      }
+
+      Rectangle rec = {(float)(px + x), (float)(py + y), 3.0f, 3.0f};
 
       DrawRectangleRec(rec, c);
     }
 
-    Rectangle border = {(float)px - 1, (float)py - 1, 192 + 2, 192 + 2};
+    Rectangle border = {(float)px - 1, (float)py - 1, 64 * 5 + 2, 64 * 5 + 2};
     DrawRectangleLinesBetter(border, 1, GRAY);
   }
 
@@ -179,11 +195,11 @@ private:
 
     // render_video(10, 10);
 
-    // render_memory(100, 100);
-    //
     auto mpos = GetMousePosition();
-    render_registers(mpos.x, mpos.y);
-    render_stack(mpos.x + 150, mpos.y);
+    // render_registers(mpos.x, mpos.y);
+    // render_stack(mpos.x + 150, mpos.y);
+    // render_memory(mpos.x + 300, mpos.y);
+    render_memory(mpos.x, mpos.y);
 
     render_ui();
 
