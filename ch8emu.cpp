@@ -1,4 +1,5 @@
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <cstdlib>
 #include <fstream>
@@ -87,6 +88,26 @@ private:
     DrawRectangleLinesBetter(border, 1, GRAY);
   }
 
+  void render_memory() {
+    int px = 1;
+    int py = 1;
+
+    for (size_t i = 0; i < 4096; i += 1) {
+      size_t x = (i % 64) * 3;
+      size_t y = (i / 64) * 3;
+
+      uint8_t byte = cpu.memory[i];
+
+      Rectangle rec = {(float)x, (float)y, 3.0f, 3.0f};
+      Color c = {byte, byte, byte, 255};
+
+      DrawRectangleRec(rec, c);
+    }
+
+    Rectangle border = {(float)px - 1, (float)py - 1, 192 + 2, 192 + 2};
+    DrawRectangleLinesBetter(border, 1, WHITE);
+  }
+
   void render_ui() {}
 
   void render() {
@@ -94,6 +115,9 @@ private:
     BeginDrawing();
 
     render_video();
+
+    render_memory();
+
     render_ui();
 
     EndDrawing();
@@ -126,7 +150,7 @@ public:
 
 int main(int argc, char *args[]) {
 
-  auto rom = LoadRomFromFile("./roms/test/ibm.ch8");
+  auto rom = LoadRomFromFile("./roms/test/f_you.ch8");
 
   Chip8 cpu;
 
