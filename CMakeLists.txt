@@ -14,13 +14,13 @@ include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(include)
 
 # 1. chip8emu: the emulator
-add_executable(chip8emu
-  emulator.cpp
+add_executable(ch8emu
+  ch8emu.cpp
   src/chip8.cpp
   src/opcodes.cpp
 )
-target_link_libraries(chip8emu ${SDL2_LIBRARIES})
-target_include_directories(chip8emu PRIVATE include)
+target_link_libraries(ch8emu ${SDL2_LIBRARIES})
+target_include_directories(ch8emu PRIVATE include)
 
 # 2. ch8asm: the assembler
 add_executable(ch8asm

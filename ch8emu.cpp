@@ -55,8 +55,8 @@ private:
   int VIDEO_W{};
   int VIDEO_H{};
 
-  int VIDEO_X_OFF = 10;
-  int VIDEO_Y_OFF = 10;
+  int VIDEO_X_OFF = 0;
+  int VIDEO_Y_OFF = 0;
 
 public:
   App(Chip8 &cpu) : cpu(cpu) {
@@ -78,7 +78,7 @@ public:
     SCREEN_WIDTH = dimensions.WIDTH;
     SCREEN_HEIGHT = dimensions.HEIGHT;
 
-    GRID_W = (SCREEN_WIDTH / 1.5) / 64;
+    GRID_W = (SCREEN_WIDTH) / 64;
     GRID_H = GRID_W;
 
     VIDEO_W = GRID_W * cpu.VIDEO_WIDTH;
