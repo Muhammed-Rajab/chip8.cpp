@@ -124,7 +124,7 @@ private:
       DrawRectangleRec(rec, c);
     }
 
-    Rectangle border = {(float)px - 1, (float)py - 1, 64 * 5 + 2, 64 * 5 + 2};
+    Rectangle border = {(float)px - 1, (float)py - 1, 64 * 5 + 1, 64 * 5 + 1};
     DrawRectangleLinesBetter(border, 1, GRAY);
   }
 
@@ -215,7 +215,7 @@ public:
     SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
     SetConfigFlags(FLAG_WINDOW_HIGHDPI);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, title);
-    SetTargetFPS(60);
+    SetTargetFPS(5);
 
     fontTTF = LoadFontEx("./fonts/scp-bold.ttf", 128, 0, 0);
 
