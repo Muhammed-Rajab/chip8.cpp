@@ -6,13 +6,6 @@ project(chip8)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# find SDL2
-find_package(SDL2 REQUIRED)
-
-# find SDL2_ttf
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(SDL2_TTF REQUIRED SDL2_ttf)
-
 # 1. chip8emu: the emulator
 add_executable(ch8emu
   ch8emu.cpp
@@ -20,17 +13,19 @@ add_executable(ch8emu
   src/opcodes.cpp
 )
 
-link_directories(${SDL2_TTF_LIBRARY_DIRS})
-
-target_link_libraries(ch8emu 
-  ${SDL2_LIBRARIES}
-  ${SDL2_TTF_LIBRARIES}
+target_link_libraries(ch8emu PRIVATE
+  ${CMAKE_SOURCE_DIR}/raylib/libraylib.a
+  m
+  dl
+  pthread
+  GL
+  rt
+  X11
 )
 
 target_include_directories(ch8emu PRIVATE 
   include
-  ${SDL2_INCLUDE_DIRS}
-  ${SDL2_TTF_INCLUDE_DIRS}
+  raylib/
 )
 
 # 2. ch8asm: the assembler
