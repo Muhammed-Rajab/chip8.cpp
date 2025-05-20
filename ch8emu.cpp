@@ -141,6 +141,37 @@ private:
     }
   }
 
+  void render_stack(int px, int py) {
+
+    int line_height = 30;
+
+    auto stack_size = MeasureTextEx(fontTTF, "::Stack::", 20, 0);
+    DrawTextEx(fontTTF, "::Stack::", {(float)px, (float)py}, 20, 0, WHITE);
+
+    int fy = py + 25;
+
+    for (int i = 15; i >= 0; i -= 1) {
+      uint8_t val = cpu.stack[i];
+      std::ostringstream oss;
+      oss << "[" << ": 0x" << std::setw(2) << std::setfill('0') << (int)val
+          << "]";
+
+      std::string str = oss.str();
+      auto val_size = MeasureTextEx(fontTTF, str.c_str(), 20, 0);
+
+      if (i == cpu.sp - 1) {
+        DrawRectangle((float)px + (stack_size.x - val_size.x) / 2, (float)fy,
+                      val_size.x, val_size.y, RED);
+      }
+
+      DrawTextEx(fontTTF, str.c_str(),
+                 {(float)px + (stack_size.x - val_size.x) / 2, (float)fy}, 20,
+                 0, WHITE);
+
+      fy += line_height;
+    }
+  }
+
   void render() {
 
     BeginDrawing();
@@ -152,6 +183,7 @@ private:
     //
     auto mpos = GetMousePosition();
     render_registers(mpos.x, mpos.y);
+    render_stack(mpos.x + 150, mpos.y);
 
     render_ui();
 
