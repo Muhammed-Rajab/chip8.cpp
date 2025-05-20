@@ -13,6 +13,22 @@
 #include "./include/chip8.hpp"
 #include "./include/sdl/sdl.hpp"
 
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
+
+#define NK_INCLUDE_FIXED_TYPES
+#define NK_INCLUDE_STANDARD_IO
+#define NK_INCLUDE_STANDARD_VARARGS
+#define NK_INCLUDE_DEFAULT_ALLOCATOR
+#define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
+#define NK_INCLUDE_FONT_BAKING
+#define NK_INCLUDE_DEFAULT_FONT
+
+#define NK_IMPLEMENTATION
+#define NK_SDL_RENDERER_IMPLEMENTATION
+#include "nuklear/nuklear.h"
+#include "nuklear/nuklear_sdl_renderer.h"
+
 // ====== ROM Loader ======
 std::vector<uint8_t> LoadRomFromFile(const std::string &filename) {
   std::ifstream file(filename,
@@ -58,6 +74,8 @@ private:
   int VIDEO_X_OFF = 0;
   int VIDEO_Y_OFF = 0;
 
+  struct nk_context *ctx;
+
 public:
   App(Chip8 &cpu) : cpu(cpu) {
 
@@ -83,6 +101,18 @@ public:
 
     VIDEO_W = GRID_W * cpu.VIDEO_WIDTH;
     VIDEO_H = GRID_H * cpu.VIDEO_HEIGHT;
+
+    ctx = nk_sdl_init(window, renderer);
+
+    struct nk_font_atlas *atlas;
+
+    nk_sdl_font_stash_begin(&atlas);
+
+    struct nk_font *font = nk_font_atlas_add_default(atlas, 18.0f, 0);
+
+    nk_sdl_font_stash_end();
+
+    nk_style_set_font(ctx, &font->handle);
   }
 
   ~App() {
@@ -95,7 +125,11 @@ public:
   void handle_inputs() {
     SDL_Event event;
 
+    nk_input_begin(ctx);
+
     while (SDL_PollEvent(&event)) {
+
+      nk_sdl_handle_event(&event);
 
       switch (event.type) {
       case SDL_QUIT:
@@ -212,6 +246,8 @@ public:
         break;
       }
     }
+
+    nk_input_end(ctx);
   }
 
   // render video
@@ -245,16 +281,27 @@ public:
     SDL_RenderDrawRect(renderer, &border);
   }
 
-  void render_ui() {}
+  void render_ui() {
+    if (nk_begin(ctx, "Emulator UI", nk_rect(50, 50, 220, 300),
+                 NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE)) {
+      nk_layout_row_static(ctx, 30, 200, 1);
+      nk_label(ctx, "Hello, emulator!", NK_TEXT_LEFT);
+      if (nk_button_label(ctx, "Reset CPU")) {
+        cpu.Reset();
+      }
+    }
+    nk_end(ctx);
+  }
 
   void render() {
+    render_ui();
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
     render_video((SCREEN_WIDTH - VIDEO_W) / 2, (SCREEN_HEIGHT - VIDEO_H) / 2);
 
-    render_ui();
+    nk_sdl_render(NK_ANTI_ALIASING_ON);
 
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderPresent(renderer);

@@ -72,6 +72,7 @@ LogicalDimensions SetupLogicalWidthHeight(SDL_Renderer *renderer, float scale) {
   const int WIDTH = std::round(drawableWidth / scale);
   const int HEIGHT = std::round(drawableHeight / scale);
 
+  SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest"); // Not "linear"
   SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT);
   std::cout << "logical width: " << WIDTH << " "
             << "logical height: " << HEIGHT << std::endl;
