@@ -192,10 +192,8 @@ private:
     }
   }
 
-  void render_pc_opcode_instruction() {
+  void render_pc_opcode_instruction(float px, float py) {
 
-    float px = 0;
-    float py = 10;
     float line_height = 25;
 
     std::ostringstream oss;
@@ -231,14 +229,11 @@ private:
     BeginDrawing();
     ClearBackground(BLACK);
 
-    // render_video(10, 10);
-
-    auto mpos = GetMousePosition();
-    // render_registers(mpos.x, mpos.y);
-    // render_stack(mpos.x + 150, mpos.y);
-    // render_memory(mpos.x + 300, mpos.y);
-    // render_memory(mpos.x, mpos.y);
-    render_pc_opcode_instruction();
+    render_video(10, 10);
+    render_registers(100, 100);
+    render_stack(250 + 150, 100);
+    render_memory(300, 300);
+    render_pc_opcode_instruction(0, 0);
 
     render_ui();
 
@@ -253,9 +248,12 @@ public:
     // ! RAYLIB SETUP
     SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
     SetConfigFlags(FLAG_WINDOW_HIGHDPI);
-
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, title);
     SetTargetFPS(2);
+
+    const int screenWidth = GetMonitorWidth(0);
+    const int screenHeight = GetMonitorHeight(0);
+    SetWindowSize(screenWidth, screenHeight);
 
     fontTTF = LoadFontEx("./fonts/scp-bold.ttf", 128, 0, 0);
 
