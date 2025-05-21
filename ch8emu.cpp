@@ -96,9 +96,11 @@ private:
 
   void render_memory(int px, int py) {
 
+    int s = 3;
+
     for (size_t i = 0; i < 4096; i += 1) {
-      size_t x = (i % 64) * 5;
-      size_t y = (i / 64) * 5;
+      size_t x = (i % 64) * s;
+      size_t y = (i / 64) * s;
 
       uint8_t byte = cpu.memory[i];
 
@@ -119,12 +121,13 @@ private:
         c = {0, 255, 0, 255};
       }
 
-      Rectangle rec = {(float)(px + x), (float)(py + y), 3.0f, 3.0f};
+      Rectangle rec = {(float)(px + x), (float)(py + y), (float)s, (float)s};
 
       DrawRectangleRec(rec, c);
     }
 
-    Rectangle border = {(float)px - 1, (float)py - 1, 64 * 5 + 1, 64 * 5 + 1};
+    Rectangle border = {(float)px - 1, (float)py - 1, (float)64 * s + 1,
+                        (float)64 * s + 1};
     DrawRectangleLinesBetter(border, 1, GRAY);
   }
 
@@ -215,7 +218,7 @@ public:
     SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
     SetConfigFlags(FLAG_WINDOW_HIGHDPI);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, title);
-    SetTargetFPS(5);
+    SetTargetFPS(60);
 
     fontTTF = LoadFontEx("./fonts/scp-bold.ttf", 128, 0, 0);
 
