@@ -191,6 +191,39 @@ private:
     }
   }
 
+  void render_pc_opcode_instruction() {
+
+    float px = 0;
+    float py = 10;
+    float line_height = 25;
+
+    std::ostringstream oss;
+
+    DrawTextEx(fontTTF, "PC", {px, py}, 20, 0, WHITE);
+    oss << "0x" << std::hex << std::setfill('0') << std::setw(4) << int(cpu.pc);
+    DrawTextEx(fontTTF, oss.str().c_str(), {px, py + line_height}, 20, 0,
+               WHITE);
+
+    oss.str("");
+    oss.clear();
+
+    px += 75;
+
+    DrawTextEx(fontTTF, "OPCODE", {px, py}, 20, 0, WHITE);
+    oss << "0x" << std::hex << std::setfill('0') << std::setw(4)
+        << int(cpu.opcode);
+    DrawTextEx(fontTTF, oss.str().c_str(), {px, py + line_height}, 20, 0,
+               WHITE);
+
+    oss.str("");
+    oss.clear();
+
+    px += 90;
+
+    DrawTextEx(fontTTF, "INSTRUCTION", {px, py}, 20, 0, WHITE);
+    DrawTextEx(fontTTF, "ADD V, 0xFF", {px, py + line_height}, 20, 0, WHITE);
+  }
+
   void render() {
 
     BeginDrawing();
@@ -202,7 +235,8 @@ private:
     // render_registers(mpos.x, mpos.y);
     // render_stack(mpos.x + 150, mpos.y);
     // render_memory(mpos.x + 300, mpos.y);
-    render_memory(mpos.x, mpos.y);
+    // render_memory(mpos.x, mpos.y);
+    render_pc_opcode_instruction();
 
     render_ui();
 
