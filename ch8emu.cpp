@@ -51,21 +51,22 @@ private:
   bool quit = false;
 
   // state
-  constexpr static int WINDOW_WIDTH = 600;
-  constexpr static int WINDOW_HEIGHT = 600;
+  constexpr static int WINDOW_WIDTH = 1100;
+  constexpr static int WINDOW_HEIGHT = 700;
+
+  // video
+  int VIDEO_SCREEN_WIDTH = 600;
+  int VIDEO_X_COUNT = cpu.VIDEO_WIDTH;
+  int VIDEO_Y_COUNT = cpu.VIDEO_HEIGHT;
+
+  int VIDEO_GRID_SIZE = VIDEO_SCREEN_WIDTH / VIDEO_X_COUNT;
+  int VIDEO_SCREEN_HEIGHT = VIDEO_GRID_SIZE * VIDEO_Y_COUNT;
 
   Font fontTTF;
 
   void handle_inputs() {}
 
   void render_video(int px, int py) {
-
-    int VIDEO_SCREEN_WIDTH = WINDOW_WIDTH * 0.95;
-    int VIDEO_X_COUNT = cpu.VIDEO_WIDTH;
-    int VIDEO_Y_COUNT = cpu.VIDEO_HEIGHT;
-
-    int GRID_SIZE = VIDEO_SCREEN_WIDTH / VIDEO_X_COUNT;
-    int VIDEO_SCREEN_HEIGHT = GRID_SIZE * VIDEO_Y_COUNT;
 
     // int pos_x = (WINDOW_WIDTH - VIDEO_SCREEN_WIDTH) / 2.0f;
     int pos_x = px;
@@ -77,12 +78,12 @@ private:
         int index = j * VIDEO_X_COUNT + i;
         uint8_t pixel = cpu.video[index];
 
-        int x = pos_x + GRID_SIZE * i;
-        int y = pos_y + GRID_SIZE * j;
+        int x = pos_x + VIDEO_GRID_SIZE * i;
+        int y = pos_y + VIDEO_GRID_SIZE * j;
 
         if (pixel) {
-          Rectangle rec = {(float)x, (float)y, (float)GRID_SIZE,
-                           (float)GRID_SIZE};
+          Rectangle rec = {(float)x, (float)y, (float)VIDEO_GRID_SIZE,
+                           (float)VIDEO_GRID_SIZE};
           DrawRectangleRec(rec, WHITE);
           DrawRectangleLinesBetter(rec, 1, BLACK);
         }
@@ -229,9 +230,17 @@ private:
     BeginDrawing();
     ClearBackground(BLACK);
 
-    render_video(10, 10);
+    int vox = 20;
+    int voy = 20;
+
+    render_video(vox, voy);
+
+    int sox = 10;
+    int soy = 0;
+
+    render_stack(VIDEO_SCREEN_WIDTH + vox + sox, voy + soy);
+
     render_registers(100, 100);
-    render_stack(250 + 150, 100);
     render_memory(300, 300);
     render_pc_opcode_instruction(0, 0);
 
@@ -247,13 +256,14 @@ public:
 
     // ! RAYLIB SETUP
     SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
+    SetConfigFlags(FLAG_WINDOW_UNDECORATED);
     SetConfigFlags(FLAG_WINDOW_HIGHDPI);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, title);
     SetTargetFPS(2);
 
-    const int screenWidth = GetMonitorWidth(0);
-    const int screenHeight = GetMonitorHeight(0);
-    SetWindowSize(screenWidth, screenHeight);
+    // const int screenWidth = GetMonitorWidth(0);
+    // const int screenHeight = GetMonitorHeight(0);
+    // SetWindowSize(screenWidth, screenHeight);
 
     fontTTF = LoadFontEx("./fonts/scp-bold.ttf", 128, 0, 0);
 
