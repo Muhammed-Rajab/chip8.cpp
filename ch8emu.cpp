@@ -339,7 +339,7 @@ public:
     // SetConfigFlags(FLAG_WINDOW_UNDECORATED);
     SetConfigFlags(FLAG_WINDOW_HIGHDPI);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, title);
-    SetTargetFPS(2);
+    SetTargetFPS(60);
 
     // const int screenWidth = GetMonitorWidth(0);
     // const int screenHeight = GetMonitorHeight(0);
@@ -367,7 +367,7 @@ public:
 
 int main(int argc, char *args[]) {
 
-  auto rom = LoadRomFromFile("./roms/test/f_you.ch8");
+  auto rom = LoadRomFromFile("./roms/test/playground.ch8");
 
   Chip8 cpu;
 
