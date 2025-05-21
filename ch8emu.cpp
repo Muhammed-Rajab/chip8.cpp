@@ -137,28 +137,29 @@ private:
 
   void render_registers(int px, int py) {
 
-    int line_height = 30;
+    const int line_height = 25;
+    const int column_spacing = 100;
+    const int text_size = 20;
 
-    auto reg_size = MeasureTextEx(fontTTF, "::Registers::", 20, 0);
-    DrawTextEx(fontTTF, "::Registers::", {(float)px, (float)py}, 20, 0, WHITE);
+    // Draw the title
+    DrawTextEx(fontTTF, "::Registers::", {(float)px, (float)py}, text_size, 0,
+               WHITE);
 
-    int fy = py + 25;
+    // Starting point for registers
+    int fy = py + line_height;
 
-    for (int i = 0; i < 16; i += 1) {
+    for (int i = 0; i < 16; ++i) {
       uint8_t val = cpu.V[i];
       std::ostringstream oss;
-      oss << "V" << std::hex << i << ": 0x" << std::setw(2) << std::setfill('0')
-          << (int)val;
-
+      oss << "V" << std::hex << std::uppercase << i << ": 0x" << std::setw(2)
+          << std::setfill('0') << (int)val;
       std::string str = oss.str();
-      // DrawText(str.c_str(), px, py + i * line_height, 20, WHITE);
-      auto val_size = MeasureTextEx(fontTTF, str.c_str(), 20, 0);
 
-      DrawTextEx(fontTTF, str.c_str(),
-                 {(float)px + (reg_size.x - val_size.x) / 2, (float)fy}, 20, 0,
+      float x = (i < 8) ? px : px + column_spacing;
+      float y = (i < 8) ? fy + i * line_height : fy + (i - 8) * line_height;
+
+      DrawTextEx(fontTTF, str.c_str(), {(float)x, (float)y}, text_size, 0,
                  WHITE);
-
-      fy += line_height;
     }
   }
 
