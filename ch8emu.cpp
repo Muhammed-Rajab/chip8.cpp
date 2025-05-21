@@ -66,7 +66,7 @@ private:
   Font fontTTF;
 
   // disassembled code
-  std::vector<std::string> disassembled_code = {};
+  std::vector<std::string> disassembled_rom = {};
 
   void handle_inputs() {}
 
@@ -259,6 +259,34 @@ private:
     DrawTextEx(fontTTF, oss.str().c_str(), {px, py}, 20, 0, WHITE);
   }
 
+  void render_disassembled_code(float px, float py) {
+
+    int line_height = 30;
+    int current_index = (cpu.pc - 0x200) / 2;
+
+    py += 5;
+
+    // Display three lines: one before, current, and one after
+    for (int i = -1; i <= 1; ++i) {
+      int index = current_index + i;
+
+      if (index < 0 || index >= disassembled_rom.size())
+        continue; // skip out-of-bounds
+
+      const std::string &line = disassembled_rom[index];
+
+      Color color = (i == 0) ? RED : WHITE;
+
+      DrawTextEx(fontTTF, std::to_string(cpu.pc - index).c_str(),
+                 {px + 10, py + (i + 1) * line_height}, 20, 0, color);
+      DrawTextEx(fontTTF, line.c_str(), {px + 60, py + (i + 1) * line_height},
+                 20, 0, color);
+    }
+
+    DrawRectangleLinesBetter({px, py - 5, (float)VIDEO_SCREEN_WIDTH, 90}, 1,
+                             GRAY);
+  }
+
   void render() {
 
     BeginDrawing();
@@ -295,6 +323,9 @@ private:
     render_index_and_special_registers(vox + sepox + iox,
                                        VIDEO_SCREEN_HEIGHT + voy + poy);
 
+    int doy = 60;
+    render_disassembled_code(vox, VIDEO_SCREEN_HEIGHT + voy + poy + doy);
+
     EndDrawing();
   }
 
@@ -318,9 +349,7 @@ public:
 
     SetTextureFilter(fontTTF.texture, TEXTURE_FILTER_BILINEAR);
 
-    // set disassembled_code
-    disassembled_code =
-        Disassembler::DecodeRomFromArrayAsVector(cpu.rom, false);
+    disassembled_rom = Disassembler::DecodeRomFromArrayAsVector(cpu.rom, false);
   }
 
   ~App() { CloseWindow(); }
