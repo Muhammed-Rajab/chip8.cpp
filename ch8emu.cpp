@@ -163,14 +163,16 @@ private:
     }
   }
 
-  void render_stack(int px, int py) {
+  void render_stack(float px, float py) {
 
     int line_height = 25;
 
-    auto stack_size = MeasureTextEx(fontTTF, "::Stack::", 20, 0);
-    DrawTextEx(fontTTF, "::Stack::", {(float)px, (float)py}, 20, 0, WHITE);
+    py += 10;
 
-    int fy = py + 25;
+    auto stack_size = MeasureTextEx(fontTTF, "##Stack##", 20, 0);
+    DrawTextEx(fontTTF, "  Stack  ", {(float)px, (float)py}, 20, 0, WHITE);
+
+    float fy = py + 25;
 
     for (int i = 15; i >= 0; i -= 1) {
       uint8_t val = cpu.stack[i];
@@ -192,6 +194,9 @@ private:
 
       fy += line_height;
     }
+
+    DrawRectangleLinesBetter({px, py - 10, stack_size.x, fy - line_height + 10},
+                             1, GRAY);
   }
 
   void render_pc_opcode_instruction(float px, float py) {
