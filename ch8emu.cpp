@@ -250,7 +250,10 @@ private:
     int moy = 250;
 
     render_memory(VIDEO_SCREEN_WIDTH + vox + sox + rox + mox, moy);
-    render_pc_opcode_instruction(0, 0);
+
+    int pox = 0;
+    int poy = 20;
+    render_pc_opcode_instruction(vox, VIDEO_SCREEN_HEIGHT + voy + poy);
 
     render_ui();
 
