@@ -241,7 +241,10 @@ private:
 
     render_stack(VIDEO_SCREEN_WIDTH + vox + sox, voy + soy);
 
-    render_registers(100, 100);
+    int rox = 100;
+    int roy = 0;
+
+    render_registers(VIDEO_SCREEN_WIDTH + vox + sox + rox, voy + roy);
     render_memory(300, 300);
     render_pc_opcode_instruction(0, 0);
 
