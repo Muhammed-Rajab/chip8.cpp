@@ -135,17 +135,21 @@ private:
 
   void render_ui() {}
 
-  void render_registers(int px, int py) {
+  void render_registers(float px, float py) {
 
     const int line_height = 25;
     const int column_spacing = 110;
     const int text_size = 20;
 
+    px += 10;
+    py += 10;
+
     // Draw the title
-    DrawTextEx(fontTTF, "::Registers::", {(float)px, (float)py}, text_size, 0,
+    DrawTextEx(fontTTF, "Registers", {(float)px, (float)py}, text_size, 0,
                WHITE);
 
     // Starting point for registers
+    //
     int fy = py + line_height;
 
     for (int i = 0; i < 16; ++i) {
@@ -161,6 +165,9 @@ private:
       DrawTextEx(fontTTF, str.c_str(), {(float)x, (float)y}, text_size, 0,
                  WHITE);
     }
+
+    DrawRectangleLinesBetter(
+        {px - 10, py - 10, 207, (float)py + line_height * 8 + 7}, 1, GRAY);
   }
 
   void render_stack(float px, float py) {
