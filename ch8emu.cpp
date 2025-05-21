@@ -233,10 +233,8 @@ private:
     px += 90;
 
     DrawTextEx(fontTTF, "INSTRUCTION", {px, py}, 20, 0, WHITE);
-    // DrawTextEx(fontTTF, Disassembler::Decode(cpu.opcode).c_str(),
-    //            {px, py + line_height}, 20, 0, WHITE);
-    //
-    DrawTextEx(fontTTF, "DRW V0, V1, 15", {px, py + line_height}, 20, 0, WHITE);
+    DrawTextEx(fontTTF, Disassembler::Decode(cpu.opcode).c_str(),
+               {px, py + line_height}, 20, 0, WHITE);
   }
 
   void render_index_and_special_registers(float px, float py) {
