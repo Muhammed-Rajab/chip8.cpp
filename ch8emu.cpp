@@ -253,6 +253,7 @@ public:
     // ! RAYLIB SETUP
     SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
     SetConfigFlags(FLAG_WINDOW_HIGHDPI);
+
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, title);
     SetTargetFPS(2);
 
