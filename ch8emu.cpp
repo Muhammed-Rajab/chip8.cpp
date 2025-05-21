@@ -51,8 +51,8 @@ private:
   bool quit = false;
 
   // state
-  constexpr static int WINDOW_WIDTH = 942;
-  constexpr static int WINDOW_HEIGHT = 700;
+  constexpr static int WINDOW_WIDTH = 955;
+  constexpr static int WINDOW_HEIGHT = 500;
 
   // video
   int VIDEO_SCREEN_WIDTH = 600;
@@ -98,24 +98,20 @@ private:
 
   void render_memory(int px, int py) {
 
-    int s = 3;
+    float s = 207.0f / 64.0f;
 
-    for (size_t i = 0; i < 4096; i += 1) {
-      size_t x = (i % 64) * s;
-      size_t y = (i / 64) * s;
+    for (size_t i = 0; i < 4096; i++) {
+      float x = (i % 64) * s;
+      float y = (int)(i / 64) * s;
 
       uint8_t byte = cpu.memory[i];
-
       Color c = {byte, byte, byte, 255};
 
       if (i < cpu.FONTSET_START_ADDRESS) {
         c = {byte, 0, 0, 255};
-      } else if (i >= cpu.FONTSET_START_ADDRESS &&
-                 i < cpu.FONTSET_START_ADDRESS + cpu.FONTSET_SIZE) {
+      } else if (i < cpu.FONTSET_START_ADDRESS + cpu.FONTSET_SIZE) {
         c = {byte, byte, 0, 255};
-      } else if (i > cpu.FONTSET_START_ADDRESS + cpu.FONTSET_SIZE &&
-                 i < cpu.STARTING_ADDRESS) {
-
+      } else if (i < cpu.STARTING_ADDRESS) {
         c = {255, 0, 0, 255};
       }
 
@@ -123,13 +119,11 @@ private:
         c = {0, 255, 0, 255};
       }
 
-      Rectangle rec = {(float)(px + x), (float)(py + y), (float)s, (float)s};
-
+      Rectangle rec = {(float)(px + x), (float)(py + y), s, s};
       DrawRectangleRec(rec, c);
     }
 
-    Rectangle border = {(float)px - 1, (float)py - 1, (float)64 * s + 1,
-                        (float)64 * s + 1};
+    Rectangle border = {(float)px - 1, (float)py - 1, 207.0f + 1, 207.0f + 1};
     DrawRectangleLinesBetter(border, 1, GRAY);
   }
 
@@ -202,7 +196,12 @@ private:
       fy += line_height;
     }
 
-    DrawRectangleLinesBetter({px, py - 10, stack_size.x, fy - line_height + 10},
+    // DrawRectangleLinesBetter({px, py - 10, stack_size.x, fy - line_height +
+    // 10},
+    //                          1, GRAY);
+    //
+
+    DrawRectangleLinesBetter({px, py - 10, stack_size.x, fy - line_height + 27},
                              1, GRAY);
   }
 
@@ -268,7 +267,7 @@ private:
 
     render_video(vox, voy);
 
-    int sox = 10;
+    int sox = 15;
     int soy = 0;
 
     render_stack(VIDEO_SCREEN_WIDTH + vox + sox, voy + soy);
@@ -279,7 +278,7 @@ private:
     render_registers(VIDEO_SCREEN_WIDTH + vox + sox + rox, voy + roy);
 
     int mox = 0;
-    int moy = 250;
+    int moy = 270;
 
     render_memory(VIDEO_SCREEN_WIDTH + vox + sox + rox + mox, moy);
 
@@ -304,7 +303,7 @@ public:
 
     // ! RAYLIB SETUP
     SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
-    SetConfigFlags(FLAG_WINDOW_UNDECORATED);
+    // SetConfigFlags(FLAG_WINDOW_UNDECORATED);
     SetConfigFlags(FLAG_WINDOW_HIGHDPI);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, title);
     SetTargetFPS(2);
