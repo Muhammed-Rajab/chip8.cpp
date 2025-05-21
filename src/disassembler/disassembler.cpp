@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <iomanip>
 #include <sstream>
+#include <vector>
 
 std::string Disassembler::Decode(uint16_t opcode) {
 
@@ -181,4 +182,28 @@ std::string Disassembler::DecodeRomFromArray(std::vector<uint8_t> rom,
   }
 
   return out.str();
+}
+
+std::vector<std::string>
+Disassembler::DecodeRomFromArrayAsVector(std::vector<uint8_t> rom,
+                                         bool verbose) {
+
+  std::vector<std::string> lines;
+
+  for (size_t i = 0; i + 1 < rom.size(); i += 2) {
+    uint16_t opcode = (rom[i] << 8u) | rom[i + 1];
+
+    std::ostringstream out;
+
+    if (verbose)
+      out << std::setw(4) << std::setfill('0') << std::hex << i + 0x200 << ": "
+          << std::setw(4) << opcode << "  " << Disassembler::Decode(opcode)
+          << "\n";
+    else
+      out << Disassembler::Decode(opcode) << "\n";
+
+    lines.push_back(out.str());
+  }
+
+  return lines;
 }

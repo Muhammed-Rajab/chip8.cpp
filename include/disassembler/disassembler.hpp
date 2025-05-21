@@ -9,8 +9,10 @@ class Disassembler {
 
 public:
   static std::string Decode(uint16_t opcode);
-  std::string DecodeRomFromArray(std::vector<uint8_t> rom,
-                                 bool verbose = false);
+  static std::string DecodeRomFromArray(std::vector<uint8_t> rom,
+                                        bool verbose = false);
+  static std::vector<std::string>
+  DecodeRomFromArrayAsVector(std::vector<uint8_t> rom, bool verbose = false);
 };
 
 #endif

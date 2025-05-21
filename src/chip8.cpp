@@ -10,6 +10,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 // ====== Constructor ======
 Chip8::Chip8() {
@@ -92,6 +93,8 @@ Chip8::Chip8() {
 void Chip8::LoadFromArray(const uint8_t *rom, size_t size) {
   Reset();
 
+  this->rom = std::vector<uint8_t>(rom, rom + size);
+
   if (STARTING_ADDRESS + size > 4096) {
     throw std::runtime_error("rom too big");
   }
@@ -124,6 +127,8 @@ void Chip8::Reset() {
   opcode = {};
 
   std::fill(keypad, keypad + 16, 0);
+
+  rom = {};
 }
 
 // ====== Cycle ======

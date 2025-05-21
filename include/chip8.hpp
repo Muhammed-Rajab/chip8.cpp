@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
+#include <vector>
 
 class Chip8 {
 public:
@@ -42,6 +43,9 @@ public:
 
   // keypad
   uint8_t keypad[16]{};
+
+  // rom
+  std::vector<uint8_t> rom = {};
 
   // fonts
   static constexpr uint8_t FONTSET_SIZE = 80;

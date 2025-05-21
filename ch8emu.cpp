@@ -62,7 +62,11 @@ private:
   int VIDEO_GRID_SIZE = VIDEO_SCREEN_WIDTH / VIDEO_X_COUNT;
   int VIDEO_SCREEN_HEIGHT = VIDEO_GRID_SIZE * VIDEO_Y_COUNT;
 
+  // fonts
   Font fontTTF;
+
+  // disassembled code
+  std::vector<std::string> disassembled_code = {};
 
   void handle_inputs() {}
 
@@ -313,6 +317,10 @@ public:
     fontTTF = LoadFontEx("./fonts/scp-bold.ttf", 128, 0, 0);
 
     SetTextureFilter(fontTTF.texture, TEXTURE_FILTER_BILINEAR);
+
+    // set disassembled_code
+    disassembled_code =
+        Disassembler::DecodeRomFromArrayAsVector(cpu.rom, false);
   }
 
   ~App() { CloseWindow(); }
