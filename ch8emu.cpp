@@ -51,7 +51,7 @@ private:
   bool quit = false;
 
   // state
-  constexpr static int WINDOW_WIDTH = 1100;
+  constexpr static int WINDOW_WIDTH = 942;
   constexpr static int WINDOW_HEIGHT = 700;
 
   // video
@@ -138,7 +138,7 @@ private:
   void render_registers(int px, int py) {
 
     const int line_height = 25;
-    const int column_spacing = 100;
+    const int column_spacing = 110;
     const int text_size = 20;
 
     // Draw the title
@@ -165,7 +165,7 @@ private:
 
   void render_stack(int px, int py) {
 
-    int line_height = 30;
+    int line_height = 25;
 
     auto stack_size = MeasureTextEx(fontTTF, "::Stack::", 20, 0);
     DrawTextEx(fontTTF, "::Stack::", {(float)px, (float)py}, 20, 0, WHITE);
@@ -175,7 +175,7 @@ private:
     for (int i = 15; i >= 0; i -= 1) {
       uint8_t val = cpu.stack[i];
       std::ostringstream oss;
-      oss << "[" << ": 0x" << std::setw(2) << std::setfill('0') << (int)val
+      oss << "[" << "0x" << std::setw(2) << std::setfill('0') << (int)val
           << "]";
 
       std::string str = oss.str();
@@ -245,7 +245,11 @@ private:
     int roy = 0;
 
     render_registers(VIDEO_SCREEN_WIDTH + vox + sox + rox, voy + roy);
-    render_memory(300, 300);
+
+    int mox = 0;
+    int moy = 250;
+
+    render_memory(VIDEO_SCREEN_WIDTH + vox + sox + rox + mox, moy);
     render_pc_opcode_instruction(0, 0);
 
     render_ui();
