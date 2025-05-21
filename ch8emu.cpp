@@ -222,8 +222,28 @@ private:
     px += 90;
 
     DrawTextEx(fontTTF, "INSTRUCTION", {px, py}, 20, 0, WHITE);
-    DrawTextEx(fontTTF, Disassembler::Decode(cpu.opcode).c_str(),
-               {px, py + line_height}, 20, 0, WHITE);
+    // DrawTextEx(fontTTF, Disassembler::Decode(cpu.opcode).c_str(),
+    //            {px, py + line_height}, 20, 0, WHITE);
+    //
+    DrawTextEx(fontTTF, "DRW V0, V1, 15", {px, py + line_height}, 20, 0, WHITE);
+  }
+
+  void render_index_and_special_registers(float px, float py) {
+    std::ostringstream oss;
+
+    oss << "I: 0x" << std::hex << std::setfill('0') << std::setw(4)
+        << int(cpu.index);
+    oss << " ";
+
+    oss << "DT: 0x" << std::hex << std::setfill('0') << std::setw(2)
+        << int(cpu.delay);
+
+    oss << " ";
+
+    oss << "ST: 0x" << std::hex << std::setfill('0') << std::setw(2)
+        << int(cpu.sound);
+
+    DrawTextEx(fontTTF, oss.str().c_str(), {px, py}, 20, 0, WHITE);
   }
 
   void render() {
@@ -251,11 +271,16 @@ private:
 
     render_memory(VIDEO_SCREEN_WIDTH + vox + sox + rox + mox, moy);
 
-    int pox = 0;
     int poy = 20;
     render_pc_opcode_instruction(vox, VIDEO_SCREEN_HEIGHT + voy + poy);
 
-    render_ui();
+    // separator
+    int sepox = 315;
+    DrawRectangle(vox + sepox, VIDEO_SCREEN_HEIGHT + voy + poy, 1, 50, GRAY);
+
+    int iox = 15;
+    render_index_and_special_registers(vox + sepox + iox,
+                                       VIDEO_SCREEN_HEIGHT + voy + poy);
 
     EndDrawing();
   }
