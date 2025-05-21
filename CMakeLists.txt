@@ -11,6 +11,7 @@ add_executable(ch8emu
   ch8emu.cpp
   src/chip8.cpp
   src/opcodes.cpp
+  src/disassembler/disassembler.cpp
 )
 
 target_link_libraries(ch8emu PRIVATE

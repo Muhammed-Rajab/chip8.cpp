@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "./include/chip8.hpp"
+#include "./include/disassembler/disassembler.hpp"
 
 #include "raylib/raylib.h"
 
@@ -221,7 +222,8 @@ private:
     px += 90;
 
     DrawTextEx(fontTTF, "INSTRUCTION", {px, py}, 20, 0, WHITE);
-    DrawTextEx(fontTTF, "ADD V, 0xFF", {px, py + line_height}, 20, 0, WHITE);
+    DrawTextEx(fontTTF, Disassembler::Decode(cpu.opcode).c_str(),
+               {px, py + line_height}, 20, 0, WHITE);
   }
 
   void render() {
@@ -252,7 +254,7 @@ public:
     SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
     SetConfigFlags(FLAG_WINDOW_HIGHDPI);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, title);
-    SetTargetFPS(60);
+    SetTargetFPS(2);
 
     fontTTF = LoadFontEx("./fonts/scp-bold.ttf", 128, 0, 0);
 
