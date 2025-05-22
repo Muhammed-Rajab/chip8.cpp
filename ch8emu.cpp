@@ -68,7 +68,30 @@ private:
   // disassembled code
   std::vector<std::string> disassembled_rom = {};
 
-  void handle_inputs() {}
+  void handle_inputs() {
+    const int chip8_keymap[16] = {
+        KEY_X,     // 0
+        KEY_ONE,   // 1
+        KEY_TWO,   // 2
+        KEY_THREE, // 3
+        KEY_Q,     // 4
+        KEY_W,     // 5
+        KEY_E,     // 6
+        KEY_A,     // 7
+        KEY_S,     // 8
+        KEY_D,     // 9
+        KEY_Z,     // A
+        KEY_C,     // B
+        KEY_FOUR,  // C
+        KEY_R,     // D
+        KEY_F,     // E
+        KEY_V      // F
+    };
+
+    for (int i = 0; i < 16; i++) {
+      cpu.keypad[i] = IsKeyDown(chip8_keymap[i]) ? 1 : 0;
+    }
+  }
 
   void render_video(int px, int py) {
 
@@ -130,8 +153,6 @@ private:
     Rectangle border = {(float)px - 1, (float)py - 1, 207.0f + 1, 207.0f + 1};
     DrawRectangleLinesBetter(border, 1, GRAY);
   }
-
-  void render_ui() {}
 
   void render_registers(float px, float py) {
 
@@ -367,7 +388,7 @@ public:
 
 int main(int argc, char *args[]) {
 
-  auto rom = LoadRomFromFile("./roms/test/playground.ch8");
+  auto rom = LoadRomFromFile("./roms/test/keypad.ch8");
 
   Chip8 cpu;
 
