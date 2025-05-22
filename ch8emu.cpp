@@ -40,7 +40,7 @@ void DrawRectangleLinesBetter(Rectangle rec, float thickness, Color c) {
   DrawRectangle(rec.x + rec.width - thickness, rec.y, thickness, rec.height, c);
 }
 
-class App {
+class Emulator {
 private:
   // Chip8
   Chip8 &cpu;
@@ -360,7 +360,7 @@ private:
   }
 
 public:
-  App(Chip8 &cpu) : cpu(cpu) {
+  Emulator(Chip8 &cpu) : cpu(cpu) {
     // const int screenHeight = 800;
     const char *title = "CHIP 8";
 
@@ -410,7 +410,7 @@ public:
     }
   }
 
-  ~App() { CloseWindow(); }
+  ~Emulator() { CloseWindow(); }
 };
 
 int main(int argc, char *args[]) {
@@ -421,9 +421,9 @@ int main(int argc, char *args[]) {
 
   cpu.LoadFromArray(rom.data(), rom.size());
 
-  App app(cpu);
+  Emulator emu(cpu);
 
-  app.Run();
+  emu.Run();
 
   return EXIT_SUCCESS;
 }
