@@ -1,5 +1,3 @@
-#include <algorithm>
-#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
@@ -8,7 +6,6 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <thread>
 #include <vector>
 
 #include "./include/chip8.hpp"
@@ -52,10 +49,7 @@ private:
   constexpr static int WINDOW_WIDTH = 955;
   constexpr static int WINDOW_HEIGHT = 500;
 
-  bool quit = false;
-
   int cycles_per_frame = 12;
-
   bool debug = false;
 
   // video
@@ -397,10 +391,8 @@ public:
     }
   }
 
-  ~App() { CloseWindow(); }
-
   void Run() {
-    while (!WindowShouldClose() && !quit) {
+    while (!WindowShouldClose()) {
 
       DrawFPS(10, 10);
 
@@ -417,6 +409,8 @@ public:
       }
     }
   }
+
+  ~App() { CloseWindow(); }
 };
 
 int main(int argc, char *args[]) {
