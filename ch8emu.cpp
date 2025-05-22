@@ -40,27 +40,28 @@ void DrawRectangleLinesBetter(Rectangle rec, float thickness, Color c) {
   DrawRectangle(rec.x + rec.width - thickness, rec.y, thickness, rec.height, c);
 }
 
+enum class EmulatorModes { Normal, Debug };
+
 class Emulator {
 private:
   // Chip8
   Chip8 &cpu;
 
-  // state
-  constexpr static int WINDOW_WIDTH = 955;
-  constexpr static int WINDOW_HEIGHT = 500;
-
-  int cycles_per_frame = 12;
-  bool debug = false;
+  EmulatorModes mode = EmulatorModes::Normal;
+  int normal_cycles_per_frame = 12;
+  int debug_cycles_per_frame = 1;
 
   // video
-  int VIDEO_SCREEN_WIDTH = 600;
-  int VIDEO_X_COUNT = cpu.VIDEO_WIDTH;
-  int VIDEO_Y_COUNT = cpu.VIDEO_HEIGHT;
+  int VIDEO_SCREEN_WIDTH = {};
+  int VIDEO_X_COUNT = {};
+  int VIDEO_Y_COUNT = {};
 
-  int VIDEO_GRID_SIZE = VIDEO_SCREEN_WIDTH / VIDEO_X_COUNT;
-  int VIDEO_SCREEN_HEIGHT = VIDEO_GRID_SIZE * VIDEO_Y_COUNT;
+  int VIDEO_GRID_SIZE = {};
+  int VIDEO_SCREEN_HEIGHT = {};
 
-  // fonts
+  // raylib
+  constexpr static int WINDOW_WIDTH = 955;
+  constexpr static int WINDOW_HEIGHT = 500;
   Font fontTTF;
 
   // disassembled code
@@ -366,14 +367,10 @@ public:
 
     // ! RAYLIB SETUP
     SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
-    // SetConfigFlags(FLAG_WINDOW_UNDECORATED);
+    SetConfigFlags(FLAG_WINDOW_UNDECORATED);
     SetConfigFlags(FLAG_WINDOW_HIGHDPI);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, title);
     SetTargetFPS(60);
-
-    // const int screenWidth = GetMonitorWidth(0);
-    // const int screenHeight = GetMonitorHeight(0);
-    // SetWindowSize(screenWidth, screenHeight);
 
     fontTTF = LoadFontEx("./fonts/scp-bold.ttf", 128, 0, 0);
 
@@ -381,31 +378,39 @@ public:
 
     disassembled_rom = Disassembler::DecodeRomFromArrayAsVector(cpu.rom, false);
 
-    if (!debug) {
-      VIDEO_SCREEN_WIDTH = WINDOW_WIDTH - 40;
-      VIDEO_X_COUNT = cpu.VIDEO_WIDTH;
-      VIDEO_Y_COUNT = cpu.VIDEO_HEIGHT;
+    // ====== Mode-based properties ======
 
-      VIDEO_GRID_SIZE = VIDEO_SCREEN_WIDTH / VIDEO_X_COUNT;
-      VIDEO_SCREEN_HEIGHT = VIDEO_GRID_SIZE * VIDEO_Y_COUNT;
+    if (mode == EmulatorModes::Normal) {
+      VIDEO_SCREEN_WIDTH = WINDOW_WIDTH - 40;
+    } else {
+      VIDEO_SCREEN_WIDTH = 600;
     }
+
+    VIDEO_X_COUNT = cpu.VIDEO_WIDTH;
+    VIDEO_Y_COUNT = cpu.VIDEO_HEIGHT;
+
+    VIDEO_GRID_SIZE = VIDEO_SCREEN_WIDTH / VIDEO_X_COUNT;
+    VIDEO_SCREEN_HEIGHT = VIDEO_GRID_SIZE * VIDEO_Y_COUNT;
   }
 
   void Run() {
     while (!WindowShouldClose()) {
 
-      DrawFPS(10, 10);
-
       handle_inputs();
 
-      if (debug) {
-        render_debug();
-        cpu.Cycle();
-      } else {
+      // ====== Mode-based rendering ======
+      if (mode == EmulatorModes::Normal) {
         render_normal();
-        for (int i = 0; i < cycles_per_frame; i += 1) {
+        for (int i = 0; i < normal_cycles_per_frame; i += 1) {
           cpu.Cycle();
         }
+      } else {
+        DrawFPS(10, 10);
+        render_debug();
+        for (int i = 0; i < debug_cycles_per_frame; i += 1) {
+          cpu.Cycle();
+        }
+        cpu.Cycle();
       }
     }
   }
