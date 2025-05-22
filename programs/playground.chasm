@@ -1,1 +1,13 @@
+jp main
 
+main:
+  ld I, sine_table
+  ld V0, [I]
+halt:
+  jp halt
+
+sine_table:
+.byte 16, 19, 22, 24, 27, 29, 30, 31
+.byte 31, 30, 29, 27, 24, 22, 19, 16
+.byte 12, 9, 6, 4, 1, 0, 0, 0
+.byte 1, 4, 6, 9, 12, 16, 19, 22
