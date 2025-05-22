@@ -117,15 +117,21 @@ private:
     DrawRectangleLinesBetter(border, 1, GRAY);
   }
 
-  void render_memory(int px, int py) {
+  void render_memory(float px, float py) {
 
-    float s = 207.0f / 64.0f;
+    //====== A note to my future self ======
+    // There are lots of magic numbers here, and it can be frustrating.
+    // All these numbers are there to render the things to screen properly, in a
+    // tight layout. Tweak around, make breaking changes and findout how
+    // they work.
+
+    const float s = 207.0f / 64.0f;
 
     for (size_t i = 0; i < 4096; i++) {
-      float x = (i % 64) * s;
-      float y = (int)(i / 64) * s;
+      const float x = (i % 64) * s;
+      const float y = static_cast<int>(i / 64) * s;
 
-      uint8_t byte = cpu.memory[i];
+      const uint8_t byte = cpu.memory[i];
       Color c = {byte, byte, byte, 255};
 
       if (i < cpu.FONTSET_START_ADDRESS) {
@@ -140,11 +146,11 @@ private:
         c = {0, 255, 0, 255};
       }
 
-      Rectangle rec = {(float)(px + x), (float)(py + y), s, s};
+      const Rectangle rec = {px + x, py + y, s, s};
       DrawRectangleRec(rec, c);
     }
 
-    Rectangle border = {(float)px - 1, (float)py - 1, 207.0f + 1, 207.0f + 1};
+    const Rectangle border = {px - 1, py - 1, 207.0f + 1, 207.0f + 1};
     DrawRectangleLinesBetter(border, 1, GRAY);
   }
 
