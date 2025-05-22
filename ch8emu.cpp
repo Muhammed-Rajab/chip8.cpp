@@ -47,7 +47,7 @@ private:
   // Chip8
   Chip8 &cpu;
 
-  EmulatorModes mode = EmulatorModes::Normal;
+  EmulatorModes mode = EmulatorModes::Debug;
   int normal_cycles_per_frame = 12;
   int debug_cycles_per_frame = 1;
 
@@ -67,7 +67,7 @@ private:
   // disassembled code
   std::vector<std::string> disassembled_rom = {};
 
-  void handle_inputs() {
+  void handle_cpu_input() {
     const int chip8_keymap[16] = {
         KEY_X,     // 0
         KEY_ONE,   // 1
@@ -92,24 +92,19 @@ private:
     }
   }
 
-  void render_video(int px, int py) {
+  void render_video(float px, float py) {
 
-    // int pos_x = (WINDOW_WIDTH - VIDEO_SCREEN_WIDTH) / 2.0f;
-    int pos_x = px;
-    // int pos_y = (WINDOW_HEIGHT - VIDEO_SCREEN_HEIGHT) / 2.0f;
-    int pos_y = py;
+    for (int row = 0; row < VIDEO_Y_COUNT; row += 1) {
+      for (int col = 0; col < VIDEO_X_COUNT; col += 1) {
+        const int index = row * VIDEO_X_COUNT + col;
+        const uint8_t pixel = cpu.video[index];
 
-    for (int j = 0; j < VIDEO_Y_COUNT; j += 1) {
-      for (int i = 0; i < VIDEO_X_COUNT; i += 1) {
-        int index = j * VIDEO_X_COUNT + i;
-        uint8_t pixel = cpu.video[index];
-
-        int x = pos_x + VIDEO_GRID_SIZE * i;
-        int y = pos_y + VIDEO_GRID_SIZE * j;
+        const int x = px + VIDEO_GRID_SIZE * col;
+        const int y = py + VIDEO_GRID_SIZE * row;
 
         if (pixel) {
-          Rectangle rec = {(float)x, (float)y, (float)VIDEO_GRID_SIZE,
-                           (float)VIDEO_GRID_SIZE};
+          const Rectangle rec = {(float)x, (float)y, (float)VIDEO_GRID_SIZE,
+                                 (float)VIDEO_GRID_SIZE};
           DrawRectangleRec(rec, WHITE);
           DrawRectangleLinesBetter(rec, 1, BLACK);
         }
@@ -117,8 +112,8 @@ private:
     }
 
     // draw border
-    Rectangle border = {(float)pos_x, (float)pos_y, (float)VIDEO_SCREEN_WIDTH,
-                        (float)VIDEO_SCREEN_HEIGHT};
+    const Rectangle border = {(float)px, (float)py, (float)VIDEO_SCREEN_WIDTH,
+                              (float)VIDEO_SCREEN_HEIGHT};
     DrawRectangleLinesBetter(border, 1, GRAY);
   }
 
@@ -396,7 +391,7 @@ public:
   void Run() {
     while (!WindowShouldClose()) {
 
-      handle_inputs();
+      handle_cpu_input();
 
       // ====== Mode-based rendering ======
       if (mode == EmulatorModes::Normal) {
