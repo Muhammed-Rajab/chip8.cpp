@@ -48,11 +48,15 @@ private:
   // Chip8
   Chip8 &cpu;
 
-  bool quit = false;
-
   // state
   constexpr static int WINDOW_WIDTH = 955;
   constexpr static int WINDOW_HEIGHT = 500;
+
+  bool quit = false;
+
+  int cycles_per_frame = 12;
+
+  bool debug = false;
 
   // video
   int VIDEO_SCREEN_WIDTH = 600;
@@ -308,7 +312,7 @@ private:
                              GRAY);
   }
 
-  void render() {
+  void render_debug() {
 
     BeginDrawing();
     ClearBackground(BLACK);
@@ -350,6 +354,17 @@ private:
     EndDrawing();
   }
 
+  void render_normal() {
+
+    BeginDrawing();
+
+    ClearBackground(BLACK);
+
+    render_video(20, 20);
+
+    EndDrawing();
+  }
+
 public:
   App(Chip8 &cpu) : cpu(cpu) {
     // const int screenHeight = 800;
@@ -371,17 +386,35 @@ public:
     SetTextureFilter(fontTTF.texture, TEXTURE_FILTER_BILINEAR);
 
     disassembled_rom = Disassembler::DecodeRomFromArrayAsVector(cpu.rom, false);
+
+    if (!debug) {
+      VIDEO_SCREEN_WIDTH = WINDOW_WIDTH - 40;
+      VIDEO_X_COUNT = cpu.VIDEO_WIDTH;
+      VIDEO_Y_COUNT = cpu.VIDEO_HEIGHT;
+
+      VIDEO_GRID_SIZE = VIDEO_SCREEN_WIDTH / VIDEO_X_COUNT;
+      VIDEO_SCREEN_HEIGHT = VIDEO_GRID_SIZE * VIDEO_Y_COUNT;
+    }
   }
 
   ~App() { CloseWindow(); }
 
   void Run() {
     while (!WindowShouldClose() && !quit) {
+
+      DrawFPS(10, 10);
+
       handle_inputs();
 
-      render();
-
-      cpu.Cycle();
+      if (debug) {
+        render_debug();
+        cpu.Cycle();
+      } else {
+        render_normal();
+        for (int i = 0; i < cycles_per_frame; i += 1) {
+          cpu.Cycle();
+        }
+      }
     }
   }
 };
