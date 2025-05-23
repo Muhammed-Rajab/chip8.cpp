@@ -1,3 +1,4 @@
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
@@ -47,6 +48,8 @@ std::string hex_to_string(size_t val, size_t width) {
   return oss.str();
 }
 
+using Clock = std::chrono::high_resolution_clock;
+
 enum class EmulatorModes { Normal, Debug };
 
 class Emulator {
@@ -55,8 +58,7 @@ private:
   Chip8 &cpu;
 
   bool paused = false;
-  int normal_cycles_per_frame = 12;
-  int debug_cycles_per_frame = 1;
+  int cycles_per_frame = 1;
   EmulatorModes mode = EmulatorModes::Debug;
 
   // video
@@ -90,13 +92,13 @@ private:
     // DEBUG
     if (mode == EmulatorModes::Debug) {
       if (IsKeyPressed(KEY_LEFT_BRACKET)) {
-        debug_cycles_per_frame -= 1;
+        cycles_per_frame -= 1;
       } else if (IsKeyPressed(KEY_RIGHT_BRACKET)) {
-        debug_cycles_per_frame += 1;
+        cycles_per_frame += 1;
       } else if (IsKeyPressed(KEY_P)) {
         paused = !paused;
       } else if (IsKeyPressed(KEY_N) && paused) {
-        for (int i = 0; i < debug_cycles_per_frame; i += 1) {
+        for (int i = 0; i < cycles_per_frame; i += 1) {
           cpu.Cycle();
         }
       }
@@ -319,9 +321,9 @@ private:
     py += 20;
 
     // cycles per frame
-    std::string cycles_per_frame =
-        "cycles per frame: " + std::to_string(debug_cycles_per_frame);
-    DrawTextEx(fontTTF, cycles_per_frame.c_str(), {px, py}, 20, 0, WHITE);
+    std::string cycles_per_frame_str =
+        "cycles per frame: " + std::to_string(cycles_per_frame);
+    DrawTextEx(fontTTF, cycles_per_frame_str.c_str(), {px, py}, 20, 0, WHITE);
   }
 
   void render_debug() {
@@ -435,9 +437,8 @@ public:
     const char *title = "CHIP 8";
 
     // ! RAYLIB SETUP
-    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
-    SetConfigFlags(FLAG_WINDOW_UNDECORATED);
-    SetConfigFlags(FLAG_WINDOW_HIGHDPI);
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT |
+                   FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_HIGHDPI);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, title);
     SetTargetFPS(60);
 
@@ -451,8 +452,10 @@ public:
 
     if (mode == EmulatorModes::Normal) {
       VIDEO_SCREEN_WIDTH = WINDOW_WIDTH - 40;
+      cycles_per_frame = 12;
     } else {
       VIDEO_SCREEN_WIDTH = 600;
+      cycles_per_frame = 1;
     }
 
     VIDEO_X_COUNT = cpu.VIDEO_WIDTH;
@@ -463,28 +466,36 @@ public:
   }
 
   void Run() {
+
+    auto last_timer_tick = Clock::now();
+
     while (!WindowShouldClose()) {
 
       handle_cpu_input();
       handle_ui_input();
 
+      // ====== Cycles and Timers ======
+      if (!paused) {
+        for (int i = 0; i < cycles_per_frame; i += 1) {
+          cpu.Cycle();
+        }
+
+        // ====== Timer update at 60HZ ======
+        auto now = Clock::now();
+        auto elapsed = std::chrono::duration<float>(now - last_timer_tick);
+        if (elapsed.count() >= (1.0f / 60.0f)) {
+          cpu.UpdateTimers();
+          last_timer_tick = now;
+        }
+      }
+
       // ====== Mode-based rendering ======
       if (mode == EmulatorModes::Normal) {
         render_normal();
 
-        if (!paused) {
-          for (int i = 0; i < normal_cycles_per_frame; i += 1) {
-            cpu.Cycle();
-          }
-        }
       } else {
         DrawFPS(10, 10);
         render_debug();
-        if (!paused) {
-          for (int i = 0; i < debug_cycles_per_frame; i += 1) {
-            cpu.Cycle();
-          }
-        }
       }
     }
   }
