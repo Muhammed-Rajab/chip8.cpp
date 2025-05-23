@@ -254,35 +254,40 @@ private:
   }
 
   void render_index_and_special_registers(float px, float py) {
-    std::string str = "I: " + hex_to_string(cpu.index, 4) + " " +
-                      "DT: " + hex_to_string(cpu.delay, 2) + " " +
-                      "ST: " + hex_to_string(cpu.sound, 2);
+    const std::string str = "I: " + hex_to_string(cpu.index, 4) + " " +
+                            "DT: " + hex_to_string(cpu.delay, 2) + " " +
+                            "ST: " + hex_to_string(cpu.sound, 2);
 
     DrawTextEx(fontTTF, str.c_str(), {px, py}, 20, 0, WHITE);
   }
 
   void render_disassembled_code(float px, float py) {
-
-    int line_height = 30;
-    int current_index = (cpu.pc - 0x200) / 2;
+    const int line_height = 30;
+    const int current_index = (cpu.pc - 0x200) / 2;
 
     py += 5;
 
-    // Display three lines: one before, current, and one after
+    // Display one before, current, one after
     for (int i = -1; i <= 1; ++i) {
-      int index = current_index + i;
+      const int index = current_index + i;
 
-      if (index < 0 || index >= disassembled_rom.size())
-        continue; // skip out-of-bounds
+      if (index < 0 || index >= (int)disassembled_rom.size())
+        continue;
 
       const std::string &line = disassembled_rom[index];
+      const Color color = (i == 0) ? RED : WHITE;
 
-      Color color = (i == 0) ? RED : WHITE;
+      const std::string label = hex_to_string(0x200 + index * 2, 3);
 
-      DrawTextEx(fontTTF, std::to_string(cpu.pc - index).c_str(),
-                 {px + 10, py + (i + 1) * line_height}, 20, 0, color);
+      const std::string opcode = hex_to_string(cpu.opcode, 4);
 
-      DrawTextEx(fontTTF, line.c_str(), {px + 60, py + (i + 1) * line_height},
+      DrawTextEx(fontTTF, label.c_str(), {px + 10, py + (i + 1) * line_height},
+                 20, 0, color);
+
+      DrawTextEx(fontTTF, opcode.c_str(), {px + 70, py + (i + 1) * line_height},
+                 20, 0, color);
+
+      DrawTextEx(fontTTF, line.c_str(), {px + 140, py + (i + 1) * line_height},
                  20, 0, color);
     }
 
