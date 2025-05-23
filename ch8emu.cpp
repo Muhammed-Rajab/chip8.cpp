@@ -473,10 +473,10 @@ public:
 
     if (mode == EmulatorModes::Normal) {
       VIDEO_SCREEN_WIDTH = WINDOW_WIDTH - 40;
-      cycles_per_frame = 12;
+      cycles_per_frame = 15;
     } else {
       VIDEO_SCREEN_WIDTH = 600;
-      cycles_per_frame = 1;
+      cycles_per_frame = 15;
     }
 
     VIDEO_X_COUNT = cpu.VIDEO_WIDTH;
