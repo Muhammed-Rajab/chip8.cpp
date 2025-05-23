@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -537,17 +538,84 @@ private:
   }
 };
 
+// ====== CLI ======
+namespace CLI {
+void print_usage(const std::string &programName) {
+  std::cout << "ch8emu Usage:\n";
+  std::cout << "  " << programName << " <rom_path> [options]\n\n";
+  std::cout << "options:\n";
+  std::cout << "  -m, --mode <mode>    set emulator mode (debug or normal, "
+               "default: debug)\n";
+  std::cout << "  -h, --help           show this help message\n";
+}
+
+EmulatorModes parse_mode(const std::string &modeStr) {
+  std::string lowerMode = modeStr;
+  std::transform(lowerMode.begin(), lowerMode.end(), lowerMode.begin(),
+                 [](unsigned char c) { return std::tolower(c); });
+
+  if (lowerMode == "normal") {
+    return EmulatorModes::Normal;
+  } else if (lowerMode == "debug") {
+    return EmulatorModes::Debug;
+  }
+  throw std::invalid_argument("invalid mode. must be 'debug' or 'normal'");
+}
+} // namespace CLI
+
 int main(int argc, char *args[]) {
+  std::string romPath;
+  EmulatorModes mode = EmulatorModes::Debug; // Default mode
 
-  auto rom = LoadRomFromFile("./roms/test/PONG.ch8");
+  // Parse command line arguments
+  for (int i = 1; i < argc; ++i) {
+    std::string arg = args[i];
 
-  Chip8 cpu;
+    if (arg == "-h" || arg == "--help") {
+      CLI::print_usage(args[0]);
+      return EXIT_SUCCESS;
+    } else if (arg == "-m" || arg == "--mode") {
+      if (i + 1 >= argc) {
+        std::cerr << "Error: Missing argument for mode\n";
+        CLI::print_usage(args[0]);
+        return EXIT_FAILURE;
+      }
+      try {
+        mode = CLI::parse_mode(args[++i]);
+      } catch (const std::invalid_argument &e) {
+        std::cerr << "Error: " << e.what() << "\n";
+        CLI::print_usage(args[0]);
+        return EXIT_FAILURE;
+      }
+    } else {
+      // Assume this is the ROM path
+      if (romPath.empty()) {
+        romPath = arg;
+      } else {
+        std::cerr << "Error: Unexpected argument '" << arg << "'\n";
+        CLI::print_usage(args[0]);
+        return EXIT_FAILURE;
+      }
+    }
+  }
 
-  cpu.LoadFromArray(rom.data(), rom.size());
+  if (romPath.empty()) {
+    std::cerr << "Error: No ROM path specified\n";
+    CLI::print_usage(args[0]);
+    return EXIT_FAILURE;
+  }
 
-  Emulator emu(cpu, EmulatorModes::Debug);
+  try {
+    auto rom = LoadRomFromFile(romPath);
+    Chip8 cpu;
+    cpu.LoadFromArray(rom.data(), rom.size());
 
-  emu.Run();
+    Emulator emu(cpu, mode);
+    emu.Run();
 
-  return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
+  } catch (const std::exception &e) {
+    std::cerr << "error: " << e.what() << std::endl;
+    return EXIT_FAILURE;
+  }
 }
