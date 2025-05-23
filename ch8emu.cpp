@@ -382,7 +382,7 @@ private:
 
   void render_controls_overlay() {
     float width = 300;
-    float height = 300;
+    float height = 140;
     float x = WINDOW_WIDTH - width;
     float y = WINDOW_HEIGHT - height;
     Rectangle rec = {x, y, width, height};
