@@ -101,9 +101,8 @@ constexpr EmulatorTheme GREENY = {
     {30, 60, 30, 255},    // border (mid green)
     {0, 200, 0, 255},     // stack_pointer (vibrant green)
     {255, 255, 255, 255}, // current_instruction (white for contrast)
-    {20, 40, 20,
-     220}, // controls_overlay_background (dark translucentgreen) {200, 255,
-           // 200, 255} // controls_overlay_text (pale green)
+    {20, 40, 20, 220},    // controls_overlay_background (dark translucentgreen)
+    {200, 255, 200, 255}  // controls_overlay_text (pale green)
 };
 
 constexpr EmulatorTheme YELLOWY = {
@@ -204,6 +203,21 @@ constexpr EmulatorTheme PEACHY_BLUSH = {
 
 } // namespace EmulatorThemes
 
+constexpr size_t THEMES_COUNT = 11;
+constexpr EmulatorTheme themes[THEMES_COUNT] = {
+    EmulatorThemes::DEFAULT,       //
+    EmulatorThemes::BROWNY,        //
+    EmulatorThemes::GREENY,        //
+    EmulatorThemes::YELLOWY,       //
+    EmulatorThemes::REDDY,         //
+    EmulatorThemes::CYBERPUNK,     //
+    EmulatorThemes::MYSTIC_VIOLET, //
+    EmulatorThemes::BUBBLEGUM,     //
+    EmulatorThemes::GLACIER,       //
+    EmulatorThemes::VANILLA_CREAM, //
+    EmulatorThemes::PEACHY_BLUSH,  //
+};
+
 class Emulator {
 public:
   Emulator(Chip8 &cpu, EmulatorModes emulator_mode)
@@ -255,7 +269,9 @@ private:
   int cycles_per_frame = 15;
   bool showControlsOverlay = false;
   EmulatorModes mode = EmulatorModes::Debug;
-  EmulatorTheme theme = EmulatorThemes::GREENY;
+
+  size_t current_theme_index = 0;
+  EmulatorTheme theme = themes[current_theme_index];
 
   // video
   int VIDEO_SCREEN_WIDTH = 600;
@@ -317,6 +333,8 @@ private:
         paused = !paused;
       } else if (IsKeyPressed(KEY_N) && paused) {
         execute_cycles();
+      } else if (IsKeyPressed(KEY_T)) {
+        switch_theme();
       }
     }
   }
@@ -350,6 +368,12 @@ private:
     if (cpu.sound > 0 && !IsSoundPlaying(beep)) {
       PlaySound(beep);
     }
+  }
+
+  void switch_theme() {
+    current_theme_index += 1;
+    current_theme_index = current_theme_index % THEMES_COUNT;
+    theme = themes[current_theme_index];
   }
 
   // ====== Execution ======
@@ -688,6 +712,10 @@ private:
       DrawTextEx(fontTTF, "ESC : quit", {x, y}, 16, 0,
                  theme.controls_overlay_text);
     }
+
+    DrawTextEx(fontTTF, "t : switch to next theme", {x, y}, 16, 0,
+               theme.controls_overlay_text);
+    y += line_height;
 
     DrawRectangleLinesBetter(rec, 1, theme.border);
   }
