@@ -333,9 +333,11 @@ private:
         paused = !paused;
       } else if (IsKeyPressed(KEY_N) && paused) {
         execute_cycles();
-      } else if (IsKeyPressed(KEY_T)) {
-        switch_theme();
       }
+    }
+
+    if (IsKeyPressed(KEY_T)) {
+      switch_theme();
     }
   }
 
@@ -711,11 +713,11 @@ private:
     } else if (mode == EmulatorModes::Normal) {
       DrawTextEx(fontTTF, "ESC : quit", {x, y}, 16, 0,
                  theme.controls_overlay_text);
+      y += line_height;
     }
 
     DrawTextEx(fontTTF, "t : switch to next theme", {x, y}, 16, 0,
                theme.controls_overlay_text);
-    y += line_height;
 
     DrawRectangleLinesBetter(rec, 1, theme.border);
   }
