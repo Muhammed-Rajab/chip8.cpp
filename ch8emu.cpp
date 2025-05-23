@@ -202,18 +202,6 @@ constexpr EmulatorTheme PEACHY_BLUSH = {
     {100, 40, 30, 255}    // controls_overlay_text
 };
 
-constexpr EmulatorTheme LAVENDER_MILK = {
-    {250, 245, 255, 255}, // background
-    {200, 160, 255, 255}, // video_pixel
-    {70, 30, 90, 255},    // text
-    {150, 120, 170, 255}, // disabled_text
-    {220, 200, 255, 255}, // border
-    {180, 130, 255, 255}, // stack_pointer
-    {150, 90, 255, 255},  // current_instruction
-    {240, 230, 255, 220}, // controls_overlay_background
-    {70, 30, 90, 255}     // controls_overlay_text
-};
-
 } // namespace EmulatorThemes
 
 class Emulator {
@@ -267,7 +255,7 @@ private:
   int cycles_per_frame = 15;
   bool showControlsOverlay = false;
   EmulatorModes mode = EmulatorModes::Debug;
-  EmulatorTheme theme = EmulatorThemes::DEFAULT;
+  EmulatorTheme theme = EmulatorThemes::GREENY;
 
   // video
   int VIDEO_SCREEN_WIDTH = 600;
