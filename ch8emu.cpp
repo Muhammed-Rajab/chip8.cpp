@@ -392,7 +392,7 @@ private:
 
     float hox = 0;
     float hoy = 10;
-    DrawTextEx(fontTTF, "press [SPACE] to show debugger shortcuts",
+    DrawTextEx(fontTTF, "press [SPACE] to show emulator shortcuts",
                {vox + hox, (float)VIDEO_SCREEN_HEIGHT + voy + hoy}, 14, 0,
                DARKGRAY);
 
@@ -463,7 +463,7 @@ public:
 
     if (mode == EmulatorModes::Normal) {
       VIDEO_SCREEN_WIDTH = WINDOW_WIDTH - 40;
-      cycles_per_frame = 18;
+      cycles_per_frame = 12;
     } else {
       VIDEO_SCREEN_WIDTH = 600;
       cycles_per_frame = 1;
@@ -516,13 +516,13 @@ public:
 
 int main(int argc, char *args[]) {
 
-  auto rom = LoadRomFromFile("./roms/test/keypad.ch8");
+  auto rom = LoadRomFromFile("./roms/test/PONG.ch8");
 
   Chip8 cpu;
 
   cpu.LoadFromArray(rom.data(), rom.size());
 
-  Emulator emu(cpu, EmulatorModes::Normal);
+  Emulator emu(cpu, EmulatorModes::Debug);
 
   emu.Run();
 
