@@ -93,6 +93,8 @@ private:
     if (mode == EmulatorModes::Debug) {
       if (IsKeyPressed(KEY_LEFT_BRACKET)) {
         cycles_per_frame -= 1;
+        if (cycles_per_frame < 1)
+          cycles_per_frame = 1;
       } else if (IsKeyPressed(KEY_RIGHT_BRACKET)) {
         cycles_per_frame += 1;
       } else if (IsKeyPressed(KEY_P)) {
@@ -419,7 +421,7 @@ private:
       DrawTextEx(fontTTF, "] : increase cpu cycles per frame", {x, y}, 16, 0,
                  WHITE);
       y += line_height;
-      DrawTextEx(fontTTF, "p : pause cpu cycle", {x, y}, 16, 0, WHITE);
+      DrawTextEx(fontTTF, "p : pause/resume cpu cycle", {x, y}, 16, 0, WHITE);
       y += line_height;
       DrawTextEx(fontTTF, "n : run next cycle (if paused)", {x, y}, 16, 0,
                  WHITE);
