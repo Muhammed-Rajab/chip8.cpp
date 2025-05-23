@@ -74,6 +74,23 @@ private:
   // disassembled code
   std::vector<std::string> disassembled_rom = {};
 
+  // ui
+  bool showControlsOverlay = false;
+
+  void handle_ui_input() {
+
+    // NORMAL
+    if (mode == EmulatorModes::Normal) {
+    }
+
+    // DEBUG
+    if (mode == EmulatorModes::Debug) {
+      if (IsKeyPressed(KEY_SPACE)) {
+        showControlsOverlay = !showControlsOverlay;
+      }
+    }
+  }
+
   void handle_cpu_input() {
     const int chip8_keymap[16] = {
         KEY_X,     // 0
@@ -339,6 +356,11 @@ private:
                {(float)vox + hox, (float)VIDEO_SCREEN_HEIGHT + voy + doy + hoy},
                14, 0, DARKGRAY);
 
+    // render shortcuts
+    if (showControlsOverlay) {
+      render_controls_overlay();
+    }
+
     EndDrawing();
   }
 
@@ -350,7 +372,44 @@ private:
 
     render_video(20, 20);
 
+    // render shortcuts
+    if (showControlsOverlay) {
+      render_controls_overlay();
+    }
+
     EndDrawing();
+  }
+
+  void render_controls_overlay() {
+    float width = 300;
+    float height = 300;
+    float x = WINDOW_WIDTH - width;
+    float y = WINDOW_HEIGHT - height;
+    Rectangle rec = {x, y, width, height};
+    DrawRectangleRec(rec, {0, 0, 0, 255});
+
+    const float line_height = 20;
+
+    x += 10;
+    y += 10;
+
+    DrawTextEx(fontTTF, "Shortcuts", {x, y}, 16, 0, DARKGRAY);
+
+    y += 20;
+
+    DrawTextEx(fontTTF, "[ : decrease cpu cycles per frame", {x, y}, 16, 0,
+               WHITE);
+    y += line_height;
+    DrawTextEx(fontTTF, "] : increase cpu cycles per frame", {x, y}, 16, 0,
+               WHITE);
+    y += line_height;
+    DrawTextEx(fontTTF, "p : pause cpu cycle", {x, y}, 16, 0, WHITE);
+    y += line_height;
+    DrawTextEx(fontTTF, "n : run next cycle (if paused)", {x, y}, 16, 0, WHITE);
+    y += line_height;
+    DrawTextEx(fontTTF, "ESC : quit", {x, y}, 16, 0, WHITE);
+
+    DrawRectangleLinesBetter(rec, 1, DARKGRAY);
   }
 
 public:
@@ -390,6 +449,7 @@ public:
     while (!WindowShouldClose()) {
 
       handle_cpu_input();
+      handle_ui_input();
 
       // ====== Mode-based rendering ======
       if (mode == EmulatorModes::Normal) {
