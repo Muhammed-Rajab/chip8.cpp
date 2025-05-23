@@ -240,7 +240,8 @@ private:
                              1, GRAY);
   }
 
-  void render_disassembled_code(float px, float py) {
+  void render_disassembled_code_with_pc_opcode_and_instructions(float px,
+                                                                float py) {
     const int line_height = 30;
     const int current_index = (cpu.pc - 0x200) / 2;
 
@@ -282,6 +283,18 @@ private:
                              GRAY);
   }
 
+  void render_debugger_params(float px, float py) {
+
+    const int line_height = 30;
+
+    py += 20;
+
+    // cycles per frame
+    std::string cycles_per_frame =
+        "cycles per frame: " + std::to_string(debug_cycles_per_frame);
+    DrawTextEx(fontTTF, cycles_per_frame.c_str(), {px, py}, 20, 0, WHITE);
+  }
+
   void render_debug() {
 
     BeginDrawing();
@@ -308,12 +321,16 @@ private:
     render_memory(VIDEO_SCREEN_WIDTH + vox + sox + rox + mox, moy);
 
     int doy = 20;
-    render_disassembled_code(vox, VIDEO_SCREEN_HEIGHT + voy + doy);
+    render_disassembled_code_with_pc_opcode_and_instructions(
+        vox, VIDEO_SCREEN_HEIGHT + voy + doy);
 
-    // separator
+    // special register stuff
     int iox = 330;
     render_index_and_special_registers(vox + iox,
                                        VIDEO_SCREEN_HEIGHT + voy + doy);
+
+    int poy = 10;
+    render_debugger_params(vox + iox, VIDEO_SCREEN_HEIGHT + voy + doy + poy);
 
     EndDrawing();
   }
