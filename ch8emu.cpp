@@ -53,8 +53,25 @@ using Clock = std::chrono::high_resolution_clock;
 
 enum class EmulatorModes { Normal, Debug };
 
-constexpr static int WINDOW_WIDTH = 955;
-constexpr static int WINDOW_HEIGHT = 500;
+constexpr int WINDOW_WIDTH = 955;
+constexpr int WINDOW_HEIGHT = 500;
+
+struct EmulatorTheme {
+  Color background;
+  Color video_pixel;
+  Color text;
+  Color disabled_text;
+  Color border;
+  Color stack_pointer;
+  Color current_instruction;
+  Color controls_overlay_backgroud;
+  Color controls_overlay_text;
+};
+
+namespace EmulatorThemes {
+constexpr EmulatorTheme DEFAULT = {BLACK, WHITE, WHITE, DARKGRAY, GRAY,
+                                   RED,   RED,   BLACK, WHITE};
+}
 
 class Emulator {
 public:
@@ -107,6 +124,7 @@ private:
   int cycles_per_frame = 15;
   bool showControlsOverlay = false;
   EmulatorModes mode = EmulatorModes::Debug;
+  EmulatorTheme theme = EmulatorThemes::DEFAULT;
 
   // video
   int VIDEO_SCREEN_WIDTH = 600;
@@ -233,7 +251,7 @@ private:
   void render_debug() {
 
     BeginDrawing();
-    ClearBackground(BLACK);
+    ClearBackground(theme.background);
 
     int vox = 20;
     int voy = 20;
@@ -272,7 +290,7 @@ private:
     int hoy = 140;
     DrawTextEx(fontTTF, "press [SPACE] to show debugger shortcuts",
                {(float)vox + hox, (float)VIDEO_SCREEN_HEIGHT + voy + doy + hoy},
-               14, 0, DARKGRAY);
+               14, 0, theme.disabled_text);
 
     // render shortcuts
     if (showControlsOverlay) {
@@ -285,7 +303,7 @@ private:
   void render_normal() {
 
     BeginDrawing();
-    ClearBackground(BLACK);
+    ClearBackground(theme.background);
 
     float vox = 20;
     float voy = 20;
@@ -295,7 +313,7 @@ private:
     float hoy = 10;
     DrawTextEx(fontTTF, "press [SPACE] to show emulator shortcuts",
                {vox + hox, (float)VIDEO_SCREEN_HEIGHT + voy + hoy}, 14, 0,
-               DARKGRAY);
+               theme.disabled_text);
 
     // render shortcuts
     if (showControlsOverlay) {
@@ -317,8 +335,8 @@ private:
         if (pixel) {
           const Rectangle rec = {(float)x, (float)y, (float)VIDEO_GRID_SIZE,
                                  (float)VIDEO_GRID_SIZE};
-          DrawRectangleRec(rec, WHITE);
-          DrawRectangleLinesBetter(rec, 1, BLACK);
+          DrawRectangleRec(rec, theme.video_pixel);
+          DrawRectangleLinesBetter(rec, 1, theme.background);
         }
       }
     }
@@ -326,7 +344,7 @@ private:
     // draw border
     const Rectangle border = {(float)px, (float)py, (float)VIDEO_SCREEN_WIDTH,
                               (float)VIDEO_SCREEN_HEIGHT};
-    DrawRectangleLinesBetter(border, 1, GRAY);
+    DrawRectangleLinesBetter(border, 1, theme.border);
   }
 
   void render_memory(float px, float py) {
@@ -363,7 +381,7 @@ private:
     }
 
     const Rectangle border = {px - 1, py - 1, 207.0f + 1, 207.0f + 1};
-    DrawRectangleLinesBetter(border, 1, GRAY);
+    DrawRectangleLinesBetter(border, 1, theme.border);
   }
 
   void render_registers(float px, float py) {
@@ -376,7 +394,7 @@ private:
     py += 10;
 
     DrawTextEx(fontTTF, "Registers", {(float)px, (float)py}, text_size, 0,
-               WHITE);
+               theme.disabled_text);
 
     int fy = py + line_height;
 
@@ -392,11 +410,11 @@ private:
           (i < 8) ? fy + i * line_height : fy + (i - 8) * line_height;
 
       DrawTextEx(fontTTF, str.c_str(), {(float)x, (float)y}, text_size, 0,
-                 WHITE);
+                 theme.text);
     }
 
     DrawRectangleLinesBetter({px - 10, py - 10, 207, py + line_height * 8 + 7},
-                             1, GRAY);
+                             1, theme.border);
   }
 
   void render_index_and_special_registers(float px, float py) {
@@ -404,7 +422,7 @@ private:
                             "DT: " + hex_to_string(cpu.delay, 2) + " " +
                             "ST: " + hex_to_string(cpu.sound, 2);
 
-    DrawTextEx(fontTTF, str.c_str(), {px, py}, 20, 0, WHITE);
+    DrawTextEx(fontTTF, str.c_str(), {px, py}, 20, 0, theme.text);
   }
 
   void render_stack(float px, float py) {
@@ -414,7 +432,8 @@ private:
     py += 10;
 
     const auto stack_size = MeasureTextEx(fontTTF, "##Stack##", 20, 0);
-    DrawTextEx(fontTTF, "  Stack  ", {(float)px, (float)py}, 20, 0, WHITE);
+    DrawTextEx(fontTTF, "  Stack  ", {(float)px, (float)py}, 20, 0,
+               theme.disabled_text);
 
     float fy = py + 25;
 
@@ -431,18 +450,18 @@ private:
 
       if (i == top_index) {
         DrawRectangle((float)px + (stack_size.x - val_size.x) / 2, (float)fy,
-                      val_size.x, val_size.y, RED);
+                      val_size.x, val_size.y, theme.stack_pointer);
       }
 
       DrawTextEx(fontTTF, str.c_str(),
                  {(float)px + (stack_size.x - val_size.x) / 2, (float)fy}, 20,
-                 0, WHITE);
+                 0, theme.text);
 
       fy += line_height;
     }
 
     DrawRectangleLinesBetter({px, py - 10, stack_size.x, fy - line_height + 27},
-                             1, GRAY);
+                             1, theme.border);
   }
 
   void render_disassembled_code_with_pc_opcode_and_instructions(float px,
@@ -452,11 +471,12 @@ private:
 
     py += 5;
 
-    DrawTextEx(fontTTF, "PC", {px + 10, py}, 20, 0, WHITE);
+    DrawTextEx(fontTTF, "PC", {px + 10, py}, 20, 0, theme.disabled_text);
 
-    DrawTextEx(fontTTF, "OPCODE", {px + 70, py}, 20, 0, WHITE);
+    DrawTextEx(fontTTF, "OPCODE", {px + 70, py}, 20, 0, theme.disabled_text);
 
-    DrawTextEx(fontTTF, "INSTRUCTION", {px + 140, py}, 20, 0, WHITE);
+    DrawTextEx(fontTTF, "INSTRUCTION", {px + 140, py}, 20, 0,
+               theme.disabled_text);
 
     py += line_height;
 
@@ -468,7 +488,7 @@ private:
         continue;
 
       const std::string &line = disassembled_rom[index];
-      const Color color = (i == 0) ? RED : WHITE;
+      const Color color = (i == 0) ? theme.current_instruction : theme.text;
 
       const std::string label = hex_to_string(0x200 + index * 2, 3);
 
@@ -485,7 +505,7 @@ private:
     }
 
     DrawRectangleLinesBetter({px, py - (5 + line_height), (float)315, 130}, 1,
-                             GRAY);
+                             theme.border);
   }
 
   void render_debugger_params(float px, float py) {
@@ -497,7 +517,8 @@ private:
     // cycles per frame
     std::string cycles_per_frame_str =
         "cycles per frame: " + std::to_string(cycles_per_frame);
-    DrawTextEx(fontTTF, cycles_per_frame_str.c_str(), {px, py}, 20, 0, WHITE);
+    DrawTextEx(fontTTF, cycles_per_frame_str.c_str(), {px, py}, 20, 0,
+               theme.text);
   }
 
   void render_controls_overlay() {
@@ -506,35 +527,37 @@ private:
     float x = WINDOW_WIDTH - width;
     float y = WINDOW_HEIGHT - height;
     Rectangle rec = {x, y, width, height};
-    DrawRectangleRec(rec, {0, 0, 0, 255});
+    DrawRectangleRec(rec, theme.controls_overlay_backgroud);
 
     const float line_height = 20;
 
     x += 10;
     y += 10;
 
-    DrawTextEx(fontTTF, "Shortcuts", {x, y}, 16, 0, DARKGRAY);
+    DrawTextEx(fontTTF, "Shortcuts", {x, y}, 16, 0, theme.disabled_text);
 
     y += 20;
 
     if (mode == EmulatorModes::Debug) {
 
       DrawTextEx(fontTTF, "[ : decrease cpu cycles per frame", {x, y}, 16, 0,
-                 WHITE);
+                 theme.controls_overlay_text);
       y += line_height;
       DrawTextEx(fontTTF, "] : increase cpu cycles per frame", {x, y}, 16, 0,
-                 WHITE);
+                 theme.controls_overlay_text);
       y += line_height;
-      DrawTextEx(fontTTF, "p : pause/resume cpu cycle", {x, y}, 16, 0, WHITE);
+      DrawTextEx(fontTTF, "p : pause/resume cpu cycle", {x, y}, 16, 0,
+                 theme.controls_overlay_text);
       y += line_height;
       DrawTextEx(fontTTF, "n : run next cycle (if paused)", {x, y}, 16, 0,
-                 WHITE);
+                 theme.controls_overlay_text);
       y += line_height;
     } else if (mode == EmulatorModes::Normal) {
-      DrawTextEx(fontTTF, "ESC : quit", {x, y}, 16, 0, WHITE);
+      DrawTextEx(fontTTF, "ESC : quit", {x, y}, 16, 0,
+                 theme.controls_overlay_text);
     }
 
-    DrawRectangleLinesBetter(rec, 1, DARKGRAY);
+    DrawRectangleLinesBetter(rec, 1, theme.border);
   }
 };
 
