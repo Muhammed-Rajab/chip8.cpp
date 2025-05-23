@@ -169,14 +169,15 @@ private:
     int fy = py + line_height;
 
     for (int i = 0; i < 16; ++i) {
-      uint8_t val = cpu.V[i];
+      const uint8_t val = cpu.V[i];
       std::ostringstream oss;
       oss << "V" << std::hex << std::uppercase << i << ": 0x" << std::setw(2)
           << std::setfill('0') << (int)val;
       std::string str = oss.str();
 
-      float x = (i < 8) ? px : px + column_spacing;
-      float y = (i < 8) ? fy + i * line_height : fy + (i - 8) * line_height;
+      const float x = (i < 8) ? px : px + column_spacing;
+      const float y =
+          (i < 8) ? fy + i * line_height : fy + (i - 8) * line_height;
 
       DrawTextEx(fontTTF, str.c_str(), {(float)x, (float)y}, text_size, 0,
                  WHITE);
@@ -188,25 +189,27 @@ private:
 
   void render_stack(float px, float py) {
 
-    int line_height = 25;
+    const int line_height = 25;
 
     py += 10;
 
-    auto stack_size = MeasureTextEx(fontTTF, "##Stack##", 20, 0);
+    const auto stack_size = MeasureTextEx(fontTTF, "##Stack##", 20, 0);
     DrawTextEx(fontTTF, "  Stack  ", {(float)px, (float)py}, 20, 0, WHITE);
 
     float fy = py + 25;
 
+    const int top_index = cpu.sp - 1;
+
     for (int i = 15; i >= 0; i -= 1) {
-      uint8_t val = cpu.stack[i];
+      const uint8_t val = cpu.stack[i];
       std::ostringstream oss;
       oss << "[" << "0x" << std::setw(2) << std::setfill('0') << (int)val
           << "]";
 
-      std::string str = oss.str();
-      auto val_size = MeasureTextEx(fontTTF, str.c_str(), 20, 0);
+      const std::string str = oss.str();
+      const auto val_size = MeasureTextEx(fontTTF, str.c_str(), 20, 0);
 
-      if (i == cpu.sp - 1) {
+      if (i == top_index) {
         DrawRectangle((float)px + (stack_size.x - val_size.x) / 2, (float)fy,
                       val_size.x, val_size.y, RED);
       }
@@ -217,11 +220,6 @@ private:
 
       fy += line_height;
     }
-
-    // DrawRectangleLinesBetter({px, py - 10, stack_size.x, fy - line_height +
-    // 10},
-    //                          1, GRAY);
-    //
 
     DrawRectangleLinesBetter({px, py - 10, stack_size.x, fy - line_height + 27},
                              1, GRAY);
