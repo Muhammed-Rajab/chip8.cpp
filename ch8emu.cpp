@@ -332,6 +332,13 @@ private:
     int poy = 10;
     render_debugger_params(vox + iox, VIDEO_SCREEN_HEIGHT + voy + doy + poy);
 
+    // help message
+    int hox = 0;
+    int hoy = 140;
+    DrawTextEx(fontTTF, "press [SPACE] to show debugger shortcuts",
+               {(float)vox + hox, (float)VIDEO_SCREEN_HEIGHT + voy + doy + hoy},
+               14, 0, DARKGRAY);
+
     EndDrawing();
   }
 
