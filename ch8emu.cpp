@@ -386,7 +386,15 @@ private:
 
     ClearBackground(BLACK);
 
-    render_video(20, 20);
+    float vox = 20;
+    float voy = 20;
+    render_video(vox, voy);
+
+    float hox = 0;
+    float hoy = 10;
+    DrawTextEx(fontTTF, "press [SPACE] to show debugger shortcuts",
+               {vox + hox, (float)VIDEO_SCREEN_HEIGHT + voy + hoy}, 14, 0,
+               DARKGRAY);
 
     // render shortcuts
     if (showControlsOverlay) {
@@ -434,7 +442,8 @@ private:
   }
 
 public:
-  Emulator(Chip8 &cpu) : cpu(cpu) {
+  Emulator(Chip8 &cpu, EmulatorModes emulator_mode)
+      : cpu(cpu), mode(emulator_mode) {
     // const int screenHeight = 800;
     const char *title = "CHIP 8";
 
@@ -454,7 +463,7 @@ public:
 
     if (mode == EmulatorModes::Normal) {
       VIDEO_SCREEN_WIDTH = WINDOW_WIDTH - 40;
-      cycles_per_frame = 12;
+      cycles_per_frame = 18;
     } else {
       VIDEO_SCREEN_WIDTH = 600;
       cycles_per_frame = 1;
@@ -513,7 +522,7 @@ int main(int argc, char *args[]) {
 
   cpu.LoadFromArray(rom.data(), rom.size());
 
-  Emulator emu(cpu);
+  Emulator emu(cpu, EmulatorModes::Normal);
 
   emu.Run();
 
