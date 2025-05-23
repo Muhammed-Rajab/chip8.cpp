@@ -254,21 +254,11 @@ private:
   }
 
   void render_index_and_special_registers(float px, float py) {
-    std::ostringstream oss;
+    std::string str = "I: " + hex_to_string(cpu.index, 4) + " " +
+                      "DT: " + hex_to_string(cpu.delay, 2) + " " +
+                      "ST: " + hex_to_string(cpu.sound, 2);
 
-    oss << "I: 0x" << std::hex << std::setfill('0') << std::setw(4)
-        << int(cpu.index);
-    oss << " ";
-
-    oss << "DT: 0x" << std::hex << std::setfill('0') << std::setw(2)
-        << int(cpu.delay);
-
-    oss << " ";
-
-    oss << "ST: 0x" << std::hex << std::setfill('0') << std::setw(2)
-        << int(cpu.sound);
-
-    DrawTextEx(fontTTF, oss.str().c_str(), {px, py}, 20, 0, WHITE);
+    DrawTextEx(fontTTF, str.c_str(), {px, py}, 20, 0, WHITE);
   }
 
   void render_disassembled_code(float px, float py) {
