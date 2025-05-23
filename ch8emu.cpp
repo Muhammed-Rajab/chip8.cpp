@@ -69,9 +69,152 @@ struct EmulatorTheme {
 };
 
 namespace EmulatorThemes {
-constexpr EmulatorTheme DEFAULT = {BLACK, WHITE, WHITE, DARKGRAY, GRAY,
-                                   RED,   RED,   BLACK, WHITE};
-}
+constexpr EmulatorTheme DEFAULT = {
+    {18, 18, 18, 255},    // background (dark gray/black, near-neutral)
+    {240, 240, 240, 255}, // video_pixel (bright white-ish gray)
+    {200, 200, 200, 255}, // text (light gray)
+    {100, 100, 100, 255}, // disabled_text (dim gray)
+    {80, 80, 80, 255},    // border (slightly lighter than bg)
+    {135, 206, 250, 255}, // stack_pointer (sky blue — stands out)
+    {255, 215, 0, 255},   // current_instruction (gold — very visible)
+    {25, 25, 25, 220},    // controls_overlay_background (subtle dark overlay)
+    {220, 220, 220, 255}  // controls_overlay_text (clean light gray)
+};
+
+constexpr EmulatorTheme BROWNY = {
+    {25, 20, 15, 255},    // background (dark brown)
+    {210, 180, 140, 255}, // video_pixel (tan)
+    {255, 235, 205, 255}, // text (blanched almond)
+    {139, 115, 85, 255},  // disabled_text (soft muted brown)
+    {100, 75, 50, 255},   // border (wood-like)
+    {205, 133, 63, 255},  // stack_pointer (peru)
+    {255, 160, 122, 255}, // current_instruction (light salmon)
+    {45, 35, 25, 220},    // controls_overlay_backgroud (darker brown)
+    {255, 235, 205, 255} // controls_overlay_text (same as text for readability)
+};
+
+constexpr EmulatorTheme GREENY = {
+    {10, 20, 10, 255},    // background (dark green)
+    {0, 255, 0, 255},     // video_pixel (bright green)
+    {180, 255, 180, 255}, // text (light green)
+    {80, 120, 80, 255},   // disabled_text (dull green)
+    {30, 60, 30, 255},    // border (mid green)
+    {0, 200, 0, 255},     // stack_pointer (vibrant green)
+    {255, 255, 255, 255}, // current_instruction (white for contrast)
+    {20, 40, 20,
+     220}, // controls_overlay_background (dark translucentgreen) {200, 255,
+           // 200, 255} // controls_overlay_text (pale green)
+};
+
+constexpr EmulatorTheme YELLOWY = {
+    {30, 30, 10, 255},    // background
+    {255, 255, 0, 255},   // video_pixel
+    {255, 255, 180, 255}, // text
+    {120, 120, 60, 255},  // disabled_text
+    {80, 80, 20, 255},    // border
+    {255, 215, 0, 255},   // stack_pointer (golden)
+    {255, 255, 255, 255}, // current_instruction
+    {40, 40, 10, 220},    // controls_overlay_backgroud
+    {255, 255, 180, 255}  // controls_overlay_text
+};
+
+constexpr EmulatorTheme REDDY = {
+    {30, 0, 0, 255},      // background (deep dark red)
+    {255, 69, 58, 255},   // video_pixel (vibrant red)
+    {255, 200, 200, 255}, // text (soft pinkish white for contrast)
+    {139, 0, 0, 255},     // disabled_text (dark red)
+    {100, 0, 0, 255},     // border (muted blood red)
+    {220, 20, 60, 255},   // stack_pointer (crimson)
+    {255, 99, 71, 255},   // current_instruction (tomato)
+    {40, 0, 0, 220},      // controls_overlay_backgroud (dark overlay red)
+    {255, 200, 200, 255}  // controls_overlay_text (same as text)
+};
+
+constexpr EmulatorTheme CYBERPUNK = {
+    {10, 10, 25, 255},    // background: very dark blue-black
+    {0, 255, 200, 255},   // video_pixel: neon aqua
+    {255, 0, 255, 255},   // text: bright magenta
+    {130, 130, 130, 255}, // disabled_text: soft gray
+    {255, 20, 147, 255},  // border: deep pink
+    {255, 255, 0, 255},   // stack_pointer: bright yellow
+    {0, 255, 255, 255},   // current_instruction: electric cyan
+    {30, 0, 60, 200},     // controls_overlay_background: translucent purple
+    {255, 255, 255, 255}, // controls_overlay_text: white
+};
+
+constexpr EmulatorTheme MYSTIC_VIOLET = {
+    {20, 15, 30, 255},    // background
+    {200, 180, 255, 255}, // video_pixel
+    {240, 220, 255, 255}, // text
+    {120, 100, 160, 255}, // disabled_text
+    {180, 140, 220, 255}, // border
+    {255, 120, 255, 255}, // stack_pointer
+    {255, 0, 255, 255},   // current_instruction
+    {40, 30, 60, 200},    // controls_overlay_background
+    {240, 220, 255, 255}  // controls_overlay_text
+};
+
+constexpr EmulatorTheme BUBBLEGUM = {
+    {255, 240, 245, 255}, // background
+    {255, 105, 180, 255}, // video_pixel
+    {90, 20, 60, 255},    // text
+    {150, 120, 130, 255}, // disabled_text
+    {255, 192, 203, 255}, // border
+    {255, 0, 127, 255},   // stack_pointer
+    {255, 20, 147, 255},  // current_instruction
+    {255, 228, 237, 200}, // controls_overlay_background
+    {90, 20, 60, 255}     // controls_overlay_text
+};
+
+constexpr EmulatorTheme GLACIER = {
+    {5, 10, 20, 255},     // background
+    {0, 180, 255, 255},   // video_pixel
+    {200, 240, 255, 255}, // text
+    {80, 100, 120, 255},  // disabled_text
+    {0, 130, 180, 255},   // border
+    {255, 255, 255, 255}, // stack_pointer
+    {0, 255, 255, 255},   // current_instruction
+    {10, 20, 30, 200},    // controls_overlay_background
+    {200, 240, 255, 255}  // controls_overlay_text
+};
+
+constexpr EmulatorTheme VANILLA_CREAM = {
+    {255, 250, 240, 255}, // background
+    {255, 200, 100, 255}, // video_pixel
+    {90, 60, 40, 255},    // text
+    {160, 140, 120, 255}, // disabled_text
+    {255, 220, 180, 255}, // border
+    {255, 170, 100, 255}, // stack_pointer
+    {255, 120, 80, 255},  // current_instruction
+    {255, 240, 220, 230}, // controls_overlay_background
+    {90, 60, 40, 255}     // controls_overlay_text
+};
+
+constexpr EmulatorTheme PEACHY_BLUSH = {
+    {255, 245, 240, 255}, // background
+    {255, 180, 160, 255}, // video_pixel
+    {100, 40, 30, 255},   // text
+    {170, 120, 110, 255}, // disabled_text
+    {255, 210, 200, 255}, // border
+    {255, 100, 80, 255},  // stack_pointer
+    {255, 60, 50, 255},   // current_instruction
+    {255, 235, 230, 220}, // controls_overlay_background
+    {100, 40, 30, 255}    // controls_overlay_text
+};
+
+constexpr EmulatorTheme LAVENDER_MILK = {
+    {250, 245, 255, 255}, // background
+    {200, 160, 255, 255}, // video_pixel
+    {70, 30, 90, 255},    // text
+    {150, 120, 170, 255}, // disabled_text
+    {220, 200, 255, 255}, // border
+    {180, 130, 255, 255}, // stack_pointer
+    {150, 90, 255, 255},  // current_instruction
+    {240, 230, 255, 220}, // controls_overlay_background
+    {70, 30, 90, 255}     // controls_overlay_text
+};
+
+} // namespace EmulatorThemes
 
 class Emulator {
 public:
@@ -144,6 +287,7 @@ private:
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "");
     SetTargetFPS(60);
 
+    // fontTTF = LoadFontEx("./fonts/Fredoka-Bold.ttf", 128, 0, 0);
     fontTTF = LoadFontEx("./fonts/scp-bold.ttf", 128, 0, 0);
 
     InitAudioDevice();
