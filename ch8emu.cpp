@@ -52,45 +52,117 @@ using Clock = std::chrono::high_resolution_clock;
 
 enum class EmulatorModes { Normal, Debug };
 
+constexpr static int WINDOW_WIDTH = 955;
+constexpr static int WINDOW_HEIGHT = 500;
+
 class Emulator {
+public:
+  Emulator(Chip8 &cpu, EmulatorModes emulator_mode)
+      : cpu(cpu), mode(emulator_mode),
+        disassembled_rom(
+            Disassembler::DecodeRomFromArrayAsVector(cpu.rom, false)) {
+    initialize_raylib();
+    initialize_video_settings();
+  }
+
+  void Run() {
+
+    auto last_timer_tick = Clock::now();
+
+    while (!WindowShouldClose()) {
+
+      handle_cpu_input();
+      handle_ui_input();
+
+      // ====== Cycles and Timers ======
+      if (!paused) {
+        for (int i = 0; i < cycles_per_frame; i += 1) {
+          cpu.Cycle();
+        }
+      }
+
+      // ====== Timer update at 60HZ ======
+      auto now = Clock::now();
+      auto elapsed = std::chrono::duration<float>(now - last_timer_tick);
+      if (elapsed.count() >= (1.0f / 60.0f)) {
+        cpu.UpdateTimers();
+        last_timer_tick = now;
+      }
+
+      // ====== Rendering ======
+      render();
+
+      // ====== Sound ======
+      handle_sound();
+    }
+  }
+
+  ~Emulator() {
+    UnloadSound(beep);
+    UnloadFont(fontTTF);
+    CloseWindow();
+    CloseAudioDevice();
+  }
+
 private:
   // Chip8
   Chip8 &cpu;
+  std::vector<std::string> disassembled_rom;
 
+  // Emulator state
   bool paused = false;
-  int cycles_per_frame = 1;
+  int cycles_per_frame = 15;
+  bool showControlsOverlay = false;
   EmulatorModes mode = EmulatorModes::Debug;
 
   // video
-  int VIDEO_SCREEN_WIDTH = {};
-  int VIDEO_X_COUNT = {};
-  int VIDEO_Y_COUNT = {};
+  int VIDEO_SCREEN_WIDTH = 600;
+  int VIDEO_SCREEN_HEIGHT = 0;
+  int VIDEO_X_COUNT = 0;
+  int VIDEO_Y_COUNT = 0;
+  int VIDEO_GRID_SIZE = 0;
 
-  int VIDEO_GRID_SIZE = {};
-  int VIDEO_SCREEN_HEIGHT = {};
-
-  // raylib
-  constexpr static int WINDOW_WIDTH = 955;
-  constexpr static int WINDOW_HEIGHT = 500;
+  // raylib resources
   Font fontTTF;
   Sound beep;
 
-  // disassembled code
-  std::vector<std::string> disassembled_rom = {};
+  // ====== Initializations ======
+  void initialize_raylib() {
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT |
+                   FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_HIGHDPI);
+    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "");
+    SetTargetFPS(60);
 
-  // ui
-  bool showControlsOverlay = false;
+    fontTTF = LoadFontEx("./fonts/scp-bold.ttf", 128, 0, 0);
 
+    InitAudioDevice();
+    beep = LoadSound("./sounds/sine.wav");
+
+    SetTextureFilter(fontTTF.texture, TEXTURE_FILTER_BILINEAR);
+  }
+
+  void initialize_video_settings() {
+    if (mode == EmulatorModes::Normal) {
+      VIDEO_SCREEN_WIDTH = WINDOW_WIDTH - 40;
+      cycles_per_frame = 15;
+    } else {
+      VIDEO_SCREEN_WIDTH = 600;
+      cycles_per_frame = 15;
+    }
+
+    VIDEO_X_COUNT = cpu.VIDEO_WIDTH;
+    VIDEO_Y_COUNT = cpu.VIDEO_HEIGHT;
+
+    VIDEO_GRID_SIZE = VIDEO_SCREEN_WIDTH / VIDEO_X_COUNT;
+    VIDEO_SCREEN_HEIGHT = VIDEO_GRID_SIZE * VIDEO_Y_COUNT;
+  }
+
+  // ====== Input Handling ======
   void handle_ui_input() {
     if (IsKeyPressed(KEY_SPACE)) {
       showControlsOverlay = !showControlsOverlay;
     }
 
-    // NORMAL
-    if (mode == EmulatorModes::Normal) {
-    }
-
-    // DEBUG
     if (mode == EmulatorModes::Debug) {
       if (IsKeyPressed(KEY_LEFT_BRACKET)) {
         cycles_per_frame -= 1;
@@ -101,9 +173,7 @@ private:
       } else if (IsKeyPressed(KEY_P)) {
         paused = !paused;
       } else if (IsKeyPressed(KEY_N) && paused) {
-        for (int i = 0; i < cycles_per_frame; i += 1) {
-          cpu.Cycle();
-        }
+        execute_cycles();
       }
     }
   }
@@ -137,6 +207,108 @@ private:
     if (cpu.sound > 0 && !IsSoundPlaying(beep)) {
       PlaySound(beep);
     }
+  }
+
+  // ====== Execution ======
+  void execute_cycles() {
+    for (int i = 0; i < cycles_per_frame; i += 1) {
+      cpu.Cycle();
+    }
+  }
+
+  void update_timers(std::chrono::time_point<Clock> &last_timer_tick) {
+    auto now = Clock::now();
+    auto elapsed = std::chrono::duration<float>(now - last_timer_tick);
+    if (elapsed.count() >= (1.0f / 60.0f)) {
+      cpu.UpdateTimers();
+      last_timer_tick = now;
+    }
+  }
+
+  // ====== Rendering ======
+  void render() {
+    // ====== Mode-based rendering ======
+    if (mode == EmulatorModes::Normal) {
+      render_normal();
+
+    } else {
+      DrawFPS(10, 10);
+      render_debug();
+    }
+  }
+
+  void render_debug() {
+
+    BeginDrawing();
+    ClearBackground(BLACK);
+
+    int vox = 20;
+    int voy = 20;
+
+    render_video(vox, voy);
+
+    int sox = 15;
+    int soy = 0;
+
+    render_stack(VIDEO_SCREEN_WIDTH + vox + sox, voy + soy);
+
+    int rox = 100;
+    int roy = 0;
+
+    render_registers(VIDEO_SCREEN_WIDTH + vox + sox + rox, voy + roy);
+
+    int mox = 0;
+    int moy = 270;
+
+    render_memory(VIDEO_SCREEN_WIDTH + vox + sox + rox + mox, moy);
+
+    int doy = 20;
+    render_disassembled_code_with_pc_opcode_and_instructions(
+        vox, VIDEO_SCREEN_HEIGHT + voy + doy);
+
+    // special register stuff
+    int iox = 330;
+    render_index_and_special_registers(vox + iox,
+                                       VIDEO_SCREEN_HEIGHT + voy + doy);
+
+    int poy = 10;
+    render_debugger_params(vox + iox, VIDEO_SCREEN_HEIGHT + voy + doy + poy);
+
+    // help message
+    int hox = 0;
+    int hoy = 140;
+    DrawTextEx(fontTTF, "press [SPACE] to show debugger shortcuts",
+               {(float)vox + hox, (float)VIDEO_SCREEN_HEIGHT + voy + doy + hoy},
+               14, 0, DARKGRAY);
+
+    // render shortcuts
+    if (showControlsOverlay) {
+      render_controls_overlay();
+    }
+
+    EndDrawing();
+  }
+
+  void render_normal() {
+
+    BeginDrawing();
+    ClearBackground(BLACK);
+
+    float vox = 20;
+    float voy = 20;
+    render_video(vox, voy);
+
+    float hox = 0;
+    float hoy = 10;
+    DrawTextEx(fontTTF, "press [SPACE] to show emulator shortcuts",
+               {vox + hox, (float)VIDEO_SCREEN_HEIGHT + voy + hoy}, 14, 0,
+               DARKGRAY);
+
+    // render shortcuts
+    if (showControlsOverlay) {
+      render_controls_overlay();
+    }
+    EndDrawing();
   }
 
   void render_video(float px, float py) {
@@ -335,82 +507,6 @@ private:
     DrawTextEx(fontTTF, cycles_per_frame_str.c_str(), {px, py}, 20, 0, WHITE);
   }
 
-  void render_debug() {
-
-    BeginDrawing();
-    ClearBackground(BLACK);
-
-    int vox = 20;
-    int voy = 20;
-
-    render_video(vox, voy);
-
-    int sox = 15;
-    int soy = 0;
-
-    render_stack(VIDEO_SCREEN_WIDTH + vox + sox, voy + soy);
-
-    int rox = 100;
-    int roy = 0;
-
-    render_registers(VIDEO_SCREEN_WIDTH + vox + sox + rox, voy + roy);
-
-    int mox = 0;
-    int moy = 270;
-
-    render_memory(VIDEO_SCREEN_WIDTH + vox + sox + rox + mox, moy);
-
-    int doy = 20;
-    render_disassembled_code_with_pc_opcode_and_instructions(
-        vox, VIDEO_SCREEN_HEIGHT + voy + doy);
-
-    // special register stuff
-    int iox = 330;
-    render_index_and_special_registers(vox + iox,
-                                       VIDEO_SCREEN_HEIGHT + voy + doy);
-
-    int poy = 10;
-    render_debugger_params(vox + iox, VIDEO_SCREEN_HEIGHT + voy + doy + poy);
-
-    // help message
-    int hox = 0;
-    int hoy = 140;
-    DrawTextEx(fontTTF, "press [SPACE] to show debugger shortcuts",
-               {(float)vox + hox, (float)VIDEO_SCREEN_HEIGHT + voy + doy + hoy},
-               14, 0, DARKGRAY);
-
-    // render shortcuts
-    if (showControlsOverlay) {
-      render_controls_overlay();
-    }
-
-    EndDrawing();
-  }
-
-  void render_normal() {
-
-    BeginDrawing();
-
-    ClearBackground(BLACK);
-
-    float vox = 20;
-    float voy = 20;
-    render_video(vox, voy);
-
-    float hox = 0;
-    float hoy = 10;
-    DrawTextEx(fontTTF, "press [SPACE] to show emulator shortcuts",
-               {vox + hox, (float)VIDEO_SCREEN_HEIGHT + voy + hoy}, 14, 0,
-               DARKGRAY);
-
-    // render shortcuts
-    if (showControlsOverlay) {
-      render_controls_overlay();
-    }
-
-    EndDrawing();
-  }
-
   void render_controls_overlay() {
     float width = 300;
     float height = 140;
@@ -446,89 +542,6 @@ private:
     }
 
     DrawRectangleLinesBetter(rec, 1, DARKGRAY);
-  }
-
-public:
-  Emulator(Chip8 &cpu, EmulatorModes emulator_mode)
-      : cpu(cpu), mode(emulator_mode) {
-    // const int screenHeight = 800;
-    const char *title = "CHIP 8";
-
-    // ! RAYLIB SETUP
-    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT |
-                   FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_HIGHDPI);
-    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, title);
-    SetTargetFPS(60);
-
-    fontTTF = LoadFontEx("./fonts/scp-bold.ttf", 128, 0, 0);
-
-    InitAudioDevice();
-    beep = LoadSound("./sounds/sine.wav");
-
-    SetTextureFilter(fontTTF.texture, TEXTURE_FILTER_BILINEAR);
-
-    disassembled_rom = Disassembler::DecodeRomFromArrayAsVector(cpu.rom, false);
-
-    // ====== Mode-based properties ======
-
-    if (mode == EmulatorModes::Normal) {
-      VIDEO_SCREEN_WIDTH = WINDOW_WIDTH - 40;
-      cycles_per_frame = 15;
-    } else {
-      VIDEO_SCREEN_WIDTH = 600;
-      cycles_per_frame = 15;
-    }
-
-    VIDEO_X_COUNT = cpu.VIDEO_WIDTH;
-    VIDEO_Y_COUNT = cpu.VIDEO_HEIGHT;
-
-    VIDEO_GRID_SIZE = VIDEO_SCREEN_WIDTH / VIDEO_X_COUNT;
-    VIDEO_SCREEN_HEIGHT = VIDEO_GRID_SIZE * VIDEO_Y_COUNT;
-  }
-
-  void Run() {
-
-    auto last_timer_tick = Clock::now();
-
-    while (!WindowShouldClose()) {
-
-      handle_cpu_input();
-      handle_ui_input();
-
-      // ====== Cycles and Timers ======
-      if (!paused) {
-        for (int i = 0; i < cycles_per_frame; i += 1) {
-          cpu.Cycle();
-        }
-      }
-
-      // ====== Timer update at 60HZ ======
-      auto now = Clock::now();
-      auto elapsed = std::chrono::duration<float>(now - last_timer_tick);
-      if (elapsed.count() >= (1.0f / 60.0f)) {
-        cpu.UpdateTimers();
-        last_timer_tick = now;
-      }
-
-      // ====== Mode-based rendering ======
-      if (mode == EmulatorModes::Normal) {
-        render_normal();
-
-      } else {
-        DrawFPS(10, 10);
-        render_debug();
-      }
-
-      // ====== Sound ======
-      handle_sound();
-    }
-  }
-
-  ~Emulator() {
-    UnloadSound(beep);
-    UnloadFont(fontTTF);
-    CloseWindow();
-    CloseAudioDevice();
   }
 };
 
