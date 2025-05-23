@@ -40,6 +40,13 @@ void DrawRectangleLinesBetter(Rectangle rec, float thickness, Color c) {
   DrawRectangle(rec.x + rec.width - thickness, rec.y, thickness, rec.height, c);
 }
 
+std::string hex_to_string(size_t val, size_t width) {
+  std::ostringstream oss;
+  oss << "0x" << std::hex << std::setfill('0') << std::setw(width)
+      << size_t(val);
+  return oss.str();
+}
+
 enum class EmulatorModes { Normal, Debug };
 
 class Emulator {
@@ -227,28 +234,17 @@ private:
 
   void render_pc_opcode_instruction(float px, float py) {
 
-    float line_height = 25;
-
-    std::ostringstream oss;
+    const float line_height = 25;
 
     DrawTextEx(fontTTF, "PC", {px, py}, 20, 0, WHITE);
-    oss << "0x" << std::hex << std::setfill('0') << std::setw(4) << int(cpu.pc);
-    DrawTextEx(fontTTF, oss.str().c_str(), {px, py + line_height}, 20, 0,
-               WHITE);
-
-    oss.str("");
-    oss.clear();
+    DrawTextEx(fontTTF, hex_to_string(cpu.pc, 4).c_str(),
+               {px, py + line_height}, 20, 0, WHITE);
 
     px += 75;
 
     DrawTextEx(fontTTF, "OPCODE", {px, py}, 20, 0, WHITE);
-    oss << "0x" << std::hex << std::setfill('0') << std::setw(4)
-        << int(cpu.opcode);
-    DrawTextEx(fontTTF, oss.str().c_str(), {px, py + line_height}, 20, 0,
-               WHITE);
-
-    oss.str("");
-    oss.clear();
+    DrawTextEx(fontTTF, hex_to_string(cpu.opcode, 4).c_str(),
+               {px, py + line_height}, 20, 0, WHITE);
 
     px += 90;
 
@@ -295,6 +291,7 @@ private:
 
       DrawTextEx(fontTTF, std::to_string(cpu.pc - index).c_str(),
                  {px + 10, py + (i + 1) * line_height}, 20, 0, color);
+
       DrawTextEx(fontTTF, line.c_str(), {px + 60, py + (i + 1) * line_height},
                  20, 0, color);
     }
