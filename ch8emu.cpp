@@ -163,12 +163,9 @@ private:
     px += 10;
     py += 10;
 
-    // Draw the title
     DrawTextEx(fontTTF, "Registers", {(float)px, (float)py}, text_size, 0,
                WHITE);
 
-    // Starting point for registers
-    //
     int fy = py + line_height;
 
     for (int i = 0; i < 16; ++i) {
@@ -185,8 +182,8 @@ private:
                  WHITE);
     }
 
-    DrawRectangleLinesBetter(
-        {px - 10, py - 10, 207, (float)py + line_height * 8 + 7}, 1, GRAY);
+    DrawRectangleLinesBetter({px - 10, py - 10, 207, py + line_height * 8 + 7},
+                             1, GRAY);
   }
 
   void render_stack(float px, float py) {
