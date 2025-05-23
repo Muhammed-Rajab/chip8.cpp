@@ -500,14 +500,14 @@ public:
         for (int i = 0; i < cycles_per_frame; i += 1) {
           cpu.Cycle();
         }
+      }
 
-        // ====== Timer update at 60HZ ======
-        auto now = Clock::now();
-        auto elapsed = std::chrono::duration<float>(now - last_timer_tick);
-        if (elapsed.count() >= (1.0f / 60.0f)) {
-          cpu.UpdateTimers();
-          last_timer_tick = now;
-        }
+      // ====== Timer update at 60HZ ======
+      auto now = Clock::now();
+      auto elapsed = std::chrono::duration<float>(now - last_timer_tick);
+      if (elapsed.count() >= (1.0f / 60.0f)) {
+        cpu.UpdateTimers();
+        last_timer_tick = now;
       }
 
       // ====== Mode-based rendering ======
