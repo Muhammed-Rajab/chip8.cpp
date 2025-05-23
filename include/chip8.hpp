@@ -93,6 +93,7 @@ public:
   void Fetch();
   void DecodeAndExecute();
   void Cycle();
+  void UpdateTimers();
 
   // ====== Debugging ======
   bool RunTillHalt();

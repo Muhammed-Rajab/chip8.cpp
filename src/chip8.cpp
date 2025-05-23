@@ -154,16 +154,14 @@ void Chip8::Cycle() {
 
   // decode execute current opcode
   DecodeAndExecute();
+}
 
-  // update delay register
-  if (delay > 0) {
+void Chip8::UpdateTimers() {
+  if (delay > 0)
     delay -= 1;
-  }
 
-  // update sound register
-  if (sound > 0) {
+  if (sound > 0)
     sound -= 1;
-  }
 }
 
 bool Chip8::RunTillHalt() {
