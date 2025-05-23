@@ -54,9 +54,10 @@ private:
   // Chip8
   Chip8 &cpu;
 
-  EmulatorModes mode = EmulatorModes::Debug;
+  bool paused = false;
   int normal_cycles_per_frame = 12;
   int debug_cycles_per_frame = 1;
+  EmulatorModes mode = EmulatorModes::Debug;
 
   // video
   int VIDEO_SCREEN_WIDTH = {};
@@ -78,6 +79,9 @@ private:
   bool showControlsOverlay = false;
 
   void handle_ui_input() {
+    if (IsKeyPressed(KEY_SPACE)) {
+      showControlsOverlay = !showControlsOverlay;
+    }
 
     // NORMAL
     if (mode == EmulatorModes::Normal) {
@@ -85,8 +89,16 @@ private:
 
     // DEBUG
     if (mode == EmulatorModes::Debug) {
-      if (IsKeyPressed(KEY_SPACE)) {
-        showControlsOverlay = !showControlsOverlay;
+      if (IsKeyPressed(KEY_LEFT_BRACKET)) {
+        debug_cycles_per_frame -= 1;
+      } else if (IsKeyPressed(KEY_RIGHT_BRACKET)) {
+        debug_cycles_per_frame += 1;
+      } else if (IsKeyPressed(KEY_P)) {
+        paused = !paused;
+      } else if (IsKeyPressed(KEY_N) && paused) {
+        for (int i = 0; i < debug_cycles_per_frame; i += 1) {
+          cpu.Cycle();
+        }
       }
     }
   }
@@ -397,17 +409,22 @@ private:
 
     y += 20;
 
-    DrawTextEx(fontTTF, "[ : decrease cpu cycles per frame", {x, y}, 16, 0,
-               WHITE);
-    y += line_height;
-    DrawTextEx(fontTTF, "] : increase cpu cycles per frame", {x, y}, 16, 0,
-               WHITE);
-    y += line_height;
-    DrawTextEx(fontTTF, "p : pause cpu cycle", {x, y}, 16, 0, WHITE);
-    y += line_height;
-    DrawTextEx(fontTTF, "n : run next cycle (if paused)", {x, y}, 16, 0, WHITE);
-    y += line_height;
-    DrawTextEx(fontTTF, "ESC : quit", {x, y}, 16, 0, WHITE);
+    if (mode == EmulatorModes::Debug) {
+
+      DrawTextEx(fontTTF, "[ : decrease cpu cycles per frame", {x, y}, 16, 0,
+                 WHITE);
+      y += line_height;
+      DrawTextEx(fontTTF, "] : increase cpu cycles per frame", {x, y}, 16, 0,
+                 WHITE);
+      y += line_height;
+      DrawTextEx(fontTTF, "p : pause cpu cycle", {x, y}, 16, 0, WHITE);
+      y += line_height;
+      DrawTextEx(fontTTF, "n : run next cycle (if paused)", {x, y}, 16, 0,
+                 WHITE);
+      y += line_height;
+    } else if (mode == EmulatorModes::Normal) {
+      DrawTextEx(fontTTF, "ESC : quit", {x, y}, 16, 0, WHITE);
+    }
 
     DrawRectangleLinesBetter(rec, 1, DARKGRAY);
   }
@@ -454,16 +471,20 @@ public:
       // ====== Mode-based rendering ======
       if (mode == EmulatorModes::Normal) {
         render_normal();
-        for (int i = 0; i < normal_cycles_per_frame; i += 1) {
-          cpu.Cycle();
+
+        if (!paused) {
+          for (int i = 0; i < normal_cycles_per_frame; i += 1) {
+            cpu.Cycle();
+          }
         }
       } else {
         DrawFPS(10, 10);
         render_debug();
-        for (int i = 0; i < debug_cycles_per_frame; i += 1) {
-          cpu.Cycle();
+        if (!paused) {
+          for (int i = 0; i < debug_cycles_per_frame; i += 1) {
+            cpu.Cycle();
+          }
         }
-        cpu.Cycle();
       }
     }
   }
