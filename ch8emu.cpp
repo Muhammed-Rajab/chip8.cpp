@@ -194,6 +194,14 @@ private:
                              1, GRAY);
   }
 
+  void render_index_and_special_registers(float px, float py) {
+    const std::string str = "I: " + hex_to_string(cpu.index, 4) + " " +
+                            "DT: " + hex_to_string(cpu.delay, 2) + " " +
+                            "ST: " + hex_to_string(cpu.sound, 2);
+
+    DrawTextEx(fontTTF, str.c_str(), {px, py}, 20, 0, WHITE);
+  }
+
   void render_stack(float px, float py) {
 
     const int line_height = 25;
@@ -232,40 +240,19 @@ private:
                              1, GRAY);
   }
 
-  void render_pc_opcode_instruction(float px, float py) {
-
-    const float line_height = 25;
-
-    DrawTextEx(fontTTF, "PC", {px, py}, 20, 0, WHITE);
-    DrawTextEx(fontTTF, hex_to_string(cpu.pc, 4).c_str(),
-               {px, py + line_height}, 20, 0, WHITE);
-
-    px += 75;
-
-    DrawTextEx(fontTTF, "OPCODE", {px, py}, 20, 0, WHITE);
-    DrawTextEx(fontTTF, hex_to_string(cpu.opcode, 4).c_str(),
-               {px, py + line_height}, 20, 0, WHITE);
-
-    px += 90;
-
-    DrawTextEx(fontTTF, "INSTRUCTION", {px, py}, 20, 0, WHITE);
-    DrawTextEx(fontTTF, Disassembler::Decode(cpu.opcode).c_str(),
-               {px, py + line_height}, 20, 0, WHITE);
-  }
-
-  void render_index_and_special_registers(float px, float py) {
-    const std::string str = "I: " + hex_to_string(cpu.index, 4) + " " +
-                            "DT: " + hex_to_string(cpu.delay, 2) + " " +
-                            "ST: " + hex_to_string(cpu.sound, 2);
-
-    DrawTextEx(fontTTF, str.c_str(), {px, py}, 20, 0, WHITE);
-  }
-
   void render_disassembled_code(float px, float py) {
     const int line_height = 30;
     const int current_index = (cpu.pc - 0x200) / 2;
 
     py += 5;
+
+    DrawTextEx(fontTTF, "PC", {px + 10, py}, 20, 0, WHITE);
+
+    DrawTextEx(fontTTF, "OPCODE", {px + 70, py}, 20, 0, WHITE);
+
+    DrawTextEx(fontTTF, "INSTRUCTION", {px + 140, py}, 20, 0, WHITE);
+
+    py += line_height;
 
     // Display one before, current, one after
     for (int i = -1; i <= 1; ++i) {
@@ -291,7 +278,7 @@ private:
                  20, 0, color);
     }
 
-    DrawRectangleLinesBetter({px, py - 5, (float)VIDEO_SCREEN_WIDTH, 90}, 1,
+    DrawRectangleLinesBetter({px, py - (5 + line_height), (float)315, 130}, 1,
                              GRAY);
   }
 
@@ -320,19 +307,13 @@ private:
 
     render_memory(VIDEO_SCREEN_WIDTH + vox + sox + rox + mox, moy);
 
-    int poy = 20;
-    render_pc_opcode_instruction(vox, VIDEO_SCREEN_HEIGHT + voy + poy);
+    int doy = 20;
+    render_disassembled_code(vox, VIDEO_SCREEN_HEIGHT + voy + doy);
 
     // separator
-    int sepox = 315;
-    DrawRectangle(vox + sepox, VIDEO_SCREEN_HEIGHT + voy + poy, 1, 50, GRAY);
-
-    int iox = 15;
-    render_index_and_special_registers(vox + sepox + iox,
-                                       VIDEO_SCREEN_HEIGHT + voy + poy);
-
-    int doy = 60;
-    render_disassembled_code(vox, VIDEO_SCREEN_HEIGHT + voy + poy + doy);
+    int iox = 330;
+    render_index_and_special_registers(vox + iox,
+                                       VIDEO_SCREEN_HEIGHT + voy + doy);
 
     EndDrawing();
   }
