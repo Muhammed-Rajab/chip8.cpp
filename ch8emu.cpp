@@ -73,6 +73,7 @@ private:
   constexpr static int WINDOW_WIDTH = 955;
   constexpr static int WINDOW_HEIGHT = 500;
   Font fontTTF;
+  Sound beep;
 
   // disassembled code
   std::vector<std::string> disassembled_rom = {};
@@ -129,6 +130,12 @@ private:
 
     for (int i = 0; i < 16; i++) {
       cpu.keypad[i] = IsKeyDown(chip8_keymap[i]) ? 1 : 0;
+    }
+  }
+
+  void handle_sound() {
+    if (cpu.sound > 0 && !IsSoundPlaying(beep)) {
+      PlaySound(beep);
     }
   }
 
@@ -455,6 +462,9 @@ public:
 
     fontTTF = LoadFontEx("./fonts/scp-bold.ttf", 128, 0, 0);
 
+    InitAudioDevice();
+    beep = LoadSound("./sounds/sine.wav");
+
     SetTextureFilter(fontTTF.texture, TEXTURE_FILTER_BILINEAR);
 
     disassembled_rom = Disassembler::DecodeRomFromArrayAsVector(cpu.rom, false);
@@ -508,10 +518,18 @@ public:
         DrawFPS(10, 10);
         render_debug();
       }
+
+      // ====== Sound ======
+      handle_sound();
     }
   }
 
-  ~Emulator() { CloseWindow(); }
+  ~Emulator() {
+    UnloadSound(beep);
+    UnloadFont(fontTTF);
+    CloseWindow();
+    CloseAudioDevice();
+  }
 };
 
 int main(int argc, char *args[]) {
