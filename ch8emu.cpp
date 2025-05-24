@@ -401,7 +401,7 @@ private:
       render_normal();
 
     } else {
-      DrawFPS(10, 10);
+      // DrawFPS(10, 10);
       render_debug();
     }
   }
