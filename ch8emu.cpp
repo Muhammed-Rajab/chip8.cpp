@@ -286,9 +286,8 @@ private:
 
   // ====== Initializations ======
   void initialize_raylib() {
-    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT |
-                   FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_HIGHDPI);
-    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "");
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
+    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "ch8emu");
     SetTargetFPS(60);
 
     // fontTTF = LoadFontEx("./fonts/Fredoka-Bold.ttf", 128, 0, 0);
