@@ -30,27 +30,7 @@ add_executable(ch8emu
   src/disassembler/disassembler.cpp
 )
 
-# target_link_libraries(ch8emu PRIVATE
-#   ${CMAKE_SOURCE_DIR}/raylib/libraylib.a
-#   m
-#   dl
-#   pthread
-#   GL
-#   rt
-#   X11
-# )
-#
-
-
-# target_include_directories(ch8emu PRIVATE 
-#   include
-#   raylib/
-# )
-
 target_link_libraries(ch8emu PRIVATE raylib)
-
-
-
 
 # Extra libraries for Linux
 if(UNIX)
