@@ -13,7 +13,7 @@
 #include "./include/chip8.hpp"
 #include "./include/disassembler/disassembler.hpp"
 
-#include <raylib.h>
+#include "raylib.h"
 
 // ====== ROM Loader ======
 std::vector<uint8_t> LoadRomFromFile(const std::string &filename) {
